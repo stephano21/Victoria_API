@@ -1,5 +1,6 @@
 from .models import Hacienda, Proyecto, Lote, Estacion, Planta, Lectura
 from rest_framework import viewsets, permissions
+from rest_framework.response import Response
 from .serializers import HaciendaSerializers, ProyectoSerializers, LoteSerializers, EstacionSerializers, PlantaSerializers, LecturaSerializers
 
 
@@ -28,7 +29,7 @@ class ProyectoViewSet(viewsets.ModelViewSet):
         return queryset
 
     #filtrar por Id de hacienda
-    """ def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         hacienda_id = request.query_params.get('id')
         if hacienda_id:
             queryset = self.queryset.filter(Id_Hacienda_id=hacienda_id)
@@ -36,7 +37,7 @@ class ProyectoViewSet(viewsets.ModelViewSet):
             queryset = self.queryset.all()
 
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)  """
+        return Response(serializer.data)
 
 class LoteViewSet(viewsets.ModelViewSet):
     queryset = Lote.objects.all()

@@ -32,5 +32,10 @@ class LecturaSerializers(serializers.ModelSerializer):
         fields = ('id','E1','E2','E3','E4','E5','Id_Planta','Monilla', 'Phythptora','Colletotrichum', 'Corynespora', 'Lasodiplodia', 'Cherelles', 'Insectos','Animales','Observacion', 'Id_Planta')
 
 
+class ProyectoHaciendaSerializer(serializers.ModelSerializer):
+    # Define los campos que deseas mostrar en el resultado
+    class Meta:
+        model = Proyecto
+        fields = '__all__'
 
 
