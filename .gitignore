@@ -1,5 +1,5 @@
 api
-Hacienda/__pychache__*
-API_VICTORIA/__pychache__*
+/Hacienda/__pychache__*
+/API_VICTORIA/__pychache__*
 
 db.sqlite3
