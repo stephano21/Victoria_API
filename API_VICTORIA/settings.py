@@ -30,7 +30,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'PRODUCTION' not in os.environ
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 EXTERNAL_HOSTNAME = os.environ.get('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
