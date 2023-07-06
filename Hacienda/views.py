@@ -1,10 +1,9 @@
 from django.shortcuts import render
-from .models import Proyecto, Lote
+from .models import Proyecto, Lote,Estacion,Planta
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-import asyncio
-from .serializers import ProyectoHaciendaSerializer, LoteSerializers
+from .serializers import ProyectoHaciendaSerializer, LoteSerializers,EstacionSerializers, PlantaSerializers
 # Create your views here.
 class ProyectoHaciendaAPIView(APIView):
     def get(self, request, *args, **kwargs):
@@ -12,7 +11,7 @@ class ProyectoHaciendaAPIView(APIView):
         proyectos = Proyecto.objects.filter(Id_Hacienda_id=hacienda_id).select_related('Id_Hacienda', 'Id_Lote__Id_Estacion__Id_Planta')
         serializer = ProyectoHaciendaSerializer(proyectos, many=True)
         return Response(serializer.data)
-
+#lotes
 class LoteAPIView(APIView):
     # Código existente...
     def get(self, request,*args, **kwargs):
@@ -48,11 +47,103 @@ class LoteAPIView(APIView):
 
     def delete (self, request, id):
         lote = self.get_object(id)
-        serializer = LoteSerializers(lote, data=request.data, partial=True)
+        lote.Activo = False
+        lote.save()
+
+        serializer = LoteSerializers(lote)
+        return Response(serializer.data)
+
+#estaciones
+class EstacionAPIView(APIView):
+    # Código existente...
+    def get(self, request,*args, **kwargs):
+        id = self.kwargs.get('id')
+        if id: 
+            estaciones = Estacion.objects.filter(Id_Lote = id)
+            serializer = EstacionSerializers(estaciones, many=True)
+            return Response(serializer.data)
+
+        estaciones = Estacion.objects.all()
+        serializer = EstacionSerializers(estaciones, many=True)
+        return Response(serializer.data)
+    def post(self, request):
+        serializer = EstacionSerializers(data=request.data)
+        if serializer.is_valid():
+            nombre = serializer.validated_data['Nombre']
+            if Estacion.objects.filter(nombre=nombre).exists():
+                return Response({'error': f'El nombre: {nombre} ya está registrado.'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def patch(self, request, pk):
+        estacion = self.get_object(pk)
+        serializer = EstacionSerializers(estacion, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_object(self, pk):
+        try:
+            return Estacion.objects.get(pk=pk)
+        except Estacion.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
 
+    def delete (self, request, id):
+        estacion = self.get_object(id)
+        estacion.Activo = False
+        estacion.save()
+
+        serializer = EstacionSerializers(estacion)
+        return Response(serializer.data)
+
+#plantas
+class PlantaAPIView(APIView):
+    # Código existente...
+    def get(self, request,*args, **kwargs):
+        id = self.kwargs.get('id')
+        if id: 
+            plantas = Planta.objects.filter(Id_Estacion = id)
+            serializer = PlantaSerializers(plantas, many=True)
+            return Response(serializer.data)
+
+        plantas = Planta.objects.all()
+        serializer = PlantaSerializers(plantas, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = PlantaSerializers(data=request.data)
+        if serializer.is_valid():
+            nombre = serializer.validated_data['Nombre']
+            if Planta.objects.filter(nombre=nombre).exists():
+                return Response({'error': f'El nombre: {nombre} ya está registrado.'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+    def patch(self, request, pk):
+        planta = self.get_object(pk)
+        serializer = PlantaSerializers(planta, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self, pk):
+        try:
+            return Planta.objects.get(pk=pk)
+        except Planta.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+
+    def delete (self, request, id):
+        planta = self.get_object(id)
+        planta.Activo = False
+        planta.save()
+
+        serializer = PlantaSerializers(planta)
+        return Response(serializer.data)
     
