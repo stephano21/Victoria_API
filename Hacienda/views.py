@@ -3,7 +3,9 @@ from .models import Proyecto, Lote,Estacion,Planta
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ProyectoHaciendaSerializer, LoteSerializers,EstacionSerializers, PlantaSerializers
+from .serializers import ProyectoHaciendaSerializer, LoteSerializers,EstacionSerializers, PlantaSerializers,UserSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 # Create your views here.
 class ProyectoHaciendaAPIView(APIView):
     def get(self, request, *args, **kwargs):
@@ -147,3 +149,31 @@ class PlantaAPIView(APIView):
         serializer = PlantaSerializers(planta)
         return Response(serializer.data)
     
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        # Realiza la autenticación del usuario
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            # Genera los tokens de acceso y actualización
+            refresh = RefreshToken.for_user(user)
+            access_token = refresh.access_token
+
+            # Retorna los tokens en la respuesta
+            return Response({
+                'access_token': str(access_token),
+                'refresh_token': str(refresh),
+            })
+        else:
+            return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Usuario registrado correctamente'})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
