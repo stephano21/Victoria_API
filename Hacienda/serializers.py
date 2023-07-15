@@ -29,7 +29,7 @@ class PlantaSerializers(serializers.ModelSerializer):
 class LecturaSerializers(serializers.ModelSerializer):
     class Meta:
         model = Lectura
-        fields = ('id','E1','E2','E3','E4','E5','Id_Planta','Monilla', 'Phythptora','Colletotrichum', 'Corynespora', 'Lasodiplodia', 'Cherelles', 'Insectos','Animales','Observacion', 'Id_Planta', 'Activo')
+        fields = ('id','E1','E2','E3','E4','E5','Id_Planta','Monilla', 'Phythptora','Colletotrichum', 'Corynespora', 'Lasodiplodia', 'Cherelles', 'Insectos','Animales','Observacion', 'Id_Planta','FechaVisita', 'Activo')
 
 
 class ProyectoHaciendaSerializer(serializers.ModelSerializer):
