@@ -1,11 +1,18 @@
 from django.shortcuts import render
-from .models import Proyecto, Lote,Estacion,Planta
+from .models import Proyecto, Lote,Estacion,Planta,Usuarios
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import ProyectoHaciendaSerializer, LoteSerializers,EstacionSerializers, PlantaSerializers,UserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+
+
+
 # Create your views here.
 class ProyectoHaciendaAPIView(APIView):
     def get(self, request, *args, **kwargs):
@@ -14,7 +21,10 @@ class ProyectoHaciendaAPIView(APIView):
         serializer = ProyectoHaciendaSerializer(proyectos, many=True)
         return Response(serializer.data)
 #lotes
+
 class LoteAPIView(APIView):
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     # Código existente...
     def get(self, request,*args, **kwargs):
         id = self.kwargs.get('id')
@@ -155,9 +165,8 @@ class LoginView(APIView):
         password = request.data.get('password')
 
         # Realiza la autenticación del usuario
-        user = authenticate(username=username, password=password)
-
-        if user is not None:
+        user = Usuarios.objects.get(username=username)
+        if user.check_password(password):
             # Genera los tokens de acceso y actualización
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 import os
 import dj_database_url
@@ -60,6 +61,7 @@ MIDDLEWARE = [
 ]
 # Configuración de autenticación con JWT
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         # Otros métodos de autenticación, si los necesitas
@@ -69,6 +71,8 @@ REST_FRAMEWORK = {
 # Configuración de JWT
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
+    # custom time expiration token JWT
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
 }
 ROOT_URLCONF = 'API_VICTORIA.urls'
 
