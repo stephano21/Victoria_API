@@ -11,3 +11,8 @@ DATABASES = {
     }
 }
 </code>
+<p>Comando para actualizar requirements.txt</p>
+<code>
+pip freeze > requirements.txt
+
+</code>
