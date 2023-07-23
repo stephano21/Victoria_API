@@ -1,3 +1,4 @@
+from enum import Enum
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -42,8 +43,16 @@ class Lote(models.Model):
     Hectareas = models.IntegerField( null=True)
     Activo = models.BooleanField(default=True)
 
+class Poligono (models.Model):
+    IdLote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
+    FillColor = models.CharField(max_length=7)
 
-class Estacion(models.Model): 
+
+class GeoCoordenadas(models.Model):
+    IdPoligono = models.ForeignKey(Poligono, on_delete=models.CASCADE, null=True)
+    lat = models.DecimalField(max_digits=10, decimal_places=8, null=False)
+    lng = models.DecimalField(max_digits=11, decimal_places=8, null=False)
+""" class Estacion(models.Model): 
     Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True) 
     Codigo_Estacion = models.CharField(max_length=20) 
     Nombre = models.CharField(max_length=40)
@@ -54,17 +63,23 @@ class Planta(models.Model):
     Id_Estacion = models.ForeignKey(Estacion, on_delete=models.CASCADE, null=True) 
     Codigo_Planta = models.CharField(max_length=20) 
     Nombre = models.CharField(max_length=40) 
-    Activo = models.BooleanField(default=True)
+    Activo = models.BooleanField(default=True) """
 
-    
+class EnumMonilla(models.IntegerChoices):
+    Grado1 = 1
+    Grado2 = 2
+    Grado3 = 3
+    Grado4 = 4
+    Grado5 = 5   
+
 class Lectura(models.Model): 
-    Id_Planta = models.ForeignKey(Planta, on_delete=models.CASCADE, null=True) 
+    Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True) 
     E1 = models.IntegerField(default=0, blank=True, null=True)
     E2 = models.IntegerField(default=0, blank=True, null=True)
     E3 = models.IntegerField(default=0, blank=True, null=True)
     E4 = models.IntegerField(default=0, blank=True, null=True)
     E5 = models.IntegerField(default=0, blank=True, null=True)
-    Monilla = models.IntegerField(default=0, blank=True, null=True)
+    Monilla = models.IntegerField(choices=EnumMonilla.choices)
     Phythptora = models.IntegerField(default=0, blank=True, null=True)
     Colletotrichum = models.IntegerField(default=0, blank=True, null=True)
     Corynespora = models.IntegerField(default=0, blank=True, null=True)
@@ -76,4 +91,4 @@ class Lectura(models.Model):
     FechaVisita = models.DateField(null=True)
     Activo = models.BooleanField(default=True)
 
-    
+
