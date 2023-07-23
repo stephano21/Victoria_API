@@ -44,14 +44,16 @@ class Lote(models.Model):
     Activo = models.BooleanField(default=True)
 
 class Poligono (models.Model):
-    IdLote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
+    Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
     FillColor = models.CharField(max_length=7)
+    Activo = models.BooleanField(default=True)
 
 
 class GeoCoordenadas(models.Model):
-    IdPoligono = models.ForeignKey(Poligono, on_delete=models.CASCADE, null=True)
+    Id_Poligono = models.ForeignKey(Poligono, on_delete=models.CASCADE, null=True)
     lat = models.DecimalField(max_digits=10, decimal_places=8, null=False)
     lng = models.DecimalField(max_digits=11, decimal_places=8, null=False)
+    Activo = models.BooleanField(default=True)
 """ class Estacion(models.Model): 
     Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True) 
     Codigo_Estacion = models.CharField(max_length=20) 
