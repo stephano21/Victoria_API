@@ -3,5 +3,5 @@ api
 /Hacienda/view/__pycache__*
 /Hacienda/serializer/__pycache__*
 /API_VICTORIA/__pycache__*
-
 db.sqlite3
+.env

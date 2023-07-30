@@ -14,7 +14,7 @@ from datetime import timedelta
 from pathlib import Path
 import os
 import dj_database_url
-
+from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -100,18 +100,18 @@ WSGI_APPLICATION = 'API_VICTORIA.wsgi.application'
 
 DATABASES = {
     'default': {
-        # MySQL engine. Powered by the mysqlclient module.
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'hacienda_victoria',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': config('DATABASE_ENGINE'),
+        'NAME': config('DATABASE_NAME'),
+        'USER': config('DATABASE_USER'),
+        'PASSWORD': config('DATABASE_PASSWORD'),
+        'HOST': config('DATABASE_HOST'),
+        'PORT': config('DATABASE_PORT', default=''),
         'OPTIONS': {
             'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
         },
     }
 }
+
 if 'DATABASE_URL' in os.environ:
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600, ssl_require=True)
