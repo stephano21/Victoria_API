@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from .serializer.HaciendaSerializer import HaciendaSerializers
-from .serializer.LecturaSerializer import LecturaSerializers
-from .serializer.LoteSerializer import LoteSerializers
-from .serializer.ProyectoHaciendaSerializer import ProyectoHaciendaSerializer
-from .serializer.UserSerializer import UserSerializer
-from .serializer.ProyectoSerializer import ProyectoSerializers
-from .serializer.PoligonoSerializer import PoligonoSerializers
-from .serializer.GeoCoordenadasSerializer import GeoCoordenadasSerializers
+from Hacienda.serializer.HaciendaSerializer import HaciendaSerializers
+from Hacienda.serializer.LecturaSerializer import LecturaSerializers
+from Hacienda.serializer.LoteSerializer import LoteSerializers
+from Hacienda.serializer.ProyectoHaciendaSerializer import ProyectoHaciendaSerializer
+from Hacienda.serializer.ProyectoSerializer import ProyectoSerializers
+from Hacienda.serializer.PoligonoSerializer import PoligonoSerializers
+from Hacienda.serializer.GeoCoordenadasSerializer import GeoCoordenadasSerializers
 

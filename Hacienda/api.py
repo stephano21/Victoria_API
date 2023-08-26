@@ -17,7 +17,6 @@ class HaciendaViewSet(viewsets.ModelViewSet):
 
 
 class ProyectoViewSet(viewsets.ModelViewSet):
-    print("aqui")
     queryset = Proyecto.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = ProyectoSerializers

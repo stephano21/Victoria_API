@@ -1,26 +1,7 @@
 from enum import Enum
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
-class Usuarios(AbstractUser):
-    # Campos adicionales, si los necesitas
-    # Por ejemplo:
-    cedula = models.CharField(max_length=10) 
-    # fecha_nacimiento = models.DateField(blank=True, null=True)
-
-    # Campos heredados de AbstractUser:
-    # username
-    # password
-    # first_name
-    # last_name
-    # email
-    # ...
-    # Agrega el atributo related_name a los campos de relación
-    groups = models.ManyToManyField('auth.Group', related_name='customuser_set', blank=True)
-    user_permissions = models.ManyToManyField('auth.Permission', related_name='customuser_set', blank=True)
-    def __str__(self):
-        return self.username
 class Hacienda(models.Model): 
     codigo = models.CharField(max_length=10) 
     Nombre = models.CharField(max_length=40)

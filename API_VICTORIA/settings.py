@@ -45,9 +45,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Hacienda',
     'rest_framework',
     'rest_framework_simplejwt',
+    'Hacienda',
+    'Users',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -72,10 +74,34 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     # custom time expiration token JWT
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=15),
 }
 ROOT_URLCONF = 'API_VICTORIA.urls'
+"""SWAGGER SETTINGS"""
+SWAGGER_SETTINGS = {
+    # ...
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header using the Bearer scheme'
+        }
+    },
+    'VALIDATOR_URL': 'https://validator.swagger.io/validator',
+    'OPERATIONS_SORTER': 'alpha',
+    'JSON_EDITOR': True,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_INFO': 'myapp.api_info',  # Ajusta esto con tu propia información
 
+    # ...
+}
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -154,7 +180,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-ec'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Guayaquil'
 
 USE_I18N = True
 
