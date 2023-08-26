@@ -14,5 +14,8 @@ DATABASES = {
 <p>Comando para actualizar requirements.txt</p>
 <code>
 pip freeze > requirements.txt
-
+</code>
+<p>Comando para instalar</p>
+<code>
+pip install -r requirements.txt
 </code>

@@ -134,6 +134,7 @@ DATABASES = {
         'PORT': config('DATABASE_PORT', default=''),
         'OPTIONS': {
             'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
+            'sql_mode': 'STRICT_TRANS_TABLES',
         },
     }
 }
