@@ -38,7 +38,9 @@ class GeoLotesView(APIView):
                 geocoordenadas, many=True).data
             # Obtener el nombre del lote correspondiente usando la relación ForeignKey
             nombre_lote = poligono.Id_Lote.Nombre if poligono.Id_Lote else None
+            codigo_lote = poligono.Id_Lote.Codigo_Lote if poligono.Id_Lote else None
             poligono_data['Lote'] = nombre_lote
+            poligono_data['CodigoLote'] = codigo_lote
             poligono_data['geocoordenadas'] = geocoordenadas_data
             result.append(poligono_data)
 
