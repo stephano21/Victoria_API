@@ -139,8 +139,9 @@ DATABASES = {
         },
     }
 }
-
-if config('DATABASE_URL'):
+DATABASE_URL=config('DATABASE_URL')
+print(DATABASE_URL)
+if DATABASE_URL!="":
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600, ssl_require=True)
 
