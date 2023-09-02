@@ -9,7 +9,6 @@ drf-yasg==1.21.7
 gunicorn==20.1.0
 inflection==0.5.1
 mysql-connector-python==8.1.0
-mysqlclient==2.1.1
 packaging==23.1
 protobuf==4.21.12
 pycodestyle==2.10.0
