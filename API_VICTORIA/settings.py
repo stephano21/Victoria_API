@@ -25,13 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY', default='django-insecure-3m&6yr9)y#8s%%*jb@+p#hy57g^8x@j-fyyv)+dh)86*2-wve=')
+SECRET_KEY = config('SECRET_KEY')
 
-print(SECRET_KEY)
+print(config('DATABASE_ENGINE'))
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'PRODUCTION' not in os.environ
-print(DEBUG)
+DEBUG = config('PRODUCTION')
+
 
 ALLOWED_HOSTS = ["*"]
 
@@ -140,24 +139,7 @@ DATABASES = {
         },
     }
 }
-
-if 'DATABASE_URL' in os.environ:
-    DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600, ssl_require=True)
-
-""" if DEBUG and 'DATABASE_URL' not in os.environ:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'hacienda_victoria',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
-        },
-    } """
-
+print(DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
