@@ -9,7 +9,6 @@ gunicorn==20.1.0
 inflection==0.5.1
 mysql==0.0.3
 mysql-connector-python==8.1.0
-mysqlclient==2.2.0
 packaging==23.1
 protobuf==4.21.12
 psycopg2-binary==2.9.7
