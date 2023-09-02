@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('PRODUCTION')
+DEBUG = config('DEBUG')=="True"
 
 
 ALLOWED_HOSTS = ["*"]
@@ -37,8 +37,6 @@ EXTERNAL_HOSTNAME = config('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(EXTERNAL_HOSTNAME)
 # Application definition
-print(ALLOWED_HOSTS)
-print(DEBUG)
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -124,7 +122,13 @@ WSGI_APPLICATION = 'API_VICTORIA.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+print("\n"*5)
+print("-"*100)
+Mode="Debugg" if DEBUG == True else "Production"
+print(f"Info runing\nRuning server on mode:{Mode}")
+print("-"*100)
+print("\n"*5)
+DATABASES={}
 if DEBUG:
     DATABASES = {
         'default': {
@@ -140,13 +144,12 @@ if DEBUG:
             },
         }
     }
+
 DATABASE_URL=config('DATABASE_URL')
 if DATABASE_URL and not DEBUG:
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600, ssl_require=True)
-
-
-
+print(DATABASES)
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
