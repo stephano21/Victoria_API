@@ -27,7 +27,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 
-print(config('DATABASE_ENGINE'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('PRODUCTION')
 
@@ -38,7 +37,8 @@ EXTERNAL_HOSTNAME = config('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(EXTERNAL_HOSTNAME)
 # Application definition
-
+print(ALLOWED_HOSTS)
+print(DEBUG)
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -140,12 +140,10 @@ DATABASES = {
     }
 }
 DATABASE_URL=config('DATABASE_URL')
-print(DATABASE_URL)
 if DATABASE_URL!="":
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600, ssl_require=True)
 
-print(DATABASES)
 
 
 # Password validation
