@@ -125,22 +125,23 @@ WSGI_APPLICATION = 'API_VICTORIA.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': config('DATABASE_ENGINE'),
-        'NAME': config('DATABASE_NAME'),
-        'USER': config('DATABASE_USER'),
-        'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': config('DATABASE_HOST'),
-        'PORT': config('DATABASE_PORT', default=''),
-        'OPTIONS': {
-            'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
-            'sql_mode': 'STRICT_TRANS_TABLES',
-        },
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': config('DATABASE_ENGINE'),
+            'NAME': config('DATABASE_NAME'),
+            'USER': config('DATABASE_USER'),
+            'PASSWORD': config('DATABASE_PASSWORD'),
+            'HOST': config('DATABASE_HOST'),
+            'PORT': config('DATABASE_PORT', default=''),
+            'OPTIONS': {
+                'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
+                'sql_mode': 'STRICT_TRANS_TABLES',
+            },
+        }
     }
-}
 DATABASE_URL=config('DATABASE_URL')
-if DATABASE_URL!="":
+if DATABASE_URL and not DEBUG:
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600, ssl_require=True)
 
