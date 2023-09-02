@@ -5,3 +5,9 @@ class GeoCoordenadasSerializers(serializers.ModelSerializer):
     class Meta:
         model = GeoCoordenadas
         fields = ('id','Id_Poligono','lat','lng','Activo')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['lat'] = float(representation['lat'])
+        representation['lng'] = float(representation['lng'])
+        return representation
