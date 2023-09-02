@@ -35,7 +35,7 @@ class LoginView(APIView):
             # Intenta obtener el usuario basado en el nombre de usuario
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response('Credenciales inválidas', status=status.HTTP_401_UNAUTHORIZED)
 
         if user.check_password(password):
             # Genera los tokens de acceso y actualización
@@ -48,5 +48,5 @@ class LoginView(APIView):
                 'refresh_token': str(refresh),
             })
         else:
-            return Response({'error': 'Credenciales inválidas'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response('Credenciales inválidas', status=status.HTTP_401_UNAUTHORIZED)
  
