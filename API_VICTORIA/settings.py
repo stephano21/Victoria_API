@@ -28,8 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get(
     'SECRET_KEY', default='django-insecure-3m&6yr9)y#8s%%*jb@+p#hy57g^8x@j-fyyv)+dh)86*2-wve=')
 
+print(SECRET_KEY)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'PRODUCTION' not in os.environ
+print(DEBUG)
 
 ALLOWED_HOSTS = ["*"]
 
@@ -143,7 +145,7 @@ if 'DATABASE_URL' in os.environ:
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600, ssl_require=True)
 
-if DEBUG and 'DATABASE_URL' not in os.environ:
+""" if DEBUG and 'DATABASE_URL' not in os.environ:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'hacienda_victoria',
@@ -154,7 +156,7 @@ if DEBUG and 'DATABASE_URL' not in os.environ:
         'OPTIONS': {
             'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
         },
-    }
+    } """
 
 
 # Password validation
