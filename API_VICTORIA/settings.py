@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG')=="True"
+DEBUG = config('DEBUG') == "True"
 
 
 ALLOWED_HOSTS = ["*"]
@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 # Configuración de autenticación con JWT
 REST_FRAMEWORK = {
@@ -124,11 +125,11 @@ WSGI_APPLICATION = 'API_VICTORIA.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 print("\n"*5)
 print("-"*100)
-Mode="Debugg" if DEBUG == True else "Production"
+Mode = "Debugg" if DEBUG == True else "Production"
 print(f"Info runing\nRuning server on mode:{Mode}")
 print("-"*100)
 print("\n"*5)
-DATABASES={}
+DATABASES = {}
 if DEBUG:
     DATABASES = {
         'default': {
@@ -145,7 +146,7 @@ if DEBUG:
         }
     }
 
-DATABASE_URL=config('DATABASE_URL')
+DATABASE_URL = config('DATABASE_URL')
 if DATABASE_URL and not DEBUG:
     DATABASES['default'] = dj_database_url.config(
         conn_max_age=600, ssl_require=True)
@@ -190,3 +191,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Ruta a tus archivos estáticos (donde se encuentran los archivos CSS, JavaScript, imágenes, etc.)
+STATIC_URL = '/static/'
+
+# Directorio donde se encuentran tus archivos estáticos (debes ajustar esto según la estructura de tu proyecto)
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# Almacenamiento de archivos estáticos utilizando WhiteNoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+

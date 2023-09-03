@@ -1,3 +1,4 @@
 services:
   - name: web
     command: gunicorn API_VICTORIA:app
+staticBuildDir: ./static
