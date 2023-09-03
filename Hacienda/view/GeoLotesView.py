@@ -79,15 +79,8 @@ class GeoLotesView(APIView):
         # Verificar si ya existe un polígono registrado para el lote
         lote_id = request.data.get('poligono', {}).get('Id_Lote')
         
-        if Poligono.objects.filter(Id_Lote=lote_id).exists():
-            message = "Operación fallida."
-            detail = "Ya existe un polígono registrado para este lote."
-            success = False
-            # Crear el objeto ResponseApi
-            response_data = ResponseApi(
-            message=message, detail=detail, success=success)
-            return Response(response_data.__dict__, status=status.HTTP_400_BAD_REQUEST)
-            #return Response({"message": "Ya existe un polígono registrado para este lote."}, status=status.HTTP_400_BAD_REQUEST)
+        if Poligono.objects.filter(Id_Lote=lote_id).exists():           
+            return Response("Ya existe un polígono registrado para este lote.", status=status.HTTP_400_BAD_REQUEST)
 
         poligono_serializer = PoligonoSerializers(
             data=request.data.get('poligono', {}))
@@ -107,13 +100,5 @@ class GeoLotesView(APIView):
         for serializer in geocoordenadas_serializers:
             serializer.save(Id_Poligono=poligono)
 
-        message = "Operación exitosa."
-        detail = "Poligono y Geocoordenadas creados correctamente."
-        success = True
-
-        # Crear el objeto ResponseApi
-        response_data = ResponseApi(
-            message=message, detail=detail, success=success)
-
-        # Enviar la respuesta
+            # Enviar la respuesta
         return Response(request.data, status=status.HTTP_201_CREATED)

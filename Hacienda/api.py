@@ -1,7 +1,6 @@
-from .models import Hacienda, Proyecto, Lote, Lectura
+from .models import Hacienda, Proyecto, Lectura
 from rest_framework import viewsets, permissions
-from rest_framework.response import Response
-from .serializers import HaciendaSerializers, ProyectoSerializers, LoteSerializers, LecturaSerializers
+from .serializers import HaciendaSerializers, ProyectoSerializers, LecturaSerializers
 
 
 class HaciendaViewSet(viewsets.ModelViewSet):
@@ -28,17 +27,6 @@ class ProyectoViewSet(viewsets.ModelViewSet):
         if codigo_proyecto:
             queryset = queryset.filter(Id_Hacienda=codigo_proyecto)
         return queryset
-
-
-""" class EstacionViewSet(viewsets.ModelViewSet):
-    queryset = Estacion.objects.all()
-    permission_classes = [permissions.AllowAny]
-    serializer_class = EstacionSerializers """
-""" 
-class PlantaViewSet(viewsets.ModelViewSet):
-    queryset = Planta.objects.all()
-    permission_classes = [permissions.AllowAny]
-    serializer_class = PlantaSerializers """
 
 class LecturaViewSet(viewsets.ModelViewSet):
     queryset = Lectura.objects.all()

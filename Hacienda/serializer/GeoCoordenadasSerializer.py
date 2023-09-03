@@ -4,7 +4,7 @@ from ..models import GeoCoordenadas
 class GeoCoordenadasSerializers(serializers.ModelSerializer):
     class Meta:
         model = GeoCoordenadas
-        fields = ('id','Id_Poligono','lat','lng','Activo')
+        fields = ('__all__')
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
