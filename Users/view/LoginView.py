@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
+
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -35,7 +36,7 @@ class LoginView(APIView):
             # Intenta obtener el usuario basado en el nombre de usuario
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response('Credenciales inválidas', status=status.HTTP_401_UNAUTHORIZED)
+            return Response('Usuario no registrado', status=status.HTTP_404_NOT_FOUND)
 
         if user.check_password(password):
             # Genera los tokens de acceso y actualización

@@ -64,6 +64,7 @@ MIDDLEWARE = [
 # Configuración de autenticación con JWT
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         # Otros métodos de autenticación, si los necesitas
@@ -139,10 +140,10 @@ if DEBUG:
             'PASSWORD': config('DATABASE_PASSWORD'),
             'HOST': config('DATABASE_HOST'),
             'PORT': config('DATABASE_PORT', default=''),
-            'OPTIONS': {
-                'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
-                'sql_mode': 'STRICT_TRANS_TABLES',
-            },
+            #'OPTIONS': {
+                #'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
+                #'sql_mode': 'STRICT_TRANS_TABLES',
+            #},
         }
     }
 

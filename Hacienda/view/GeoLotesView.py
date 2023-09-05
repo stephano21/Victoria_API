@@ -15,25 +15,20 @@ from drf_yasg import openapi
 class GeoLotesView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    """ @swagger_auto_schema(
-        method='get',
-        operation_description="Custom description for GET request",
-        responses={200: "Successful response"}
-    ) """
 
     def get(self, request):
         lote_id = request.query_params.get('lote_id')
 
         if lote_id:
-            poligonos = Poligono.objects.filter(lote__id=lote_id)
+            poligonos = Poligono.objects.filter(lote__id=lote_id, Activo=True)
         else:
-            poligonos = Poligono.objects.all()
+            poligonos = Poligono.objects.filter(Activo=True)
 
         result = []
         for poligono in poligonos:
             poligono_data = PoligonoSerializers(poligono).data
             geocoordenadas = GeoCoordenadas.objects.filter(
-                Id_Poligono=poligono.id)
+                Id_Poligono=poligono.id, Activo =True)
             geocoordenadas_data = GeoCoordenadasSerializers(
                 geocoordenadas, many=True).data
             # Obtener el nombre del lote correspondiente usando la relación ForeignKey
@@ -77,13 +72,13 @@ class GeoLotesView(APIView):
     )
     def post(self, request):
         # Verificar si ya existe un polígono registrado para el lote
-        lote_id = request.data.get('poligono', {}).get('Id_Lote')
+        lote_id = request.data.get('Id_Lote')
         
-        if Poligono.objects.filter(Id_Lote=lote_id).exists():           
+        if Poligono.objects.filter(Id_Lote=lote_id, Activo=True).exists():          
             return Response("Ya existe un polígono registrado para este lote.", status=status.HTTP_400_BAD_REQUEST)
 
         poligono_serializer = PoligonoSerializers(
-            data=request.data.get('poligono', {}))
+            data=request.data)
         if not poligono_serializer.is_valid():
             return Response(poligono_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -96,9 +91,53 @@ class GeoLotesView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         poligono = poligono_serializer.save()
-
+        print(poligono.id)
         for serializer in geocoordenadas_serializers:
-            serializer.save(Id_Poligono=poligono)
+            print(serializer)
+            #print(serializer.validated_data['Id_Poligono'])
+            serializer.validated_data['Id_Poligono'] = poligono
+            serializer.save()
 
             # Enviar la respuesta
         return Response(request.data, status=status.HTTP_201_CREATED)
+    
+    @swagger_auto_schema(
+        manual_parameters=[  # Define el parámetro manualmente
+            openapi.Parameter('id', openapi.IN_PATH, description="ID del polígono a eliminar", type=openapi.TYPE_INTEGER),
+        ],
+        responses={
+            200: "El polígono y sus geocoordenadas han sido eliminados con éxito.",
+            404: "El polígono no existe.",
+        }
+    )
+    def delete(self, request, id):
+        """
+        Elimina un polígono y sus geocoordenadas.
+
+        Esta vista elimina un polígono identificado por su ID y también marca como
+        inactivas todas las geocoordenadas asociadas a ese polígono.
+
+        Args:
+            request (HttpRequest): La solicitud HTTP DELETE.
+            id (int): El ID del polígono a eliminar.
+
+        Returns:
+            Response: Un objeto de respuesta con un mensaje de éxito o error.
+        """
+        try:
+            poligono = Poligono.objects.filter(pk=id, Activo=True)
+            print(poligono)
+            if not poligono: return Response("El polígono no existe.", status=status.HTTP_404_NOT_FOUND)
+        except Poligono.DoesNotExist:
+            return Response("El polígono no existe.", status=status.HTTP_404_NOT_FOUND)
+
+        # Actualizar el campo "activo" del polígono y sus geocoordenadas
+        poligono.Activo = False
+        poligono.save()
+
+        geocoordenadas = GeoCoordenadas.objects.filter(Id_Poligono=poligono)
+        for geocoordenada in geocoordenadas:
+            geocoordenada.Activo = False
+            geocoordenada.save()
+
+        return Response("El polígono y sus geocoordenadas han sido eliminados con éxito.", status=status.HTTP_200_OK)

@@ -11,10 +11,7 @@ urlpatterns = [
     # Otras rutas de la aplicación Hacienda
     path('api/lotes/', LoteAPIView.as_view(), name='lotes'),
     path('api/lotes/<int:id>/', LoteAPIView.as_view(), name='lotes'),
-    path('api/lotes/details/<int:id>/', LoteAPIView.as_view(), name='lotes'),
-    #path('api/login/', LoginView.as_view(), name='login'),
-    #path('api/register/', RegisterView.as_view(), name='register'),
     path('api/geolotes/', GeoLotesView.as_view(), name='geolotes'),
-    #path('api/geolotes/<int:id>/', GeoLotesView.as_view(), name='geolotes'),
+    path('api/geolotes/<int:id>/', GeoLotesView.as_view(), name='geolotes'),
 ]
 urlpatterns += router.urls
