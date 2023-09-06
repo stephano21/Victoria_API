@@ -27,6 +27,13 @@ pip install -r requirements.txt
 </code>
 
 # TIPS FOR DIPLOYMENT WITH RALYWAY
+## Back ups en postgresql CLI
+<code>
+pg_dump -d DBname -f "/your/path/directory/file.sql"
+
+pg_dump --data-only -d DBname -f "/your/path/directory/file.sql"
+</code>
+
 ## Conexion a base de datos mysql (XAMPP) local
 **En linux**
 ve al directorio
