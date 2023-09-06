@@ -25,7 +25,6 @@ class ProyectoViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         codigo_proyecto = self.request.query_params.get('id')
-        print(f"luego aqui: {codigo_proyecto}")
         if codigo_proyecto:
             queryset = queryset.filter(Id_Hacienda=codigo_proyecto)
         return queryset
