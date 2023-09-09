@@ -16,14 +16,33 @@ class RegisterView(APIView):
             },
             required=["username", "password"],
             example={
-                "username": "your_username",
-                "password": "your_password"
+                "cedula":"number",
+                "username": "string",
+                "email":"email",
+                "first_name":"string",
+                "last_name":"string",
+                "password":"string",
             }
         ),
         responses={200: "OK"}   
     )
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+         # Extrae los datos del perfil de la solicitud
+        perfil_data = {
+            'cedula': request.data.get('cedula', ''),
+        }
+        
+        # Crea un serializer de usuario pasando los datos del perfil en el contexto
+        serializer_data = {
+            'username': request.data.get('username', ''),
+            'password': request.data.get('password', ''),
+            'email': request.data.get('email', ''),
+            'first_name': request.data.get('first_name', ''),
+            'last_name': request.data.get('last_name', ''),
+        }
+        
+        serializer = UserSerializer(data=serializer_data, context={'perfil_data': perfil_data})
+        
         if serializer.is_valid():
             serializer.save()
             return Response("Usuario registrado correctamente")

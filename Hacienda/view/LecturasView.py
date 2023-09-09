@@ -23,7 +23,7 @@ class LecturaAPIView(APIView):
         return Response(serializer.data)
     def post(self, request):
         username = request.user.username
-        print(username)
+        #print(username)
         request.data['username'] = username
         serializer = LecturaSerializers(data=request.data)
         serializer

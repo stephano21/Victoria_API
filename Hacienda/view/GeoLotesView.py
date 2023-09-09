@@ -91,10 +91,7 @@ class GeoLotesView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         poligono = poligono_serializer.save()
-        print(poligono.id)
         for serializer in geocoordenadas_serializers:
-            print(serializer)
-            #print(serializer.validated_data['Id_Poligono'])
             serializer.validated_data['Id_Poligono'] = poligono
             serializer.save()
 
