@@ -6,14 +6,23 @@ from Hacienda.serializers import LecturaSerializers
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
-
+#http
+from django.http import Http404
+#Import custom validators
+from Hacienda.validators.ValidatorHelper import ValidateLectura
 class LecturaAPIView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
     # Código existente...
     def get(self, request,*args, **kwargs):
+        # Obteniendo el nombre de usuario del payload del token
+        user = request.user
+        username = user.username
+        
         id = self.kwargs.get('id')
-        if id: 
+       
+        print(username)
+        if id:
             lecturas = Lectura.objects.filter(Id_Lectura = id)
             serializer = LecturaSerializers(lecturas, many=True)
             return Response(serializer.data)
@@ -22,13 +31,20 @@ class LecturaAPIView(APIView):
         serializer = LecturaSerializers(lecturas, many=True)
         return Response(serializer.data)
     def post(self, request):
-        username = request.user.username
-        #print(username)
-        request.data['username'] = username
+        
+        validate = ValidateLectura(request.data)
+        if validate !="":
+            return Response(validate, status=status.HTTP_400_BAD_REQUEST)
+        user = request.user
+        username = user.username
+        request.data["Usuario"]=username
+        # Crear un serializador para los datos de la solicitud
         serializer = LecturaSerializers(data=request.data)
-        serializer
+        #print(serializer)
+        # Esta línea no hace nada y se puede eliminar
+        print(serializer.is_valid())
         if serializer.is_valid():
-            serializer.save()
+            #serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -37,7 +53,7 @@ class LecturaAPIView(APIView):
         try:
             return Lectura.objects.get(pk=pk)
         except Lectura.DoesNotExist:
-            raise status.HTTP_404_NOT_FOUND
+            raise Http404
 
     def delete (self, request, id):
         lectura = self.get_object(id)

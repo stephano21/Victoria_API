@@ -1,12 +1,11 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ..models import Poligono, GeoCoordenadas, Lote
-from ..serializers import PoligonoSerializers, GeoCoordenadasSerializers
+from Hacienda.models import Poligono, GeoCoordenadas, Lote
+from Hacienda.serializers import PoligonoSerializers, GeoCoordenadasSerializers
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
-from ..interfaces.ResponseApi import ResponseApi
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi

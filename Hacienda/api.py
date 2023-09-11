@@ -29,9 +29,9 @@ class ProyectoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(Id_Hacienda=codigo_proyecto)
         return queryset
 
-class LecturaViewSet(viewsets.ModelViewSet):
+""" class LecturaViewSet(viewsets.ModelViewSet):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
     
     serializer_class = LecturaSerializers
-    queryset = Lectura.objects.all()
+    queryset = Lectura.objects.all() """

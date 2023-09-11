@@ -31,7 +31,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG') == "True"
 
 
-ALLOWED_HOSTS = ['victoria-api.up.railway.app']
+ALLOWED_HOSTS = ['victoria-api.up.railway.app','127.0.0.1']
 CSRF_COOKIE_DOMAIN = 'victoria-api.up.railway.app'
 EXTERNAL_HOSTNAME = False  #config('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'Hacienda',
     'Users',
+    'Clima',
     'drf_yasg',
 ]
 
@@ -125,12 +126,12 @@ WSGI_APPLICATION = 'API_VICTORIA.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-print("\n"*5)
+print("\n"*1)
 print("-"*100)
 Mode = "Debugg" if DEBUG == True else "Production"
 print(f"Info runing\nRuning server on mode:{Mode}")
 print("-"*100)
-print("\n"*5)
+print("\n"*1)
 DATABASES = {}
 if DEBUG:
     DATABASES = {
