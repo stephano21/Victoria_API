@@ -1,7 +1,10 @@
 api
 /Hacienda/__pycache__*
+/Clima/__pycache__*
+*__pycache__*
 /Hacienda/view/__pycache__*
 /Hacienda/serializer/__pycache__*
 /API_VICTORIA/__pycache__*
 db.sqlite3
 .env
+*.pyc
