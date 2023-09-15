@@ -6,4 +6,5 @@ from Hacienda.serializer.ProyectoHaciendaSerializer import ProyectoHaciendaSeria
 from Hacienda.serializer.ProyectoSerializer import ProyectoSerializers
 from Hacienda.serializer.PoligonoSerializer import PoligonoSerializers
 from Hacienda.serializer.GeoCoordenadasSerializer import GeoCoordenadasSerializers
+from Hacienda.serializer.PlantaSerializer import PlantaSerializers
 

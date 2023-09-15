@@ -30,16 +30,17 @@ def Login():
 
 def Current_Date():
     try:
-        return Daily_Indicadores.objects.latest('Date')
+        latest_date = Daily_Indicadores.objects.latest('Date').Date
+        return datetime.combine(latest_date, datetime.min.time())
     except Exception as e:
-        return str(e)
+        return None
 
 def Current_Data():
     try:
         ultimo_registro = Current_Date()
         fecha_actual = datetime.now()
-        if ultimo_registro is not None and ultimo_registro.Date is not None:
-            if ultimo_registro.Date.date() == fecha_actual.date():
+        if ultimo_registro is not None and ultimo_registro is not None:
+            if ultimo_registro.date() == fecha_actual.date():
                 return True
         return False
     except Exception as e:
@@ -58,19 +59,28 @@ def Format_Local_Date(fecha_utc):
     return fecha_guayaquil
 
 
-def GetData(token,start_time=None):
+def GetData(token, start_time=None):
     # Crear la URL dinámicamente
     device = config('ARABLE_DEVICE')
     temp = config('ARABLE_TEMP')
-    end_time = datetime.now()
+    end_time = datetime.now().date() #"2023-09-11"
     
-    params = f"?device={device}&end_time{end_time}&temp={temp}"
+    params = f"?device={device}&end_time={end_time}&temp={temp}"
     url = config('ARABLE_DATA')
-    if not isinstance(url, str) and not isinstance(device,str) and not isinstance(temp,str):
+    if not isinstance(url, str) and not isinstance(device, str) and not isinstance(temp, str):
         raise ValueError("La url no se ha proporcionado")
-    if start_time != None:
-        params+=f"&start_time={start_time}"
-    url=str(url)+params
+
+    if start_time is not None:
+        print(start_time)
+        start_time += timedelta(days=1)
+        params += f"&start_time={start_time}"
+    else:
+        start_time = "2022-09-11"
+        print(start_time)
+        params += f"&start_time={start_time}"
+    print(params)
+
+    url = str(url) + params
     headers = {
         'Authorization': f"Bearer {token}",
     }
@@ -78,11 +88,8 @@ def GetData(token,start_time=None):
     if response.status_code == 200:
         data_from_api = response.json()
         return response.json()
-
     else:
         return ""
-
-
 def BuidlSerializer(data,user):
     Serializer_Arrya=[]
     try:

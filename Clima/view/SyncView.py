@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -26,10 +26,11 @@ class SyncView(APIView):
         if not Current_Data():
             token = Login()
             start_time = Current_Date()
-            if not isinstance(start_time, datetime.datetime):
-                data = GetData(token)
+            print(start_time)
+            if isinstance(start_time, datetime):
+                data = GetData(token, start_time.date())
             else:
-                data = GetData(token, start_time)
+                data = GetData(token)
             Format_Data = BuidlSerializer(data, username)
             # Validar si Format_Data es un arreglo de objetos
             if not isinstance(Format_Data, list) or not all(isinstance(i, dict) for i in Format_Data):

@@ -32,6 +32,12 @@ class Lote(models.Model):
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
 
+class Planta(models.Model):
+    Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
+    Codigo_Planta = models.CharField(max_length=20) 
+    Nombre = models.CharField(max_length=40) 
+    Activo = models.BooleanField(default=True)
+
 
 class Poligono (models.Model):
     Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
@@ -41,8 +47,7 @@ class Poligono (models.Model):
 
 
 class GeoCoordenadas(models.Model):
-    Id_Poligono = models.ForeignKey(
-        Poligono, on_delete=models.CASCADE, null=True)
+    Id_Poligono = models.ForeignKey(Poligono, on_delete=models.CASCADE, null=True)
     lat = models.DecimalField(max_digits=18, decimal_places=16, null=False)
     lng = models.DecimalField(max_digits=19, decimal_places=16, null=False)
     Activo = models.BooleanField(default=True)
@@ -50,7 +55,7 @@ class GeoCoordenadas(models.Model):
 
 
 class Lectura(models.Model):
-    Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
+    Id_Planta = models.ForeignKey(Planta, on_delete=models.CASCADE, null=True)
     E1 = models.IntegerField(default=0, blank=True, null=True)
     E2 = models.IntegerField(default=0, blank=True, null=True)
     E3 = models.IntegerField(default=0, blank=True, null=True)

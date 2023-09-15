@@ -22,6 +22,6 @@ class DataView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):        
-        Data = Daily_Indicadores.objects.all()
+        Data = Daily_Indicadores.objects.order_by('Date')
         serializer = DailyIndicadorSerializers(Data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
