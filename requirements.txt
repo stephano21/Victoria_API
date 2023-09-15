@@ -1,11 +1,14 @@
 asgiref==3.6.0
 autopep8==2.0.2
+certifi==2023.7.22
+charset-normalizer==3.2.0
 dj-database-url==2.0.0
 Django==4.2.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
 drf-yasg==1.21.7
 gunicorn==20.1.0
+idna==3.4
 inflection==0.5.1
 packaging==23.1
 protobuf==4.21.12
@@ -15,8 +18,10 @@ PyJWT==2.7.0
 python-decouple==3.8
 pytz==2023.3
 PyYAML==6.0.1
+requests==2.31.0
 sqlparse==0.4.4
 tomli==2.0.1
 typing_extensions==4.5.0
 uritemplate==4.1.1
+urllib3==2.0.4
 whitenoise==6.5.0
