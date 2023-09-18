@@ -40,11 +40,8 @@ class LecturaAPIView(APIView):
         request.data["Usuario"]=username
         # Crear un serializador para los datos de la solicitud
         serializer = LecturaSerializers(data=request.data)
-        #print(serializer)
-        # Esta línea no hace nada y se puede eliminar
-        print(serializer.is_valid())
         if serializer.is_valid():
-            #serializer.save()
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

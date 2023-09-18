@@ -68,7 +68,7 @@ class Lectura(models.Model):
     GR5 = models.IntegerField(default=0, blank=True, null=True)
     Cherelles = models.IntegerField(default=0, blank=True, null=True)
     Observacion = models.TextField(max_length=100, null=True)
-    FechaVisita = models.DateField(null=True)
+    FechaVisita = models.DateTimeField(null=True)
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
     GUIDLectura = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
