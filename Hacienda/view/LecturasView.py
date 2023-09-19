@@ -6,6 +6,7 @@ from Hacienda.serializers import LecturaSerializers
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+from datetime import datetime, timedelta
 #http
 from django.http import Http404
 #Import custom validators
@@ -40,9 +41,16 @@ class LecturaAPIView(APIView):
         # Validar que solo exista una lectura por mes de una Id_Planta
         fecha_visita = request.data.get("FechaVisita")
         id_planta = request.data.get("Id_Planta")
+        # Convertir fecha_visita a datetime si es una cadena
+        if isinstance(fecha_visita, str):
+            try:
+                fecha_visita = datetime.strptime(fecha_visita, "%Y-%m-%dT%H:%M:%S.%fZ")
+            except ValueError as e:
+                return Response(f"Error al analizar la fecha: {str(e)}", status=status.HTTP_400_BAD_REQUEST)
+        
         lecturas_mes = Lectura.objects.filter(FechaVisita__month=fecha_visita.month, Id_Planta=id_planta)
         if lecturas_mes.exists():
-            return Response("Ya existe una lectura de esta plant para este mes.", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Ya existe una lectura de esta planta en este mes!", status=status.HTTP_400_BAD_REQUEST)
         # Crear un serializador para los datos de la solicitud
         serializer = LecturaSerializers(data=request.data)
         if serializer.is_valid():

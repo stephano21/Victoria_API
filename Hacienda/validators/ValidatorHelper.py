@@ -6,6 +6,10 @@ def ValidateLectura(data):
         # Comprobar si el diccionario request.data está vacío
         if not data:
             return "Asegurese de enviar un formulario Válido!"
+        if "Id_Planta" not in data:
+            return f"Id_Planta: {required}"
+        if data["Id_Planta"] is None:
+            return f"Id_Planta: {null}"
         # Verificar si "FechaVisita" está en data
         if "FechaVisita" not in data:
             return f"FechaVisita: {required}"
