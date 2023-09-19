@@ -6,6 +6,7 @@ from Hacienda.serializers import PoligonoSerializers, GeoCoordenadasSerializers
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -121,7 +122,7 @@ class GeoLotesView(APIView):
             Response: Un objeto de respuesta con un mensaje de éxito o error.
         """
         try:
-            poligono = Poligono.objects.filter(pk=id, Activo=True)
+            poligono = get_object_or_404(Poligono, pk=id, Activo=True)
             print(poligono)
             if not poligono: return Response("El polígono no existe.", status=status.HTTP_404_NOT_FOUND)
         except Poligono.DoesNotExist:
@@ -129,6 +130,7 @@ class GeoLotesView(APIView):
 
         # Actualizar el campo "activo" del polígono y sus geocoordenadas
         poligono.Activo = False
+        print(Poligono)
         poligono.save()
 
         geocoordenadas = GeoCoordenadas.objects.filter(Id_Poligono=poligono)
