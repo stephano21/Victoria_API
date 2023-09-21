@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'Users',
     'Clima',
     'drf_yasg',
+    "django_apscheduler",
 ]
 
 MIDDLEWARE = [

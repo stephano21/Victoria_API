@@ -41,6 +41,7 @@ def Current_Data():
         fecha_actual = datetime.now()
         if ultimo_registro is not None and ultimo_registro is not None:
             if ultimo_registro.date() == fecha_actual.date():
+                print(str(ultimo_registro.date())+"===="+str(fecha_actual.date()))
                 return True
         return False
     except Exception as e:

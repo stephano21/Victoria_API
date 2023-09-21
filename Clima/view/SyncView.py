@@ -23,6 +23,7 @@ class SyncView(APIView):
     def get(self, request):
         user = request.user
         username = user.username
+        print(Current_Data())
         if not Current_Data():
             token = Login()
             start_time = Current_Date()
