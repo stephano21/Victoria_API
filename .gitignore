@@ -8,3 +8,4 @@ api
 db.sqlite3
 .env
 *.pyc
+/inserts*
