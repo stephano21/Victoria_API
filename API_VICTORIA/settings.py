@@ -31,12 +31,14 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG') == "True"
 
 
-ALLOWED_HOSTS = ['victoria-api.up.railway.app','127.0.0.1']
+ALLOWED_HOSTS = []
 CSRF_COOKIE_DOMAIN = 'victoria-api.up.railway.app'
-EXTERNAL_HOSTNAME = False  #config('EXTERNAL_HOSTNAME')
+EXTERNAL_HOSTNAME = config('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(EXTERNAL_HOSTNAME)
-    
+    EXTERNAL_HOSTNAME = EXTERNAL_HOSTNAME.split(",")
+    for HOST in EXTERNAL_HOSTNAME:
+        ALLOWED_HOSTS.append(HOST)
+print(ALLOWED_HOSTS)
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
