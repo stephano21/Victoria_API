@@ -22,7 +22,7 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(
     SyncArable,
     trigger='cron',
-    hour=0,
+    hour=1,
     minute=0,
     second=0,
 )
