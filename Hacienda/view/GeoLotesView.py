@@ -50,22 +50,20 @@ class GeoLotesView(APIView):
             },
             required=["poligono"],
             example={
-                "poligono": {
-                    "id": 1,
-                    "FillColor": "#FF0000",
-                    "Activo": True,
-                    "Id_Lote": 1,
-                    "geocoordenadas": [
-                        {
-                            "id": 1,
-                            "Id_Poligono": 1,
-                            "lat": "40.7128000000000000",
-                            "lng": "-74.0060000000000000",
-                            "Activo": True
-                        }
-                    ]
-                }
-
+                
+                "id": 1,
+                "FillColor": "#FF0000",
+                "Activo": True,
+                "Id_Lote": 1,
+                "geocoordenadas": [
+                    {
+                        "id": 1,
+                        "Id_Poligono": 1,
+                        "lat": "40.7128000000000000",
+                        "lng": "-74.0060000000000000",
+                        "Activo": True
+                    }
+                ]
             }
         ),
         responses={201: "Created"}

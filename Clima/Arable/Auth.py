@@ -5,6 +5,10 @@ from decouple import config
 #models
 from Clima.models import Daily_Indicadores
 
+def my_task():
+    # Lógica de tu tarea aquí
+    print("Tarea programada ejecutada")
+
 def Login():
     if 1==2:
         return config('ARABLE_TOKEN')

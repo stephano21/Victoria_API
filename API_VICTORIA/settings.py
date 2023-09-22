@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'Users',
     'Clima',
     'drf_yasg',
-    "django_apscheduler",
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -108,6 +108,21 @@ SWAGGER_SETTINGS = {
 
     # ...
 }
+""" APSCHEDULER CONFIG"""
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_TIMEZONE = "UTC"
+APSCHEDULER_JOBSTORES = {
+    'default': {
+        'class': 'django_apscheduler.jobstores:DjangoJobStore',
+        'OPTIONS': {
+            'database_url': 'default',
+            'tablename': 'apscheduler_djangojob',
+            'idcol': 'id',
+            'datecol': 'date',
+        },
+    },
+}
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
