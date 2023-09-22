@@ -122,6 +122,17 @@ APSCHEDULER_JOBSTORES = {
         },
     },
 }
+SCHEDULER_AUTOSTART = True
+SCHEDULER_CONFIG = {
+    'apscheduler.jobstores.default': {
+        'type': 'django_apscheduler.jobstores:DjangoJobStore',
+    },
+    'apscheduler.executors.default': {
+        'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+        'max_workers': '20',  # Número máximo de trabajadores en el grupo de trabajadores
+    },
+    'apscheduler.timezone': 'UTC',  # Zona horaria (por ejemplo, 'UTC' o 'America/New_York')
+}
 
 TEMPLATES = [
     {
