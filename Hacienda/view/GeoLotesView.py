@@ -17,6 +17,9 @@ class GeoLotesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        user = request.user
+        username = user.username
+        print(username)
         lote_id = request.query_params.get('lote_id')
 
         if lote_id:
