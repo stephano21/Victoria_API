@@ -12,6 +12,9 @@ class PlantaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     # Código existente...
     def get(self, request,*args, **kwargs):
+        user = request.user
+        username = user.username
+        print(username)
         id = self.kwargs.get('id')
         if id: 
             plantas = Planta.objects.filter(Id_Lote = id , Activo=True)
