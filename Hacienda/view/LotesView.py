@@ -17,11 +17,11 @@ class LoteAPIView(APIView):
         print(username)
         id = self.kwargs.get('id')
         if id: 
-            lotes = Lote.objects.filter(Id_Proyecto = id)
+            lotes = Lote.objects.filter(Id_Proyecto = id, Activo=True)
             serializer = LoteSerializers(lotes, many=True)
             return Response(serializer.data)
 
-        lotes = Lote.objects.all()
+        lotes = Lote.objects.filter(Activo=True)
         serializer = LoteSerializers(lotes, many=True)
         return Response(serializer.data)
     def post(self, request):

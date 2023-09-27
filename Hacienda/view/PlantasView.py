@@ -14,12 +14,12 @@ class PlantaAPIView(APIView):
     def get(self, request,*args, **kwargs):
         id = self.kwargs.get('id')
         if id: 
-            lotes = Planta.objects.filter(Id_Lote = id)
-            serializer = PlantaSerializers(lotes, many=True)
+            plantas = Planta.objects.filter(Id_Lote = id , Activo=True)
+            serializer = PlantaSerializers(plantas, many=True)
             return Response(serializer.data)
 
-        lotes = Planta.objects.all()
-        serializer = PlantaSerializers(lotes, many=True)
+        plantas = Planta.objects.filter(Activo=True)
+        serializer = PlantaSerializers(plantas, many=True)
         return Response(serializer.data)
     def post(self, request):
         serializer = PlantaSerializers(data=request.data)
