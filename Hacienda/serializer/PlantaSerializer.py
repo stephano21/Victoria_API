@@ -12,9 +12,10 @@ class PlantaSerializers(serializers.ModelSerializer):
             for field in required_fields
         }
     def get_Disabled(self, planta):
-        # Obtén el mes actual (puedes ajustar esto según tus necesidades)
-        mes_actual = datetime.now().month
+        # Obtén el mes y año actual
+        fecha_actual = datetime.now()
+        mes_actual = fecha_actual.month
+        año_actual = fecha_actual.year
 
-        # Verifica si existe una lectura en ese mes relacionada con la planta
-        #return Lectura.objects.filter(Planta__Id_Planta=planta, FechaVisita__month=mes_actual).exists()
-        return Lectura.objects.filter(Id_Planta=planta, FechaVisita__month=mes_actual).exists()
+        # Verifica si existe una lectura en ese mes y año relacionada con la planta
+        return Lectura.objects.filter(Id_Planta=planta, FechaVisita__month=mes_actual, FechaVisita__year=año_actual).exists()
