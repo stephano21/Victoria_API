@@ -177,11 +177,20 @@ if DEBUG:
             #},
         }
     }
+else:
+    INSTALLED_APPS.append('django.contrib.postgres')
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
+    DATABASES['default']['NAME'] = config('DATABASE_NAME')
+    DATABASES['default']['USER'] = config('DATABASE_USER')
+    DATABASES['default']['PASSWORD'] = config('DATABASE_PASSWORD')
+    DATABASES['default']['HOST'] = config('DATABASE_HOST')
+    DATABASES['default']['PORT'] = config('DATABASE_PORT')
 
-DATABASE_URL = config('DATABASE_URL')
+""" DATABASE_URL = config('DATABASE_URL')
 if DATABASE_URL and not DEBUG:
     DATABASES['default'] = dj_database_url.config(
-        conn_max_age=600, ssl_require=True)
+        conn_max_age=600, ssl_require=True) """
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -230,4 +239,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Almacenamiento de archivos estáticos utilizando WhiteNoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 

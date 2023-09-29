@@ -1,12 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-
-
 from datetime import datetime
 from Clima.Arable.Auth import GetData, Login, BuidlSerializer,Current_Data,Current_Date
 from Clima.serializer.IndicadorSerializer import DailyIndicadorSerializers
-
-from Clima.view.SyncView import SyncView
-
 scheduler = BackgroundScheduler()
 def SyncArable():
     print(Current_Data())
