@@ -1,9 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from django_apscheduler.jobstores import DjangoJobStore
-from django_apscheduler.models import DjangoJob
-from django_apscheduler import util
 
-from datetime import datetime, timedelta
+
+from datetime import datetime
 from Clima.Arable.Auth import GetData, Login, BuidlSerializer,Current_Data,Current_Date
 from Clima.serializer.IndicadorSerializer import DailyIndicadorSerializers
 
@@ -41,7 +39,9 @@ def SyncArable():
         print( f"Se han sincronizado {registros_sincronizados} registros exitosamente!")
     
     print("Los datos ya se han sincronizado!")
-    
+
+def Test():
+    print("runing...")   
 
 # Agrega tus tareas programadas
 scheduler.add_job(
@@ -50,6 +50,11 @@ scheduler.add_job(
     hour=0,
     minute=0,
     second=0,
+)
+scheduler.add_job(
+    Test,
+    trigger='interval',
+    seconds=5,
 )
 print("Tarea agregada correctamente file ")
 

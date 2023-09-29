@@ -12,7 +12,7 @@ from decouple import config
 from django.core.wsgi import get_wsgi_application
 """ apscheduler """
 from apscheduler.schedulers.background import BackgroundScheduler
-from Clima.Arable.tasks import SyncArable  # Importa tus tareas programadas
+from Clima.Arable.tasks import SyncArable,Test  # Importa tus tareas programadas
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', config('DJANGO_SETTINGS_FILE'))
 # Crea una instancia del planificador
@@ -25,6 +25,11 @@ scheduler.add_job(
     hour=1,
     minute=0,
     second=0,
+)
+scheduler.add_job(
+    Test,
+    trigger='interval',
+    seconds=5,
 )
 print("Tarea agregada correctamente")
 
