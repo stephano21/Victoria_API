@@ -14,7 +14,7 @@ from django.core.wsgi import get_wsgi_application
 from apscheduler.schedulers.background import BackgroundScheduler
 from Clima.Arable.tasks import SyncArable,Test  # Importa tus tareas programadas
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', config('DJANGO_SETTINGS_FILE'))
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', config('DJANGO_SETTINGS_MODULE'))
 # Crea una instancia del planificador
 scheduler = BackgroundScheduler()
 
@@ -26,11 +26,11 @@ scheduler.add_job(
     minute=0,
     second=0,
 )
-scheduler.add_job(
+""" scheduler.add_job(
     Test,
     trigger='interval',
     seconds=5,
-)
+) """
 print("Tarea agregada correctamente")
 
 # Inicia el planificador
