@@ -38,19 +38,7 @@ def SyncArable():
 def Test():
     print("runing...")   
 
-# Agrega tus tareas programadas
-scheduler.add_job(
-    SyncArable,
-    trigger='cron',
-    hour=0,
-    minute=0,
-    second=0,
-)
-scheduler.add_job(
-    Test,
-    trigger='interval',
-    seconds=5,
-)
-print("Tarea agregada correctamente file ")
+
+
 
 
