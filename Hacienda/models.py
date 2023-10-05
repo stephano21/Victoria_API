@@ -66,6 +66,7 @@ class Lectura(models.Model):
     GR3 = models.IntegerField(default=0, blank=True, null=True)
     GR4 = models.IntegerField(default=0, blank=True, null=True)
     GR5 = models.IntegerField(default=0, blank=True, null=True)
+    Monilla = models.IntegerField(default=0, blank=True, null=True)
     Cherelles = models.IntegerField(default=0, blank=True, null=True)
     Observacion = models.TextField(max_length=100, null=True, blank=True)
     FechaVisita = models.DateTimeField(null=True)
