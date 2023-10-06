@@ -49,5 +49,6 @@ class LoginView(APIView):
                 'refresh_token': str(refresh),
             })
         else:
+            print(username+" Credenciales incorrectas ")
             return Response('Credenciales inválidas', status=status.HTTP_401_UNAUTHORIZED)
  

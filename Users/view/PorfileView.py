@@ -29,7 +29,7 @@ class PorfileView(APIView):
                 'first_name': request.user.first_name,
                 'last_name': request.user.last_name,
             }
-            
+            print(perfil_data['username']+" Ha iniciado sesión")
             return Response(perfil_data, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
