@@ -41,6 +41,7 @@ if EXTERNAL_HOSTNAME:
 print(ALLOWED_HOSTS)
 # Application definition
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,6 +77,11 @@ REST_FRAMEWORK = {
         # Otros métodos de autenticación, si los necesitas
     ],
 }
+#CORRs setings
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = ALLOWED_HOSTS.copy()
 
 # Configuración de JWT
 SIMPLE_JWT = {
@@ -88,6 +95,7 @@ SWAGGER_SETTINGS = {
     # ...
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.permissions.AllowAny',
     ],
     'USE_SESSION_AUTH': False,
     'SECURITY_DEFINITIONS': {
