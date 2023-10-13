@@ -33,6 +33,11 @@ DEBUG = config('DEBUG') == "True"
 
 ALLOWED_HOSTS = []
 CSRF_COOKIE_DOMAIN = 'victoria-api.up.railway.app'
+SESSION_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
+CSRF_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
 EXTERNAL_HOSTNAME = config('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
     EXTERNAL_HOSTNAME = EXTERNAL_HOSTNAME.split(",")
@@ -81,7 +86,10 @@ REST_FRAMEWORK = {
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
-    CORS_ALLOWED_ORIGINS = ALLOWED_HOSTS.copy()
+    origins=config("CORS_ALLOWED_ORIGINS")
+    if origins:
+        CORS_ALLOWED_ORIGINS = origins.split(",")
+        print(CORS_ALLOWED_ORIGINS)
 
 # Configuración de JWT
 SIMPLE_JWT = {
