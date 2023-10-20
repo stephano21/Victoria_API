@@ -32,9 +32,10 @@ class LecturaAPIView(APIView):
         serializer = LecturaSerializers(lecturas, many=True)
         return Response(serializer.data)
     def post(self, request):
+        print(datetime.now())
         user = request.user
         username = user.username
-        print(f"{username} Ha registrado una lectura")
+        print(f"{username} Ha enviado una lectura")
         validate = ValidateLectura(request.data)
         if validate != "":
             return Response(validate, status=status.HTTP_400_BAD_REQUEST)
@@ -53,11 +54,13 @@ class LecturaAPIView(APIView):
         
         lecturas_mes = Lectura.objects.filter(FechaVisita__month=fecha_visita.month, Id_Planta=id_planta)
         if lecturas_mes.exists():
+            print(f"{id_planta} ya tiene una lectura")
             return Response("Ya existe una lectura de esta planta en este mes!", status=status.HTTP_400_BAD_REQUEST)
         # Crear un serializador para los datos de la solicitud
         serializer = LecturaSerializers(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            print(f"{username} Ha registrado una lectura")
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

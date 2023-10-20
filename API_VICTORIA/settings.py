@@ -95,7 +95,7 @@ else:
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     # custom time expiration token JWT
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=36500),
 }
 ROOT_URLCONF = 'API_VICTORIA.urls'
 """SWAGGER SETTINGS"""

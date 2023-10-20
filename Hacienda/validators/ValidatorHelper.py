@@ -9,6 +9,7 @@ def ValidateLectura(data):
         if "Id_Planta" not in data:
             return f"Id_Planta: {required}"
         if data["Id_Planta"] is None:
+            print(f"Id_Planta: {null}")
             return f"Id_Planta: {null}"
         # Verificar si "FechaVisita" está en data
         if "FechaVisita" not in data:
