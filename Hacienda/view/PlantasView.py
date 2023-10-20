@@ -14,7 +14,7 @@ class PlantaAPIView(APIView):
     def get(self, request,*args, **kwargs):
         user = request.user
         username = user.username
-        print(username)
+        print(f"{username} Ha cargado plantas")
         id = self.kwargs.get('id')
         if id: 
             plantas = Planta.objects.filter(Id_Lote = id , Activo=True)
@@ -25,6 +25,9 @@ class PlantaAPIView(APIView):
         serializer = PlantaSerializers(plantas, many=True)
         return Response(serializer.data)
     def post(self, request):
+        user = request.user
+        username = user.username
+        print(f"{username} Ha registrado una planta")
         serializer = PlantaSerializers(data=request.data)
         if serializer.is_valid():
             serializer.save()

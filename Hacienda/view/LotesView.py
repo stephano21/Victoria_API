@@ -14,7 +14,7 @@ class LoteAPIView(APIView):
     def get(self, request,*args, **kwargs):
         user = request.user
         username = user.username
-        print(username)
+        print(f"{username} Ha cargado lotes")
         id = self.kwargs.get('id')
         if id: 
             lotes = Lote.objects.filter(Id_Proyecto = id, Activo=True)
