@@ -45,6 +45,7 @@ class LoginView(APIView):
             # Genera los tokens de acceso y actualización
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
+            print(f"{username} Ha iniciado sesión")
 
             # Retorna los tokens y la lista de nombres de permisos en la respuesta
             return Response({

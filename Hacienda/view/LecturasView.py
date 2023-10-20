@@ -22,7 +22,7 @@ class LecturaAPIView(APIView):
         
         id = self.kwargs.get('id')
        
-        print(username)
+        print(f"{username} Ha consultado lecturas")
         if id:
             lecturas = Lectura.objects.filter(Id_Lectura = id)
             serializer = LecturaSerializers(lecturas, many=True)
@@ -32,6 +32,9 @@ class LecturaAPIView(APIView):
         serializer = LecturaSerializers(lecturas, many=True)
         return Response(serializer.data)
     def post(self, request):
+        user = request.user
+        username = user.username
+        print(f"{username} Ha registrado una lectura")
         validate = ValidateLectura(request.data)
         if validate != "":
             return Response(validate, status=status.HTTP_400_BAD_REQUEST)

@@ -19,7 +19,7 @@ class GeoLotesView(APIView):
     def get(self, request):
         user = request.user
         username = user.username
-        print(username)
+        print(f"{username} Ha cargado Geolotes")
         lote_id = request.query_params.get('lote_id')
 
         if lote_id:
@@ -74,7 +74,9 @@ class GeoLotesView(APIView):
     def post(self, request):
         # Verificar si ya existe un polígono registrado para el lote
         lote_id = request.data.get('Id_Lote')
-        
+        user = request.user
+        username = user.username
+        print(f"{username} Ha registrado un Geolote")
         if Poligono.objects.filter(Id_Lote=lote_id, Activo=True).exists():          
             return Response("Ya existe un polígono registrado para este lote.", status=status.HTTP_400_BAD_REQUEST)
 
@@ -123,6 +125,9 @@ class GeoLotesView(APIView):
             Response: Un objeto de respuesta con un mensaje de éxito o error.
         """
         try:
+            user = request.user
+            username = user.username
+            print(f"{username} Ha eliminado un Geolote")
             poligono = get_object_or_404(Poligono, pk=id, Activo=True)
             print(poligono)
             if not poligono: return Response("El polígono no existe.", status=status.HTTP_404_NOT_FOUND)
