@@ -2,6 +2,15 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 from Clima.Arable.Auth import GetData, Login, BuidlSerializer,Current_Data,Current_Date
 from Clima.serializer.IndicadorSerializer import DailyIndicadorSerializers
+#Mail
+from rest_framework import status
+from rest_framework.response import Response
+
+from django.template.loader import get_template
+from django.core.mail import EmailMessage
+from django.conf import settings
+
+
 scheduler = BackgroundScheduler()
 def SyncArable():
     print(Current_Data())
@@ -30,7 +39,8 @@ def SyncArable():
             if serializer.is_valid():
                 serializer.save()
                 registros_sincronizados += 1
-        
+
+        enviar_correo('Sincronización Arable','stephanochang21@gmail.com',f"Se han sincronizado {registros_sincronizados} registros exitosamente!")
         print( f"Se han sincronizado {registros_sincronizados} registros exitosamente!")
     
     print("Los datos ya se han sincronizado!")
@@ -38,7 +48,26 @@ def SyncArable():
 def Test():
     print("runing...")   
 
+def enviar_correo(asunto,destinatario,detail):
+    template = get_template('mails/Mail.html')
+    asunto = asunto
+    mensaje = 'Este es el mensaje del correo.'
+    remitente = settings.DEFAULT_FROM_EMAIL
+    destinatario = destinatario  # Cambia esto al destinatario real
 
+    # Datos para reemplazar en la plantilla HTML
+    context = {'asunto': asunto, 'detalle':detail}  # Puedes pasar más datos según tus necesidades
 
+    try:
+        # Renderizar la plantilla con los datos
+        content = template.render(context)
+
+        # Enviar el correo
+        email = EmailMessage(asunto, content, remitente, [destinatario])
+        email.content_subtype = 'html'  # Establecer el contenido como HTML
+        email.send()
+        return Response({'mensaje': 'Correo enviado exitosamente'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

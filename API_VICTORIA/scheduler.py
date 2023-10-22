@@ -13,8 +13,8 @@ scheduler.add_job(
 """ scheduler.add_job(
     Test,
     trigger='interval',
-    seconds=10,
-)  """
+    seconds=5,
+) """ 
 print("Task sync registry")
 
 scheduler.start()

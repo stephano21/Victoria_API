@@ -153,7 +153,7 @@ SCHEDULER_CONFIG = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'Clima', 'template')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -256,4 +256,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Almacenamiento de archivos estáticos utilizando WhiteNoise
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+"""Configure Mail Services"""
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'trabajocolaborativo.pis@gmail.com'  # Tu dirección de correo
+EMAIL_HOST_PASSWORD = 'liou cfwa hgbz ndeu'  # La contraseña de aplicación generada
 
