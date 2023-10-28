@@ -32,12 +32,12 @@ DEBUG = config('DEBUG') == "True"
 
 
 ALLOWED_HOSTS = []
-CSRF_COOKIE_DOMAIN = 'https://victoria-api.up.railway.app'
+CSRF_COOKIE_DOMAIN = config('SITE')
 SESSION_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
 CSRF_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
-CSRF_TRUSTED_ORIGINS = ['https://victoria-api.up.railway.app']
+CSRF_TRUSTED_ORIGINS = [config('SITE')]
 DJANGO_ADMIN_URL='/api/auth/admin/'
 
 EXTERNAL_HOSTNAME = config('EXTERNAL_HOSTNAME')
@@ -199,11 +199,11 @@ else:
     INSTALLED_APPS.append('django.contrib.postgres')
     DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
-    DATABASES['default']['NAME'] = config('DATABASE_NAME')
-    DATABASES['default']['USER'] = config('DATABASE_USER')
-    DATABASES['default']['PASSWORD'] = config('DATABASE_PASSWORD')
-    DATABASES['default']['HOST'] = config('DATABASE_HOST')
-    DATABASES['default']['PORT'] = config('DATABASE_PORT')
+    DATABASES['default']['NAME'] = str(config('DATABASE_NAME'))
+    DATABASES['default']['USER'] = str(config('DATABASE_USER'))
+    DATABASES['default']['PASSWORD'] = str(config('DATABASE_PASSWORD'))
+    DATABASES['default']['HOST'] = str(config('DATABASE_HOST'))
+    DATABASES['default']['PORT'] = str(config('DATABASE_PORT'))
 
 """ DATABASE_URL = config('DATABASE_URL')
 if DATABASE_URL and not DEBUG:
