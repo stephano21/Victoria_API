@@ -32,11 +32,13 @@ DEBUG = config('DEBUG') == "True"
 
 
 ALLOWED_HOSTS = []
-CSRF_COOKIE_DOMAIN = 'victoria-api.up.railway.app'
+CSRF_COOKIE_DOMAIN = 'https://victoria-api.up.railway.app'
 SESSION_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
 CSRF_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+CSRF_TRUSTED_ORIGINS = ['https://victoria-api.up.railway.app']
+DJANGO_ADMIN_URL='/api/auth/admin/'
 
 EXTERNAL_HOSTNAME = config('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
