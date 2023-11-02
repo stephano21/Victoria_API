@@ -36,6 +36,7 @@ class Planta(models.Model):
     Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
     Codigo_Planta = models.CharField(max_length=20) 
     Nombre = models.CharField(max_length=40) 
+    Circunferencia = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     Activo = models.BooleanField(default=True)
 
 
@@ -67,6 +68,7 @@ class Lectura(models.Model):
     GR4 = models.IntegerField(default=0, blank=True, null=True)
     GR5 = models.IntegerField(default=0, blank=True, null=True)
     Monilla = models.IntegerField(default=0, blank=True, null=True)
+    Total = models.IntegerField(default=0, blank=True, null=True)
     Cherelles = models.IntegerField(default=0, blank=True, null=True)
     Observacion = models.TextField(max_length=100, null=True, blank=True)
     FechaVisita = models.DateTimeField(null=True)
