@@ -117,7 +117,4 @@ class ImportUsers(APIView):
                 print(str(e))
                 return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response('No se proporcionó un archivo Excel!', status=status.HTTP_400_BAD_REQUEST)
-
-
-   
+            return Response('No se proporcionó un archivo Excel', status=status.HTTP_400_BAD_REQUEST)
