@@ -6,32 +6,26 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 class HaciendaViewSet(viewsets.ModelViewSet):
-    queryset = Hacienda.objects.all()
+    queryset = Hacienda.objects.filter(Activo=True)
     permission_classes = [permissions.AllowAny]
     serializer_class = HaciendaSerializers
     def get_queryset(self):
         queryset = super().get_queryset()
-        codigo = self.request.query_params.get('id')
+        codigo = self.request.query_params.get('cod')
         if codigo:
-            queryset = queryset.filter(Codigo_Proyecto=codigo)
+            queryset = queryset.filter(codigo=codigo)
         return queryset
 
 
 class ProyectoViewSet(viewsets.ModelViewSet):
-    queryset = Proyecto.objects.all()
+    queryset = Proyecto.objects.filter(Activo=True)
     permission_classes = [permissions.AllowAny]
     serializer_class = ProyectoSerializers
-    #filtrar por un id 
+
     def get_queryset(self):
         queryset = super().get_queryset()
-        codigo_proyecto = self.request.query_params.get('id')
+        codigo_proyecto = self.request.query_params.get('cod')
         if codigo_proyecto:
-            queryset = queryset.filter(Id_Hacienda=codigo_proyecto)
+            queryset = queryset.filter(Codigo_Proyecto=codigo_proyecto)
         return queryset
 
-""" class LecturaViewSet(viewsets.ModelViewSet):
-    authentication_classes = [SessionAuthentication, JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    
-    serializer_class = LecturaSerializers
-    queryset = Lectura.objects.all() """

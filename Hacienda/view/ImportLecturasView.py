@@ -10,8 +10,7 @@ import pandas as pd
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-class ImportUsers(APIView):
-    
+class ImportLecturas(APIView):
     
     def validate_row(self,row, index, errors,headers):
         has_error = False
