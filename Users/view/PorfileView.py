@@ -34,5 +34,5 @@ class PorfileView(APIView):
         except Exception as e:
             print(e)
             return Response(status=status.HTTP_204_NO_CONTENT)
-         
+  
  

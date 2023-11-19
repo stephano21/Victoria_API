@@ -2,11 +2,16 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from Users.models import Perfil
 from rest_framework.exceptions import ErrorDetail
+class PerfilSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Perfil
+        fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
+    perfil = PerfilSerializer()
     class Meta:
         model = User
-        fields = ['username', 'password', 'email', 'first_name', 'last_name']
+        fields = '__all__'#['username', 'password', 'email', 'first_name', 'last_name']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -30,4 +35,11 @@ class UserSerializer(serializers.ModelSerializer):
             return serializers.ValidationError(["Cedula",[ErrorDetail(string='Error al crear el Usuario')]])
         
         return user
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        perfil_data = representation.pop('perfil')
+        for key, value in perfil_data.items():
+            representation[key] = value
+        return representation
 
