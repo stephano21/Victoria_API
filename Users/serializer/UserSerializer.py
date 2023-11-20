@@ -39,7 +39,8 @@ class UserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         perfil_data = representation.pop('perfil')
-        for key, value in perfil_data.items():
-            representation[key] = value
-        return representation
+        if perfil_data != None:
+            for key, value in perfil_data.items():
+                representation[key] = value
+            return representation
 
