@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+import datetime
 from enum import Enum
 from django.db import models
 import uuid
@@ -23,8 +25,7 @@ class Proyecto(models.Model):
 
 
 class Lote(models.Model):
-    Id_Proyecto = models.ForeignKey(
-        Proyecto, on_delete=models.CASCADE, null=True)
+    Id_Proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=True)
     Codigo_Lote = models.CharField(max_length=10)
     Nombre = models.CharField(max_length=40)
     Variedad = models.CharField(max_length=20, null=True)
@@ -76,3 +77,11 @@ class Lectura(models.Model):
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
     GUIDLectura = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     SyncId = models.TextField(max_length=100, null=True)
+
+
+class Produccion(models.Model):
+    Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=False)
+    Qq = models.DecimalField(max_digits=8, decimal_places=4, null=False)
+    Fecha = models.DateField(null=False)
+    Activo = models.BooleanField(default=True)
+    Usuario = models.TextField(default="Admin",max_length=100, null=True)
