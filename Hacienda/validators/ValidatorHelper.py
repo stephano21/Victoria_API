@@ -1,3 +1,6 @@
+import pandas as pd
+from datetime import datetime, timedelta
+from Hacienda.models import Lectura, Planta
 
 def ValidateLectura(data):
     required ="Este campo es requerido"
@@ -25,4 +28,46 @@ def ValidateLectura(data):
     except Exception as e:
         # En caso de error,retorna el error
         return str(e)
+    
+def validate_row(row, index, errors):
+        headers = ['Planta','Fecha','Total','Observacion']
+        print(row['Fecha'])
+        has_error = False
+        if not all(row[col] and not pd.isna(row[col]) for col in headers):
+            missing_data = [col for col in headers if not row[col] or pd.isna(row[col])]
+            errors.append(f'Datos faltantes en la fila {index+1} : {", ".join(missing_data)}')
+            has_error = True
+        
+       
+        if len(str(row['Planta']))<=1 and has_error == False:
+            errors.append(f"Error en la fila {index+1} : Código de Planta no válido!")
+            has_error = True
+        planta_no_existe = not Planta.objects.filter(Codigo_Planta=row['Planta']).exists()
+        if planta_no_existe and not has_error:
+            errors.append(f"Error en la fila {index+1} {row['Planta']}: Planta no encontrada!")
+            has_error = True
+        # Validar que el campo 'cedula' no exista en el modelo Perfil
+        #if isinstance(row['Fecha'], pd.Timestamp):
+        try:
+            fecha_visita = row['Fecha'].to_pydatetime()
+        except ValueError as e:
+            errors.append(f"Error en la fila {index+1} {row['Planta']}: El formato de fecha es invalido!")
+            has_error = True
+    
+        if has_error:
+            return errors
+        print(errors)
+        return
+
+def GetIdPlanta(codigo):
+    try:
+        #codigo="T3"
+        print(codigo)
+        Id_Planta = Planta.objects.get(Codigo_Planta=codigo, Activo=True)
+        print(Id_Planta.id)
+        return Id_Planta#planta.id
+    except Planta.DoesNotExist:
+        # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
+        return None 
+        
     

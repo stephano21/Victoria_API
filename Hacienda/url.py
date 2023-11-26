@@ -1,6 +1,6 @@
 from rest_framework import routers
 from django.urls import path
-from Hacienda.views import LoteAPIView,ProyectoHaciendaAPIView,GeoLotesView,LecturaAPIView,PlantaAPIView
+from Hacienda.views import LoteAPIView,ProyectoHaciendaAPIView,GeoLotesView,LecturaAPIView,PlantaAPIView,ImportLecturas
 from Hacienda.api import HaciendaViewSet, ProyectoViewSet#, LecturaViewSet
 router = routers.DefaultRouter()
 router.register('api/hacienda', HaciendaViewSet)
@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/geolotes/', GeoLotesView.as_view(), name='geolotes'),
     path('api/geolotes/<int:id>/', GeoLotesView.as_view(), name='geolotes'),
     path('api/lecturas/', LecturaAPIView.as_view(), name='lecturas'),
+    path('api/lecturas/upload', ImportLecturas.as_view(), name='lecturas'),
     path('api/plantas/', PlantaAPIView.as_view(), name='plantas'),
 ]
 urlpatterns += router.urls

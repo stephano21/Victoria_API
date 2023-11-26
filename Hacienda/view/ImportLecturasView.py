@@ -1,41 +1,16 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth.models  import User
-from Users.models import Perfil
-from Users.serializer.UserSerializer import UserSerializer
+from Hacienda.models import Lectura
+from Hacienda.serializer.LecturaSerializer import LecturaSerializers
 import pandas as pd
-
+from datetime import datetime
+import uuid
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from Hacienda.validators.ValidatorHelper import validate_row, GetIdPlanta,ValidateLectura
 class ImportLecturas(APIView):
-    
-    def validate_row(self,row, index, errors,headers):
-        has_error = False
-        if not all(row[col] and not pd.isna(row[col]) for col in headers):
-            missing_data = [col for col in headers if not row[col] or pd.isna(row[col])]
-            errors.append(f'Datos faltantes en la fila {index+1} : {", ".join(missing_data)}')
-            has_error = True
-        
-        cedula = row['Cedula']
-        if len(str(cedula)) != 10 and has_error == False:
-            errors.append(f"Error en la fila {index+1} {row['Usuario']}: El numero de cedula es incorrecto!")
-            has_error = True
-        if len(str(row['Usuario']))<=3 and has_error == False:
-            errors.append(f"Error en la fila {index+1} : El Nombre de usuario es inválido")
-            has_error = True
-        if User.objects.filter(username=row['Usuario']).exists() and has_error == False:
-            errors.append(f"Error en la fila {index+1} {row['Usuario']}: El Usuario ya está registrado!")
-            has_error = True
-        # Validar que el campo 'cedula' no exista en el modelo Perfil
-        if Perfil.objects.filter(cedula=cedula).exists() and has_error == False:
-            errors.append(f"Error en la fila {index+1} {row['Usuario']}: El numero de cedula ya está registrado!")
-            has_error = True
-        if has_error:
-            return errors
-        return
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_FILE,
@@ -70,43 +45,67 @@ class ImportLecturas(APIView):
         
     )
     def post(self, request):
-        archivo_excel = request.FILES.get('usuarios')
+        archivo_excel = request.FILES.get('lecturas')
+        user = request.user
+        username = user.username
         if archivo_excel:
             try:
-                df = pd.read_excel(archivo_excel, dtype={"Cedula": str})
-                headers = ['Cedula','Nombre','Apellido','Usuario','Correo','Contraseña']
+                df = pd.read_excel(archivo_excel, dtype={"Observacion": str})
+                headers = ['Planta','Fecha','E1','E2','E3','E4','E5','GR1','GR2','GR3','GR4','GR5','Cherelles','Total','Observacion']
                 missing_headers = [header for header in headers if header.lower() not in [col.lower() for col in df.columns]]
                 if missing_headers:
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
                 
                 df_copy = df.copy()
-                df_copy['mi_columna'] = df_copy['Cedula'].astype(str)
+                df_copy['Observacion'] = df_copy['Observacion'].astype(str)
                 
                 errors = []
                 print(df_copy)
                 for index, row in df_copy.iterrows():
-                    self.validate_row(row, index, errors,headers)
-                    perfil_data = {
-                        'cedula': row['Cedula'],
-                    }
-                    
+                    validate_row(row, index, errors)
+                    Id_Planta = GetIdPlanta(row['Planta'])
+                    if Id_Planta is None:
+                        break
+                    print(Id_Planta.id)
+                    lecturas_mes = Lectura.objects.filter(FechaVisita__month=datetime.now().month, FechaVisita__year=datetime.now().year, Id_Planta=Id_Planta)
+                    if lecturas_mes.exists():
+                        print(f"{row['Planta']} ya tiene una lectura")
+                        errors.append(f"Error en la fila {index+1} {row['Planta']}:Ya existe una lectura de esta planta en este mes!")
+                        continue
+                    fecha_visita = str(row['Fecha'].to_pydatetime())
                     # Crea un serializer de usuario pasando los datos del perfil en el contexto
                     serializer_data = {
-                        'username': row['Usuario'],
-                        'password': row['Contraseña'],
-                        'email': row['Correo'],
-                        'first_name': row['Nombre'],
-                        'last_name': row['Apellido'],
+                        'Id_Planta': Id_Planta.id,
+                        'FechaVisita': fecha_visita,
+                        'E1': row['E1'],
+                        'E2': row['E2'],
+                        'E3': row['E3'],
+                        'E4': row['E4'],
+                        'E5': row['E5'],
+                        'GR1': row['GR1'],
+                        'GR2': row['GR2'],
+                        'GR3': row['GR3'],
+                        'GR4': row['GR4'],
+                        'GR5': row['GR5'],
+                        'Cherelles': row['Cherelles'],
+                        'Total': row['Total'],
+                        'Observacion': row['Observacion'],
+                        'Usuario': "str(username)",
+                        'SyncId': str(uuid.uuid4),
+                        'GUIDLectura':uuid.uuid4,
                     }
-                    print(serializer_data)
-                    serializer = UserSerializer(data=serializer_data, context={'perfil_data': perfil_data})
-                    
+                    #print(serializer_data)
+                    validate = ValidateLectura(serializer_data)
+                    if validate != "":
+                        return Response(validate, status=status.HTTP_400_BAD_REQUEST)
+                    serializer = LecturaSerializers(data=serializer_data)
+                    #print(serializer)
                     if serializer.is_valid():
                         serializer.save()
-                        print("Usuario registrado correctamente")
+                        print("Lectura  registrada exitosamente!")
                     else:
-                        print(f'Error en la fila {index+1}: {", ".join(list(serializer.errors.values())[0])}')
-                        errors.append(f"Error en la fila {index+1} {row['Usuario']}: {', '.join(list(serializer.errors.values())[0])}")
+                        #print(f'Error en la fila {index+1}: {", ".join(list(serializer.errors.values())[0])}')
+                        errors.append(f"Error en la fila {index+1} {row['Planta']}: {', '.join(list(serializer.errors.values())[0])}")
                 if errors:
                     errors_str = '\n'.join(errors)
                     return Response(errors_str, status=status.HTTP_400_BAD_REQUEST)
