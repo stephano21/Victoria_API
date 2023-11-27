@@ -18,10 +18,29 @@ def GetData():
     print(df)
 
 def getLotes():
-    queryset = Lectura.objects.select_related('Id_Planta__Id_Lote').all()
-    print(queryset)
-    data = [{'date': obj.FechaVisita,'lote':obj.Id_Planta.Id_Lote.Codigo_Lote ,'temp': obj.E1} for obj in queryset]
-    print(data)
+    queryset = Lectura.objects.select_related('Id_Planta__Id_Lote').filter(Activo=True,)
+   # print(queryset)
+
+    data = [
+        {
+            'date': obj.FechaVisita,
+            'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
+            'E1': obj.E1,
+            'E2': obj.E2,
+            'E3': obj.E3,
+            'E4': obj.E4,
+            'E5': obj.E5
+        } 
+        for obj in queryset
+    ]
+    #print(data)
+
     # Convertir los datos a DataFrame de pandas
     df = pd.DataFrame(data)
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote']])[['E1','E2','E3','E4','E5']].mean().reset_index()
+    df.to_excel('Estimaciones.xlsx', index=False)
+
+
+    df.to_dict(orient='records')    
+
     print(df)
