@@ -30,8 +30,9 @@ class RegisterView(APIView):
          # Extrae los datos del perfil de la solicitud
         perfil_data = {
             'cedula': request.data.get('cedula', ''),
+            'Id_Hacienda':1,
         }
-        
+        #print(perfil_data)
         # Crea un serializer de usuario pasando los datos del perfil en el contexto
         serializer_data = {
             'username': request.data.get('username', ''),
@@ -42,8 +43,10 @@ class RegisterView(APIView):
         }
         
         serializer = UserSerializer(data=serializer_data, context={'perfil_data': perfil_data})
-        
-        if serializer.is_valid():
-            serializer.save()
-            return Response("Usuario registrado correctamente")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            if serializer.is_valid():
+                serializer.save()
+                return Response("Usuario registrado correctamente", status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(str(e))
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)

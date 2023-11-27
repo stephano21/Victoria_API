@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime, timedelta
-from Hacienda.models import Lectura, Planta
+from Hacienda.models import Lectura, Lote, Planta
 
 def ValidateLectura(data):
     required ="Este campo es requerido"
@@ -59,13 +59,22 @@ def validate_row(row, index, errors):
         print(errors)
         return
 
+def Validate_Headers_Excel(headers,df):
+    return [header for header in headers if header.lower() not in [col.lower() for col in df.columns]]
+
 def GetIdPlanta(codigo):
     try:
-        #codigo="T3"
-        print(codigo)
         Id_Planta = Planta.objects.get(Codigo_Planta=codigo, Activo=True)
-        print(Id_Planta.id)
-        return Id_Planta#planta.id
+        return Id_Planta.id
+    except Planta.DoesNotExist:
+        # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
+        return None 
+def GetIdLote(codigo):
+    try:
+        print(codigo)
+        Id_Lote = Lote.objects.get(Codigo_Lote=codigo, Activo=True)
+        print(Id_Lote.id)
+        return Id_Lote.id
     except Planta.DoesNotExist:
         # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
         return None 

@@ -89,6 +89,7 @@ class ImportUsers(APIView):
                     self.validate_row(row, index, errors,headers)
                     perfil_data = {
                         'cedula': row['Cedula'],
+                        'Id_Hacienda':1,
                     }
                     
                     # Crea un serializer de usuario pasando los datos del perfil en el contexto
@@ -99,6 +100,7 @@ class ImportUsers(APIView):
                         'first_name': row['Nombre'],
                         'last_name': row['Apellido'],
                     }
+                    print(perfil_data)
                     print(serializer_data)
                     serializer = UserSerializer(data=serializer_data, context={'perfil_data': perfil_data})
                     
@@ -107,6 +109,7 @@ class ImportUsers(APIView):
                         print("Usuario registrado correctamente")
                     else:
                         print(f'Error en la fila {index+1}: {", ".join(list(serializer.errors.values())[0])}')
+                        print(serializer.errors)
                         errors.append(f"Error en la fila {index+1} {row['Usuario']}: {', '.join(list(serializer.errors.values())[0])}")
                 if errors:
                     errors_str = '\n'.join(errors)

@@ -6,16 +6,16 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 """Models and Serializers"""
-from Hacienda.models import Lectura
-from Hacienda.serializers import LecturaSerializers
+from Hacienda.models import Produccion
+from Hacienda.serializers import ProduccionSerializers
 import pandas as pd
 from datetime import datetime
 import uuid
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from Hacienda.validators.ValidatorHelper import validate_row, GetIdPlanta,ValidateLectura
-class ImportLecturas(APIView):
+from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,validate_row, GetIdLote
+class ImportProduccion(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
     @swagger_auto_schema(
@@ -52,68 +52,49 @@ class ImportLecturas(APIView):
         
     )
     def post(self, request):
-        archivo_excel = request.FILES.get('lecturas')
+        archivo_excel = request.FILES.get('produccion')
         user = request.user
         username = user.username
         if archivo_excel:
             try:
-                df = pd.read_excel(archivo_excel, dtype={"Observacion": str})
-                headers = ['Planta','Fecha','E1','E2','E3','E4','E5','GR1','GR2','GR3','GR4','GR5','Cherelles','Total','Observacion']
-                missing_headers = [header for header in headers if header.lower() not in [col.lower() for col in df.columns]]
+                df = pd.read_excel(archivo_excel)
+                headers = ['Lote','Fecha','Quintales']
+                missing_headers = Validate_Headers_Excel(headers, df)
                 if missing_headers:
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
                 
                 df_copy = df.copy()
-                df_copy['Observacion'] = df_copy['Observacion'].astype(str)
+               
                 
                 errors = []
                 print(df_copy)
                 for index, row in df_copy.iterrows():
-                    validate_row(row, index, errors)
-                    Id_Planta = GetIdPlanta(row['Planta'])
-                    if Id_Planta is None:
+                    Id_Lote = GetIdLote(row['Lote'])
+                    fecha = row['Fecha'].to_pydatetime().date()
+                    if Id_Lote is None:
+                        break
+                    print(Id_Lote)
+                    Produccion_mes = Produccion.objects.filter(Fecha__month=fecha.month, Fecha__year=fecha.year, Id_Lote=Id_Lote)
+                    if Produccion_mes.exists():
+                        print(f"{row['Lote']} ya tiene una Produccion")
+                        errors.append(f"Error en la fila {index+1} {row['Lote']}:Ya existe una Produccion registrada en este mes!")
                         continue
-                    print(Id_Planta)
-                    fecha_visita = row['Fecha'].to_pydatetime()
-                    lecturas_mes = Lectura.objects.filter(FechaVisita__month=fecha_visita.date().month, FechaVisita__year=fecha_visita.date().year, Id_Planta=Id_Planta)
-                    if lecturas_mes.exists():
-                        print(f"{row['Planta']} ya tiene una lectura")
-                        errors.append(f"Error en la fila {index+1} {row['Planta']}:Ya existe una lectura de esta planta en este mes!")
-                        continue
-                    
                     # Crea un serializer de usuario pasando los datos del perfil en el contexto
                     serializer_data = {
-                        'Id_Planta': Id_Planta,
-                        'FechaVisita': fecha_visita,
-                        'E1': row['E1'],
-                        'E2': row['E2'],
-                        'E3': row['E3'],
-                        'E4': row['E4'],
-                        'E5': row['E5'],
-                        'GR1': row['GR1'],
-                        'GR2': row['GR2'],
-                        'GR3': row['GR3'],
-                        'GR4': row['GR4'],
-                        'GR5': row['GR5'],
-                        'Cherelles': row['Cherelles'],
-                        'Total': row['Total'],
-                        'Observacion': row['Observacion'],
+                        'Id_Lote': Id_Lote,
+                        'Fecha': fecha,
+                        'Qq': row['Quintales'],
                         'Usuario': str(username),
-                        'SyncId': str(uuid.uuid4),
-                        'GUIDLectura':uuid.uuid4,
                     }
-                    #print(serializer_data)
-                    validate = ValidateLectura(serializer_data)
-                    if validate != "":
-                        return Response(validate, status=status.HTTP_400_BAD_REQUEST)
-                    serializer = LecturaSerializers(data=serializer_data)
+                    print(serializer_data)
+                    serializer = ProduccionSerializers(data=serializer_data)
                     #print(serializer)
                     if serializer.is_valid():
                         serializer.save()
-                        print("Lectura  registrada exitosamente!")
+                        print("Producción  registrada exitosamente!")
                     else:
                         #print(f'Error en la fila {index+1}: {", ".join(list(serializer.errors.values())[0])}')
-                        errors.append(f"Error en la fila {index+1} {row['Planta']}: {', '.join(list(serializer.errors.values())[0])}")
+                        errors.append(f"Error en la fila {index+1} {row['Lote']}: {', '.join(list(serializer.errors.values())[0])}")
                 if errors:
                     errors_str = '\n'.join(errors)
                     return Response(errors_str, status=status.HTTP_400_BAD_REQUEST)

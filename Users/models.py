@@ -1,6 +1,8 @@
 """Users models"""
 from django.contrib.auth.models  import User
 from django.db import models
+
+from Hacienda.models import Hacienda
 # Create your models here.
 
 class Perfil(models.Model):
@@ -10,7 +12,7 @@ class Perfil(models.Model):
     cedula = models.CharField(max_length=10) 
     created = models.DateField(auto_now=True)
     modifief = models.DateField(auto_now=True)
-
+    Id_Hacienda = models.ForeignKey(Hacienda, on_delete=models.CASCADE, null=True)
     # Campos heredados de AbstractUser:
     # username
     # password
