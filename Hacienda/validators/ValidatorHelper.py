@@ -30,8 +30,8 @@ def ValidateLectura(data):
         return str(e)
     
 def validate_row(row, index, errors):
-        headers = ['Planta','Fecha','Total','Observacion']
-        print(row['Fecha'])
+        headers = ['Planta','Fecha','Observacion']
+       
         has_error = False
         if not all(row[col] and not pd.isna(row[col]) for col in headers):
             missing_data = [col for col in headers if not row[col] or pd.isna(row[col])]
@@ -56,7 +56,6 @@ def validate_row(row, index, errors):
     
         if has_error:
             return errors
-        print(errors)
         return
 
 def Validate_Headers_Excel(headers,df):

@@ -68,6 +68,8 @@ class ImportLecturas(APIView):
                 
                 errors = []
                 print(df_copy)
+                save_succes = 0
+
                 for index, row in df_copy.iterrows():
                     validate_row(row, index, errors)
                     Id_Planta = GetIdPlanta(row['Planta'])
@@ -80,7 +82,8 @@ class ImportLecturas(APIView):
                         print(f"{row['Planta']} ya tiene una lectura")
                         errors.append(f"Error en la fila {index+1} {row['Planta']}:Ya existe una lectura de esta planta en este mes!")
                         continue
-                    
+                    #row['Observacion'] = row['Observacion'].fillna("")
+                    row['Observacion'] = row['Observacion'] if row['Observacion'] !="nan"  else ""
                     # Crea un serializer de usuario pasando los datos del perfil en el contexto
                     serializer_data = {
                         'Id_Planta': Id_Planta,
@@ -97,9 +100,10 @@ class ImportLecturas(APIView):
                         'GR5': row['GR5'],
                         'Cherelles': row['Cherelles'],
                         'Total': row['Total'],
-                        'Observacion': row['Observacion'],
+                        'Observacion': row['Observacion'] if not pd.isna(row['Observacion']) else "",
+                        'Monilla': row['Monilla'] ,
                         'Usuario': str(username),
-                        'SyncId': str(uuid.uuid4),
+                        'SyncId': str(uuid.uuid4()),
                         'GUIDLectura':uuid.uuid4,
                     }
                     #print(serializer_data)
@@ -110,14 +114,15 @@ class ImportLecturas(APIView):
                     #print(serializer)
                     if serializer.is_valid():
                         serializer.save()
+                        save_succes+=1
                         print("Lectura  registrada exitosamente!")
                     else:
                         #print(f'Error en la fila {index+1}: {", ".join(list(serializer.errors.values())[0])}')
                         errors.append(f"Error en la fila {index+1} {row['Planta']}: {', '.join(list(serializer.errors.values())[0])}")
                 if errors:
                     errors_str = '\n'.join(errors)
-                    return Response(errors_str, status=status.HTTP_400_BAD_REQUEST)
-                return Response('Datos cargados correctamente', status=status.HTTP_200_OK)
+                    return Response(errors_str+f'\nse han cargado {save_succes} correctamente', status=status.HTTP_400_BAD_REQUEST)
+                return Response(f'se han cargado {save_succes} correctamente', status=status.HTTP_200_OK)
                 
             except Exception as e:
                 print(str(e))

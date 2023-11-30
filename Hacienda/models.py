@@ -18,6 +18,7 @@ class Proyecto(models.Model):
     Id_Hacienda = models.ForeignKey(Hacienda, on_delete=models.CASCADE, null=True)
     Codigo_Proyecto = models.CharField(max_length=10)
     Nombre = models.CharField(max_length=40)
+    Densidad = models.IntegerField(null=True)
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
 
@@ -27,7 +28,7 @@ class Lote(models.Model):
     Codigo_Lote = models.CharField(max_length=10)
     Nombre = models.CharField(max_length=40)
     Variedad = models.CharField(max_length=20, null=True)
-    Hectareas = models.IntegerField(null=True)
+    Hectareas = models.DecimalField(max_digits=7, decimal_places=3, null=True)
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
 

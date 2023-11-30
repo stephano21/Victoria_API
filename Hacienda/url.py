@@ -7,7 +7,8 @@ from Hacienda.views import (LoteAPIView,
                             PlantaAPIView,
                             ImportLecturas,
                             ProduccionAPIView,
-                            ImportProduccion)
+                            ImportProduccion,
+                            ImportLotesView)
 from Hacienda.api import HaciendaViewSet, ProyectoViewSet#, LecturaViewSet
 router = routers.DefaultRouter()
 router.register('api/hacienda', HaciendaViewSet)
@@ -17,6 +18,7 @@ urlpatterns = [
     path('api/hacienda/<int:hacienda_id>/proyectos/', ProyectoHaciendaAPIView.as_view(), name='proyectos-hacienda'),
     # Otras rutas de la aplicación Hacienda
     path('api/lotes/', LoteAPIView.as_view(), name='lotes'),
+    path('api/lotes/upload', ImportLotesView.as_view(), name='lotes'),
     path('api/lotes/<int:id>/', LoteAPIView.as_view(), name='lotes'),
     path('api/geolotes/', GeoLotesView.as_view(), name='geolotes'),
     path('api/geolotes/<int:id>/', GeoLotesView.as_view(), name='geolotes'),
