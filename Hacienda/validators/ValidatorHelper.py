@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime, timedelta
-from Hacienda.models import Lectura, Lote, Planta
+from Hacienda.models import Lectura, Proyecto, Planta,Lote
 
 def ValidateLectura(data):
     required ="Este campo es requerido"
@@ -78,4 +78,14 @@ def GetIdLote(codigo):
         # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
         return None 
         
+
+def GetIdProyecto(codigo):
+    try:
+        print(codigo)
+        Id_Prpyecto = Proyecto.objects.get(Codigo_Proyecto=codigo, Activo=True)
+        print(Id_Prpyecto.id)
+        return Id_Prpyecto.id
+    except Planta.DoesNotExist:
+        # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
+        return None 
     

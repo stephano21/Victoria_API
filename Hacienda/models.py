@@ -80,7 +80,7 @@ class Lectura(models.Model):
 
 
 class Produccion(models.Model):
-    Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=False)
+    Id_Proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
     Qq = models.DecimalField(max_digits=8, decimal_places=4, null=False)
     Fecha = models.DateField(null=False)
     FechaRegistro = models.DateTimeField(auto_now_add=True)

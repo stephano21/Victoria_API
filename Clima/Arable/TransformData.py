@@ -5,14 +5,50 @@ import pandas as pd
 
 def GetData():
     queryset = Daily_Indicadores.objects.all()
-    data = [{'date': obj.Date,'temp': obj.Temp_Air_Mean, 'Nvdi': obj.Ndvi} for obj in queryset]
+    data = [{'date': obj.Date,
+             'temp': obj.Temp_Air_Mean, 
+             'Evapotranspiration':obj.Evapotranspiration,
+             'Evapotranspiration_Crop':obj.Evapotranspiration_Crop,
+             'Nvdi': obj.Ndvi,
+             'Relat_Hum_Min':obj.Relat_Hum_Min,
+             'Relat_Hum_Max_Temp':obj.Relat_Hum_Max_Temp,
+             'Relat_Hum_Max_Temp':obj.Relat_Hum_Min_Temp,
+             'Temp_Air_Max':obj.Temp_Air_Max,
+             'Temp_Air_Min':obj.Temp_Air_Min,
+             'Dew_Temp_Max':obj.Dew_Temp_Max,
+             'Precipitacion':obj.Precipitacion,
+             'Precipitacion_Hours':obj.Precipitacion_Hours,
+             'Sea_Level_Pressure': obj.Sea_Level_Pressure,
+             'Vapor_Pressure_Deficit':obj.Vapor_Pressure_Deficit,
+             'Dew_Temp_Mean':obj.Dew_Temp_Mean,
+             'Crop_Water_Demand':obj.Crop_Water_Demand,
+             'Sunshine_Duration':obj.Sunshine_Duration,
+             } for obj in queryset]
 
     # Convertir los datos a DataFrame de pandas
     df = pd.DataFrame(data)
     # Convertir la columna de fecha al formato correcto
     df['date'] = pd.to_datetime(df['date'])
     # Agrupar por mes y calcular el promedio
-    df = df.groupby(df['date'].dt.to_period("M")).agg({'temp': 'mean','Nvdi':'mean'}).reset_index()
+    df = df.groupby(df['date'].dt.to_period("M")).agg({'temp': 'mean',
+                                                       'Nvdi':'mean',
+                                                       'temp':'mean',
+                                                        'Evapotranspiration':'mean',
+                                                        'Evapotranspiration_Crop':'mean',
+                                                        'Nvdi':'mean',
+                                                        'Relat_Hum_Min':'mean',
+                                                        'Relat_Hum_Max_Temp':'mean',
+                                                        'Relat_Hum_Max_Temp':'mean',
+                                                        'Temp_Air_Max':'mean',
+                                                        'Temp_Air_Min':'mean',
+                                                        'Dew_Temp_Max':'mean',
+                                                        'Precipitacion':'mean',
+                                                        'Precipitacion_Hours':'mean',
+                                                        'Sea_Level_Pressure':'mean',
+                                                        'Vapor_Pressure_Deficit':'mean',
+                                                        'Dew_Temp_Mean':'mean',
+                                                        'Crop_Water_Demand':'mean',
+                                                        'Sunshine_Duration':'mean'}).reset_index()
 
     df.to_dict(orient='records')    
     print(df)
@@ -24,7 +60,7 @@ def getLotes():
     data = [
         {
             'date': obj.FechaVisita,
-            'proyecto': obj.Id_Planta.Id_Lote.Id_Proyecto.Codigo_Proyecto if obj.Id_Planta and obj.Id_Planta.Id_Lote and  obj.Id_Planta.Id_Lote.Id_Proyecto else None,
+            'producion_real': obj.Id_Planta.Id_Lote.Id_Proyecto.Codigo_Proyecto if obj.Id_Planta and obj.Id_Planta.Id_Lote and  obj.Id_Planta.Id_Lote.Id_Proyecto else None,
             'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
             'hectareas': obj.Id_Planta.Id_Lote.Hectareas,
             'densidad': obj.Id_Planta.Id_Lote.Id_Proyecto.Densidad,
