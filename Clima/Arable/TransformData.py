@@ -1,5 +1,5 @@
 from Clima.models import Daily_Indicadores
-from Hacienda.models import Lectura, Planta, Lote,Proyecto
+from Hacienda.models import Lectura, Planta, Lote,Proyecto, Produccion
 import pandas as pd
 
 
@@ -53,6 +53,19 @@ def GetData():
     df.to_dict(orient='records')    
     print(df)
     return df
+def getProduction():
+    queryset = Produccion.objects.all()
+    data = [
+        {
+            'date': obj.Fecha,
+            'qq': obj.Qq,
+        }
+        for obj in queryset
+    ]
+    df = pd.DataFrame(data)
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.groupby([df['date'].dt.to_period("M")])['qq'].sum().reset_index()
+    print(df)
 
 def getLotes():
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=1)
@@ -77,7 +90,7 @@ def getLotes():
     df = pd.DataFrame(data)
     # Agrupar por fecha y lote, calcular la media de las columnas E1-E5
     df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df['densidad'], df['hectareas']])[['E1', 'E2', 'E3', 'E4', 'E5']].mean().reset_index()
-    df.to_excel('MensualByLote.xlsx', index=False)
+    df.to_csv('MensualByLote.csv', index=False)
     print(df)
     dfByLote = df.copy()
     # Dividir la columna 'lote' en dos basado en el caracter "_"
@@ -96,7 +109,7 @@ def getLotes():
 
 
     # Guardar el DataFrame en un archivo Excel
-    dfByLote.to_excel('Clima.xlsx', index=False)
+    dfByLote.to_csv('Clima.csv', index=False)
     # Convertir las columnas relevantes a tipo float
     dfByLote['E1'] = dfByLote['E1'].astype(float)
     dfByLote['E2'] = dfByLote['E1'].astype(float)
@@ -122,13 +135,14 @@ def getLotes():
     #merge clima
     df_weather = GetData()
     df_merged_inner = pd.merge(df_agrupado, df_weather, on='date', how='inner')
-    df_merged_inner.to_excel('FInalDataSet.xlsx', index=False)
+    df_merged_inner.to_csv('FInalDataSet.csv', index=False)
 
     # Imprimir el DataFrame
     print(dfByLote)
     print(df_agrupado)
-    print(df_merged_inner)
-
+    df_Production = getProduction()
+    df_final =pd.merge(df_merged_inner, df_Production, on='date', how='inner')
     # Devolver los datos como un diccionario orientado a registros
+    print(df_Production)
     return df.to_dict(orient='records')
  
