@@ -9,3 +9,5 @@ db.sqlite3
 *.env
 *.pyc
 /Inserts*
+.csv*
+.xlsx*
