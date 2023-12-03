@@ -11,3 +11,5 @@ db.sqlite3
 /Inserts*
 .csv*
 .xlsx*
+*.csv
+*.xlsx
