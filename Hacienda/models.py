@@ -38,6 +38,7 @@ class Planta(models.Model):
     Nombre = models.CharField(max_length=40) 
     Circunferencia = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     Activo = models.BooleanField(default=True)
+    Visible = models.BooleanField(null=False,default=True)
 
 
 class Poligono (models.Model):
