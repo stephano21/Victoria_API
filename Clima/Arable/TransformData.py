@@ -54,18 +54,21 @@ def GetData():
     print(df)
     return df
 def getProduction():
-    queryset = Produccion.objects.all()
+    queryset = Produccion.objects.select_related('Id_Proyecto__Id_Hacienda').filter(Activo=True, Id_Proyecto__Id_Hacienda_id=1)
+
     data = [
         {
             'date': obj.Fecha,
             'qq': obj.Qq,
+            'Proyecto': obj.Id_Proyecto.Codigo_Proyecto,
         }
         for obj in queryset
     ]
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
-    df = df.groupby([df['date'].dt.to_period("M")])['qq'].sum().reset_index()
+    df = df.groupby([df['date'].dt.to_period("M"), df['Proyecto']])['qq'].sum().reset_index()
     print(df)
+    return df
 
 def getLotes():
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=1)
@@ -90,8 +93,6 @@ def getLotes():
     df = pd.DataFrame(data)
     # Agrupar por fecha y lote, calcular la media de las columnas E1-E5
     df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df['densidad'], df['hectareas']])[['E1', 'E2', 'E3', 'E4', 'E5']].mean().reset_index()
-    df.to_csv('MensualByLote.csv', index=False)
-    print(df)
     dfByLote = df.copy()
     # Dividir la columna 'lote' en dos basado en el caracter "_"
     split_data = dfByLote['lote'].str.split('_', expand=True)
@@ -106,43 +107,44 @@ def getLotes():
 
     # Agrupar por fecha y proyecto, calcular la suma de las columnas E1-E5
     dfByLote = dfByLote.groupby(['date', 'Proyecto','densidad']).agg({'hectareas':'sum','E1': 'mean', 'E2': 'mean', 'E3': 'mean', 'E4': 'mean', 'E5': 'mean'}).reset_index()
+    df_Production = getProduction()
+    df_Lote_Produccion =pd.merge(dfByLote, df_Production, on=['date','Proyecto'], how='inner')
 
 
     # Guardar el DataFrame en un archivo Excel
-    dfByLote.to_csv('Clima.csv', index=False)
     # Convertir las columnas relevantes a tipo float
-    dfByLote['E1'] = dfByLote['E1'].astype(float)
-    dfByLote['E2'] = dfByLote['E1'].astype(float)
-    dfByLote['E3'] = dfByLote['E1'].astype(float)
-    dfByLote['E4'] = dfByLote['E1'].astype(float)
-    dfByLote['E5'] = dfByLote['E1'].astype(float)
-    dfByLote['densidad'] = dfByLote['densidad'].astype(float)
-    dfByLote['hectareas'] = dfByLote['hectareas'].astype(float)
+    df_Lote_Produccion['E1'] = df_Lote_Produccion['E1'].astype(float)
+    df_Lote_Produccion['E2'] = df_Lote_Produccion['E1'].astype(float)
+    df_Lote_Produccion['E3'] = df_Lote_Produccion['E1'].astype(float)
+    df_Lote_Produccion['E4'] = df_Lote_Produccion['E1'].astype(float)
+    df_Lote_Produccion['E5'] = df_Lote_Produccion['E1'].astype(float)
+    df_Lote_Produccion['densidad'] = df_Lote_Produccion['densidad'].astype(float)
+    df_Lote_Produccion['hectareas'] = df_Lote_Produccion['hectareas'].astype(float)
     #Aqui convierto los totales de mazorcas a quintales secos 
-    dfByLote['Total_E1']= ((dfByLote['E1']*dfByLote['densidad']*dfByLote['hectareas'])/12)/100
-    dfByLote['Total_E2']= ((dfByLote['E2']*dfByLote['densidad']*dfByLote['hectareas'])/12)/100
-    dfByLote['Total_E3']= ((dfByLote['E3']*dfByLote['densidad']*dfByLote['hectareas'])/12)/100
-    dfByLote['Total_E4']= ((dfByLote['E4']*dfByLote['densidad']*dfByLote['hectareas'])/12)/100
-    dfByLote['Total_E5']= ((dfByLote['E5']*dfByLote['densidad']*dfByLote['hectareas'])/12)/100
+    df_Lote_Produccion['Total_E1']= ((df_Lote_Produccion['E1']*df_Lote_Produccion['densidad']*df_Lote_Produccion['hectareas'])/12)/100
+    df_Lote_Produccion['Total_E2']= ((df_Lote_Produccion['E2']*df_Lote_Produccion['densidad']*df_Lote_Produccion['hectareas'])/12)/100
+    df_Lote_Produccion['Total_E3']= ((df_Lote_Produccion['E3']*df_Lote_Produccion['densidad']*df_Lote_Produccion['hectareas'])/12)/100
+    df_Lote_Produccion['Total_E4']= ((df_Lote_Produccion['E4']*df_Lote_Produccion['densidad']*df_Lote_Produccion['hectareas'])/12)/100
+    df_Lote_Produccion['Total_E5']= ((df_Lote_Produccion['E5']*df_Lote_Produccion['densidad']*df_Lote_Produccion['hectareas'])/12)/100
     #Limpiar el dataset
-    dfByLote = dfByLote.drop(['E1','E2','E3','E4','E5','densidad','hectareas'], axis=1)
+    df_Lote_Produccion = df_Lote_Produccion.drop(['E1','E2','E3','E4','E5','densidad','hectareas'], axis=1)
+    #merge with clima
+    df_weather = GetData()
+    df_merged_inner = pd.merge(df_Lote_Produccion, df_weather, on='date', how='inner')
+    df_merged_inner.to_csv('Clima.csv', index=False)
 
 
 
     # Agrupar por mes y sumar
-    df_agrupado = dfByLote.groupby(['date']).agg({'Total_E1':'sum','Total_E2':'sum','Total_E3':'sum','Total_E4':'sum','Total_E5':'sum'})
+    df_Total = df_Lote_Produccion.groupby(['date']).agg({'Total_E1':'sum','Total_E2':'sum','Total_E3':'sum','Total_E4':'sum','Total_E5':'sum','qq':'sum'})
     
     #merge clima
-    df_weather = GetData()
-    df_merged_inner = pd.merge(df_agrupado, df_weather, on='date', how='inner')
+   
     df_merged_inner.to_csv('FInalDataSet.csv', index=False)
 
     # Imprimir el DataFrame
-    print(dfByLote)
-    print(df_agrupado)
-    df_Production = getProduction()
-    df_final =pd.merge(df_merged_inner, df_Production, on='date', how='inner')
+   
     # Devolver los datos como un diccionario orientado a registros
-    print(df_Production)
+    #print(df_final)
     return df.to_dict(orient='records')
  

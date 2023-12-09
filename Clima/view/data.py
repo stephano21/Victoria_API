@@ -6,8 +6,8 @@ from Clima.serializers import DailyIndicadorSerializers
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
-from Clima.Arable.TransformData import GetData, getLotes
+from Clima.Arable.Predict import GenerateDF,predict
 class PandasView(APIView):
     def get(self, request):        
-        Data = getLotes()
+        Data = predict()
         return Response("testt", status=status.HTTP_200_OK)

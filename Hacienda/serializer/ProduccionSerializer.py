@@ -18,9 +18,9 @@ class ProduccionSerializers(serializers.ModelSerializer):
             return instance.Id_Proyecto.Nombre
         return None  # Puedes manejar el caso en que la relación sea nula según tus necesidades
 
-    def get_Fecha(self, instance):
+    def get_Fecha_Produccion(self, instance):
         # Aquí puedes formatear la fecha según tus requisitos
-         # Configura la localización a español
+        # Configura la localización a español
         locale.setlocale(locale.LC_TIME, 'es_ES.utf-8')  # Ajusta la localización según tu sistema
 
         if instance.Fecha:

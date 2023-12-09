@@ -16,14 +16,25 @@ class PlantaAPIView(APIView):
         username = user.username
         print(f"{username} Ha cargado plantas")
         id = self.kwargs.get('id')
+        grupos_usuario = user.groups.all()
         if id: 
             plantas = Planta.objects.filter(Id_Lote = id , Activo=True)
             serializer = PlantaSerializers(plantas, many=True)
             return Response(serializer.data)
-
+        if any(grupo.name == "Estudiante" for grupo in grupos_usuario):
+            plantas = Planta.objects.filter(Activo=True, Visible=True)
+            serializer = PlantaSerializers(plantas, many=True)
+            return Response(serializer.data)
+        if any(grupo.name == "Tecnico" for grupo in grupos_usuario):
+            plantas = Planta.objects.filter(Activo=True, Visible=True)
+            serializer = PlantaSerializers(plantas, many=False)
+            return Response(serializer.data)
+        
         plantas = Planta.objects.filter(Activo=True)
         serializer = PlantaSerializers(plantas, many=True)
         return Response(serializer.data)
+    
+
     def post(self, request):
         user = request.user
         username = user.username
