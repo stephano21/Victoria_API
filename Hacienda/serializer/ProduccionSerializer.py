@@ -3,7 +3,7 @@ from Hacienda.models import Lote,Produccion
 import locale
 class ProduccionSerializers(serializers.ModelSerializer):
     Victoria = serializers.SerializerMethodField()
-    Fecha = serializers.SerializerMethodField()
+    #Fecha = serializers.SerializerMethodField()
     class Meta:
         model = Produccion
         fields = ('__all__')
