@@ -91,6 +91,8 @@ def GetData(token, start_time=None):
         data_from_api = response.json()
         return response.json()
     else:
+        print(response.status_code)
+        print(response.content)
         return ""
 def BuidlSerializer(data,user):
     Serializer_Arrya=[]
