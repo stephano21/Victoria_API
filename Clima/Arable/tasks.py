@@ -22,6 +22,9 @@ def SyncArable():
             data = GetData(token, start_time.date())
         else:
             data = GetData(token)
+        if data=="":
+                enviar_correo('Sincronización Arable','stephanochang21@gmail.com',f"Ocurrió un error con arable!")
+                return Response("Ocurrió un error con arable!", status=status.HTTP_400_BAD_REQUEST)
         Format_Data = BuidlSerializer(data, "Sync_System")
         # Validar si Format_Data es un arreglo de objetos
         if not isinstance(Format_Data, list) or not all(isinstance(i, dict) for i in Format_Data):

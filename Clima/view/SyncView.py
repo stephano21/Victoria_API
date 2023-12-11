@@ -32,6 +32,8 @@ class SyncView(APIView):
                 data = GetData(token, start_time.date())
             else:
                 data = GetData(token)
+            if data=="":
+                return Response("Ocurrió un error con arable!", status=status.HTTP_400_BAD_REQUEST)
             Format_Data = BuidlSerializer(data, username)
             # Validar si Format_Data es un arreglo de objetos
             if not isinstance(Format_Data, list) or not all(isinstance(i, dict) for i in Format_Data):
