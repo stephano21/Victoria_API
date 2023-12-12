@@ -4,7 +4,7 @@ import pandas as pd
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
+from datetime import datetime
 from Clima.models import Daily_Indicadores
 from Clima.serializer.IndicadorSerializer import DailyIndicadorSerializers
 
@@ -17,47 +17,47 @@ class CargarDatosDesdeExcel(APIView):
             try:
                 #df = pd.read_excel(archivo_excel)
                 df = pd.read_csv(archivo_excel, skiprows=13)
+                #print(df)
                 headers=["local_time","cl","ET","ETc","gdd","gdd_source","gdd_cumulative","gdd_cumulative_source",
                         "NDVI","min_rh","rh_at_max_temp","rh_at_min_temp","swdw","max_temp","mean_temp",
                         "min_temp","max_temp_dew","max_temp_time","min_temp_time","precip","precip_hours",
                         "cumulative_precip","sea_level_pressure","vapor_pressure_deficit","Kc","leaf_wetness",
                         "dew_temp","crop_water_demand","sunshine_duration","wind_direction_cardinal","wind_speed",
                         "wind_direction_degrees","wind_speed_max","wind_speed_min","wind_source"]
-                missing_headers = [header for header in headers fecha_visitaif header.lower() not in [col.lower() for col in df.columns]]
+                missing_headers = [header for header in headers if header.lower() not in [col.lower() for col in df.columns]]
                 if missing_headers:
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
                 
                 errors = []
-                print(df)
-                
+
+                df.fillna(0, inplace=True)
+                #print(df.isnull().sum())
+               # print(df)
                 for index, row in df.iterrows():
-                    Fecha = row['local_time'].to_pydatetime()
+                    print(row)
+                    Fecha = datetime.strptime(row['local_time'], "%Y-%m-%d")
+
                     DataRegistred = Daily_Indicadores.objects.filter(Date__month=Fecha.date().month, Date__year=Fecha.date().year,Date__day=Fecha.date().day)
                     if DataRegistred.exists():
                         print(f"{index+1} ya tiene un registro")
                         errors.append(f"Error en la fila {index+1} :Ya existe un registro para esta fecha!")
                         continue
-                    
-                   
                     serializer_data = {
                         "Date":row["local_time"],
-                        
                         "Date_Sync":datetime.now(),
                         "Precipitacion":row["precip"],
-                        
-                        
                         "Precipitacion_Hours":row["precip_hours"],
-                        "Ndvi":row["ndvi"], 
+                        "Ndvi":row["NDVI"], 
                         "Crop_Water_Demand":row["crop_water_demand"], 
                         "Sunshine_Duration":row["sunshine_duration"], 	
                         "Evapotranspiration":row["ET"], 
-                        "Evapotranspiration_Crop":row["ETC"],	 
+                        "Evapotranspiration_Crop":row["ETc"],	 
                         "Relat_Hum_Max":row["min_rh"], 
-                        "Relat_Hum_Max":row["max_rh"], 
+                        #"Relat_Hum_Max":row["max_rh"], 
                         "Vapor_Pressure_Deficit":row["vapor_pressure_deficit"], 
                         "Shortwave_Downwelling":row["swdw"], 
                         "Temp_Air_Mean":row["mean_temp"],
-                        "Temp_Air_Min":row["mim_temp"], 
+                        "Temp_Air_Min":row["min_temp"], 
                         "Relat_Hum_Max_Temp":row["rh_at_max_temp"], 
                         "Relat_Hum_Min_Temp":row["rh_at_min_temp"], 
                         "Temp_Air_Max":row["max_temp"], 
@@ -66,7 +66,7 @@ class CargarDatosDesdeExcel(APIView):
                         "Dew_Temp_Mean":row["dew_temp"], 
                         "Temp_Air_Max_Day":row["max_temp_time"],
                         "Temp_Air_Min_Day":row["min_temp_time"],
-
+                        'Device': "C004874",
                     }
                     print(serializer_data)
                     serializer = DailyIndicadorSerializers( data=serializer_data)
@@ -74,7 +74,8 @@ class CargarDatosDesdeExcel(APIView):
                         serializer.save()
                         print("Dato registrado con exito!")
                     else:
-                        print(f'Error en la fila {index+1}: {", ".join(list(serializer.errors.values())[0])}')
+                        print(serializer.errors)
+                        #print(f'Error en la fila {index+1}: {", ".join(list(serializer.errors.values())[0])}')
                         errors.append(f"Error en la fila {index+1} : {', '.join(list(serializer.errors.values())[0])}")
                 if errors:
                     errors_str = '\n'.join(errors)

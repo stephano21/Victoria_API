@@ -103,9 +103,13 @@ def GenerateDF():
 def predict():
     df = GenerateDF()
     df = df.drop(['planta','hacienda','Relat_Hum_Min'],axis=1)
-    df['date'] = df['date'].dt.month
-
-
+    print(df['date'].dt.year)
+    #df['anio']=df['date']
+    df['anio']=df['date'].dt.year.astype(int)
+    df['date']=df['date'].dt.month.astype(int)
+   # df['year'] = df['date'].dt.year
+    #print(df)
+    df.to_excel('dataset.xlsx', index=False)
     # Elimina la columna de fechas y la columna objetivo 'qq' para el conjunto X y 'qq' para y
     X = df.drop(['qq'], axis=1)
     y = df['qq']
