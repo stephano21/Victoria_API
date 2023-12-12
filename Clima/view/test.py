@@ -9,8 +9,8 @@ from Clima.models import Daily_Indicadores
 from Clima.serializer.IndicadorSerializer import DailyIndicadorSerializers
 
 class CargarDatosDesdeExcel(APIView):
-    def post(self, request, format=None):
-        archivo_excel = request.FILES.get('data')
+    def post(self, request):
+        archivo_excel = request.FILES.get('weather')
         user = request.user
         username = user.username
         if archivo_excel:
