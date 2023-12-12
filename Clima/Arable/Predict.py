@@ -56,7 +56,7 @@ def GetWeather():
              'Nvdi': obj.Ndvi,
              'Relat_Hum_Min':obj.Relat_Hum_Min,
              'Relat_Hum_Max_Temp':obj.Relat_Hum_Max_Temp,
-             'Relat_Hum_Max_Temp':obj.Relat_Hum_Min_Temp,
+             'Relat_Hum_Min_Temp':obj.Relat_Hum_Min_Temp,
              'Temp_Air_Max':obj.Temp_Air_Max,
              'Temp_Air_Min':obj.Temp_Air_Min,
              'Dew_Temp_Max':obj.Dew_Temp_Max,
