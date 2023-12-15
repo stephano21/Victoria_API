@@ -58,6 +58,9 @@ cree el archivo railway.yml y cambie el comando de inicio a:
 
 <code>
 python manage.py migrate && gunicorn API_VICTORIA.wsgi</code>
+se he eliminado esto
+tensorflow-intel==2.15.0
+ 
 
 
 
