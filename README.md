@@ -52,13 +52,13 @@ acto seguido pega el codigo sql generado por el backup en la terminal
 
 ## Salida a intenert
 
-> Tenia un problema con el deploy, se me ejecutava de manera local en el servidor, para ello realizé lo liguiente
+> Tenia un problema con el deploy, se me ejecutava de manera local en el servidor, para ello realizé lo siguiente
 
 cree el archivo railway.yml y cambie el comando de inicio a:
 
 <code>
 python manage.py migrate && gunicorn API_VICTORIA.wsgi</code>
-se he eliminado esto
+Hay que eliminar esto si se usan un servidor linux
 tensorflow-intel==2.15.0
  
 

@@ -14,7 +14,7 @@ import uuid
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,validate_row, GetIdLote
+from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,GetIdPlanta, GetIdLote
 class ImportPlantasView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -58,29 +58,32 @@ class ImportPlantasView(APIView):
         if archivo_excel:
             try:
                 df = pd.read_excel(archivo_excel)
-                headers = ['Lote','Codigo','Nombre','Visible']
+                headers = ['Lote','Codigo','Nombre','Visible','Latitud','Longitud','Diametro']
                 missing_headers = Validate_Headers_Excel(headers, df)
                 if missing_headers:
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
                 
                 errors = []
-                print(df)
-                
                 for index, row in df.iterrows():
                     Id_Lote = GetIdLote(row['Lote'])
+                    Id_Planta = GetIdPlanta(row['Codigo'])
                     if Id_Lote is None:
                         break
-                    print(Id_Lote)
-                    row['Variedad'] = row['Variedad'] if row['Variedad'] !="nan"  else ""
                     serializer_data = {
                         'Id_Lote': Id_Lote,
                         'Codigo_Planta': row['Codigo'],
                         'Nombre': row['Nombre'],
                         'Visible': True if row['Visible']==1 else False,
                         'Usuario': str(username),
+                        'lat': row['Latitud'],
+                        'lng': row['Longitud'],
                     }
-                    print(serializer_data)
-                    serializer = PlantaSerializers( data=serializer_data)
+                    if Id_Planta is None:
+                        serializer = PlantaSerializers(data=serializer_data)
+                    else:
+                        Plantaxd = Planta.objects.get(id=Id_Planta)
+                        serializer = PlantaSerializers(Plantaxd, data=serializer_data, partial=True)
+
                     if serializer.is_valid():
                         serializer.save()
                         print("Planta registrada con exito!")
