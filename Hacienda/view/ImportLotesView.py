@@ -6,7 +6,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 """Models and Serializers"""
-from Hacienda.models import Lote
+from Hacienda.models import Lote, Proyecto
 from Hacienda.serializers import LoteSerializers
 import pandas as pd
 from datetime import datetime
@@ -14,7 +14,7 @@ import uuid
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,validate_row, GetIdLote
+from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,GetIdProyecto, GetIdLote
 class ImportLotesView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -58,7 +58,7 @@ class ImportLotesView(APIView):
         if archivo_excel:
             try:
                 df = pd.read_excel(archivo_excel)
-                headers = ['Lote','Variedad','Hectareas']
+                headers = ['Lote','Variedad','Hectareas','Victoria','Nombre']
                 missing_headers = Validate_Headers_Excel(headers, df)
                 if missing_headers:
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
@@ -70,19 +70,23 @@ class ImportLotesView(APIView):
 
                 for index, row in df.iterrows():
                     Id_Lote = GetIdLote(row['Lote'])
-                    if Id_Lote is None:
-                        break
+                    Id_Proyecto = GetIdProyecto(row['Victoria'])
                     print(Id_Lote)
                     row['Variedad'] = row['Variedad'] if row['Variedad'] !="nan"  else ""
                     serializer_data = {
-                        'Id_Lote': Id_Lote,
+                        'Id_Proyecto': Id_Proyecto,
+                        'Nombre': row['Nombre'],
                         'Hectareas': row['Hectareas'],
                         'Variedad': row['Variedad'],
                         'Usuario': str(username),
+                        'Codigo_Lote':row['Lote'],
                     }
                     print(serializer_data)
-                    lote = Lote.objects.get(id=Id_Lote)
-                    serializer = LoteSerializers(lote, data=serializer_data, partial=True)
+                    if Id_Lote is None:
+                        serializer = LoteSerializers(data=serializer_data)
+                    else:
+                        lote = Proyecto.objects.get(id=Id_Lote)
+                        serializer = LoteSerializers(lote, data=serializer_data, partial=True)
                     if serializer.is_valid():
                         serializer.save()
                         print("Lote Actualizado con exito!")
