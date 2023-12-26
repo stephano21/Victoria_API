@@ -7,6 +7,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.metrics import explained_variance_score, mean_absolute_error, mean_squared_error, accuracy_score, median_absolute_error,r2_score
+import re
+
 def GetLecturas():
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=1)
 
@@ -14,10 +16,10 @@ def GetLecturas():
         {
             'date': obj.FechaVisita,
             #'producion_real': obj.Id_Planta.Id_Lote.Id_Proyecto.Codigo_Proyecto if obj.Id_Planta and obj.Id_Planta.Id_Lote and  obj.Id_Planta.Id_Lote.Id_Proyecto else None,
-            #'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
-            'planta': obj.Id_Planta.Codigo_Planta,
+            'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
+            #'planta': obj.Id_Planta.Codigo_Planta,
             #'hectareas': obj.Id_Planta.Id_Lote.Hectareas,
-            #'densidad': obj.Id_Planta.Id_Lote.Id_Proyecto.Densidad,
+            'Cherelles': obj.Cherelles,
             'E1': obj.E1,
             'E2': obj.E2,
             'E3': obj.E3,
@@ -27,25 +29,26 @@ def GetLecturas():
         for obj in queryset
     ]
     df = pd.DataFrame(data)
-    df['date']= df['date'].dt.to_period("M")
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], ])[['E1', 'E2', 'E3', 'E4', 'E5','Cherelles']].sum().reset_index()
+    #df['date']= df['date'].dt.to_period("M")
     # Convertir los datos a DataFrame de pandas
     return df
 
 def getProduction():
-    queryset = Produccion.objects.select_related('Id_Proyecto__Id_Hacienda').filter(Activo=True, Id_Proyecto__Id_Hacienda_id=1)
+    queryset = Produccion.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(Activo=True, Id_Lote__Id_Proyecto__Id_Hacienda_id=1)
 
     data = [
         {
             'date': obj.Fecha,
             'qq': obj.Qq,
-            'hacienda': obj.Id_Proyecto.Id_Hacienda.codigo,
+            'lote': obj.Id_Lote.Codigo_Lote,
         }
         for obj in queryset
     ]
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
     df['date'] = pd.to_datetime(df['date'])
-    return df.groupby([df['date'].dt.to_period("M"), df['hacienda']])['qq'].sum().reset_index()
+    return df.groupby([df['date'].dt.to_period("M"), df['lote']])['qq'].sum().reset_index()
 
 def GetWeather():
     queryset = Daily_Indicadores.objects.all()
@@ -95,18 +98,31 @@ def GetWeather():
 def GenerateDF():
     dfLecutas = GetLecturas()
     dfProduction = getProduction()
+    print(dfProduction)
     dfWeather = GetWeather()
-    df = pd.merge(dfLecutas, dfProduction, on='date',how='inner' ).merge(dfWeather, on='date',how='inner' )
+    df = pd.merge(dfLecutas, dfProduction, on=['date', 'lote'],how='inner' ).merge(dfWeather, on='date',how='inner' )
     #df.to_csv('Clima.csv', index=False)
     #df.to_excel('DFNew.xlsx', index=False)
     return df
+
+
+def obtener_numeros(codigo):
+   # Utilizar expresiones regulares para encontrar los números
+    numeros = re.findall(r'\d+', codigo)
+    
+    # Concatenar los números y convertirlos a un solo entero
+    numero_completo = ''.join(numeros)
+    
+    return int(numero_completo)
 def predict():
     df = GenerateDF()
-    df = df.drop(['planta','hacienda','Relat_Hum_Min'],axis=1)
-    print(df['date'].dt.year)
+    df = df.drop(['Relat_Hum_Min'],axis=1)
+    #print(df['date'].dt.year)
     #df['anio']=df['date']
-    df['anio']=df['date'].dt.year.astype(int)
+    df['year']=df['date'].dt.year.astype(int)
     df['date']=df['date'].dt.month.astype(int)
+    df.rename(columns={'date': 'month'}, inplace=True)
+    df['lote'] = df['lote'].apply(obtener_numeros)
    # df['year'] = df['date'].dt.year
     #print(df)
     df.to_excel('dataset.xlsx', index=False)

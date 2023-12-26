@@ -40,7 +40,7 @@ class Planta(models.Model):
     Activo = models.BooleanField(default=True)
     lat = models.DecimalField(max_digits=18, decimal_places=16, null=False)
     lng = models.DecimalField(max_digits=19, decimal_places=16, null=False)
-    Visible = models.BooleanField(null=False,default=True)
+    VisibleToStudent = models.BooleanField(null=False,default=True)
 
 
 class Poligono (models.Model):

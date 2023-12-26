@@ -63,6 +63,7 @@ def Validate_Headers_Excel(headers,df):
 
 def GetIdPlanta(codigo):
     try:
+        codigo=codigo.strip()
         Id_Planta = Planta.objects.get(Codigo_Planta=codigo, Activo=True)
         return Id_Planta.id
     except Planta.DoesNotExist:
@@ -70,12 +71,13 @@ def GetIdPlanta(codigo):
         return None 
 def GetIdLote(codigo):
     try:
+        codigo=codigo.strip()
         print(codigo)
         Id_Lote = Lote.objects.get(Codigo_Lote=codigo, Activo=True)
         print(Id_Lote.id)
         return Id_Lote.id
     except Lote.DoesNotExist:
-        print('Id_Lote')
+        print(f'El lote "{codigo}" No existe')
         # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
         return None 
         
