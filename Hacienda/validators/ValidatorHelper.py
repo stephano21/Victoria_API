@@ -84,7 +84,7 @@ def GetIdLote(codigo):
 
 def GetIdProyecto(codigo):
     try:
-        #print(codigo)
+        print(f"'{codigo}'")
         Id_Proyecto = Proyecto.objects.get(Codigo_Proyecto=codigo, Activo=True)
         #print(Id_Prpyecto.id)
         return Id_Proyecto.id

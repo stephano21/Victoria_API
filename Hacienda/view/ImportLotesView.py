@@ -10,6 +10,7 @@ from Hacienda.models import Lote, Proyecto
 from Hacienda.serializers import LoteSerializers
 import pandas as pd
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import uuid
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
@@ -71,7 +72,7 @@ class ImportLotesView(APIView):
                 for index, row in df.iterrows():
                     Id_Lote = GetIdLote(row['Lote'])
                     Id_Proyecto = GetIdProyecto(row['Victoria'])
-                    print(Id_Lote)
+                    print(Id_Proyecto)
                     row['Variedad'] = row['Variedad'] if row['Variedad'] !="nan"  else ""
                     serializer_data = {
                         'Id_Proyecto': Id_Proyecto,
@@ -80,14 +81,21 @@ class ImportLotesView(APIView):
                         'Variedad': row['Variedad'],
                         'Usuario': str(username),
                         'Codigo_Lote':row['Lote'],
+                        'FechaSiembra':row['FechaSiembra'],
+                        'Edad': self.calculate_age(row['FechaSiembra'])
                     }
                     print(serializer_data)
                     if Id_Lote is None:
+                        print("creando")
+
                         serializer = LoteSerializers(data=serializer_data)
                     else:
-                        lote = Proyecto.objects.get(id=Id_Lote)
+                        print("updating")
+
+                        lote = Lote.objects.get(id=Id_Lote)
                         serializer = LoteSerializers(lote, data=serializer_data, partial=True)
                     if serializer.is_valid():
+
                         serializer.save()
                         print("Lote Actualizado con exito!")
                     else:
@@ -104,5 +112,9 @@ class ImportLotesView(APIView):
         else:
             return Response('No se proporcionó un archivo Excel!', status=status.HTTP_400_BAD_REQUEST)
 
-
+    def calculate_age(self, fecha_siembra):
+        # Calcular la edad en años
+        today = datetime.now()
+        age = relativedelta(today, fecha_siembra).years
+        return age
    
