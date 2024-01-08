@@ -11,11 +11,12 @@ from sklearn.metrics import explained_variance_score, mean_absolute_error, mean_
 import re  # Expreciones regulares
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
+from pandas.tseries.offsets import MonthEnd
 
 
 def get_column_value(df, date, column_name, months_ago, lote):
-    # Obtener la fecha hace "months_ago" meses
-    target_date = date - relativedelta(months=months_ago)
+    # Convertir la fecha hace "months_ago" meses a datetime
+    target_date = pd.to_datetime(date - relativedelta(months=months_ago))
 
     # Filtrar el DataFrame original para obtener el valor correspondiente a la fecha
     filtered_data = df[(df['date'] == target_date) & (df['lote'] == lote)]
@@ -24,8 +25,45 @@ def get_column_value(df, date, column_name, months_ago, lote):
     if not filtered_data.empty:
         return filtered_data.iloc[0][column_name]
     else:
-        return 0
+        return 0            
 
+def get_column_valuev2(df, date, column_name, months_ago, lotestr):
+    # Convertir la fecha hace "months_ago" meses a datetime
+    #target_date = pd.to_datetime(date - relativedelta(months=months_ago))
+     # Obtener la fecha hace "months_ago" meses
+    print(f"{date},{lotestr} meses a tras{months_ago} Estadio{column_name}")
+    target_date = date.to_timestamp() - pd.DateOffset(months=months_ago)
+    print(target_date)
+    # Obtener el último día del mes de target_date
+    last_day_of_month = target_date + pd.offsets.MonthEnd(0)
+    print(last_day_of_month)
+
+   
+    queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+        Activo=True, 
+        Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=1, 
+        Id_Planta__Id_Lote__Codigo_Lote =lotestr,  
+        FechaVisita__gte=target_date,
+        FechaVisita__lte=last_day_of_month,)
+
+    data = [
+        {
+            'lote': obj.Id_Planta.Id_Lote.Codigo_Lote,
+            f'{column_name}': getattr(obj, column_name),
+        }
+        for obj in queryset
+    ]
+    dfRetorno=pd.DataFrame(data)
+    print(dfRetorno)
+
+
+    # Obtener el valor de la columna deseada
+    
+    if len(dfRetorno)>0:
+        dfRetorno = dfRetorno.groupby([dfRetorno['lote']])[[column_name]].sum().reset_index()
+        return int(dfRetorno[column_name].iloc[0])
+    else:
+        return 0
 
 def GetLecturas():
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
@@ -59,7 +97,7 @@ def GetLecturas():
         df[f'E{i}'] = df.apply(
             lambda row: get_column_value(df, row['date'], f'E{i}', i, row['lote']), axis=1)
     print(df)
-    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], ])[
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df ['edad']])[
         ['E1', 'E2', 'E3', 'E4', 'E5', 'GR1', 'GR2', 'GR3', 'GR4', 'GR5', 'Cherelles','temp','Evapotranspiration','Evapotranspiration_Crop','Nvdi','Relat_Hum_Min','Relat_Hum_Max_Temp','Relat_Hum_Min_Temp','Temp_Air_Max','Temp_Air_Min','Dew_Temp_Max','Precipitacion','Precipitacion_Hours','Sea_Level_Pressure','Vapor_Pressure_Deficit','Dew_Temp_Mean','Crop_Water_Demand','Sunshine_Duration']].sum().reset_index()
     # Seleccionar solo las columnas objetivo
     target_columns = df.loc[:, 'GR1':'GR5']
@@ -144,17 +182,57 @@ def getProduction():
             'date': obj.Fecha,
             'qq': obj.Qq,
             'lote': obj.Id_Lote.Codigo_Lote,
+            'edad': obj.Id_Lote.Edad,
         }
         for obj in queryset
     ]
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
     df['date'] = pd.to_datetime(df['date'])
-    df = df.groupby([df['date'].dt.to_period("M"), df['lote']])[
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df['edad']])[
         'qq'].sum().reset_index()
     df.to_excel("ProduccionDF.xlsx", index=False)
     return df
+def GetLecturasv1():
+    queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+        Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=1)
+    data = []
+    for obj in queryset:
+        lectura_data = {
+            'date': obj.FechaVisita,
+            'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
+            'edad': obj.Id_Planta.Id_Lote.Edad,
+            'Cherelles': obj.Cherelles,
+            'E1': obj.E1,
+            'E2': obj.E2,
+            'E3': obj.E3,
+            'E4': obj.E4,
+            'E5': obj.E5,
+            'GR1': obj.GR1,
+            'GR2': obj.GR2,
+            'GR3': obj.GR3,
+            'GR4': obj.GR4,
+            'GR5': obj.GR5,
+        }
+        data.append(lectura_data)
+    df = pd.DataFrame(data)
+    # Calcular las columnas E1, E2, E3 de hace 3, 2, 1 meses respectivamente
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df ['edad']])[
+        ['E1', 'E2', 'E3', 'E4', 'E5', 'GR1', 'GR2', 'GR3', 'GR4', 'GR5', 'Cherelles']].sum().reset_index()
+    # Seleccionar solo las columnas objetivo
+    target_columns = df.loc[:, 'GR1':'GR5']
+    # Obtener la columna con el mayor valor en cada fila en el rango específico
+    max_column = target_columns.idxmax(axis=1)
 
+    # Asignar un número según la posición de la columna
+    df['grade_monilla'] = max_column.str.extract('(\d+)')
+    df = df.drop(['GR1', 'GR2', 'GR3', 'GR4', 'GR5'], axis=1)
+    print(df)
+
+    # df.to_excel('output.xlsx', index=False)
+    # Convertir los datos a DataFrame de pandas
+    #df.to_excel("tesssss.xlsx", index=False)
+    return df
 
 def GetWeather():
     queryset = Daily_Indicadores.objects.all()
@@ -180,15 +258,23 @@ def GetWeather():
 
     # Convertir los datos a DataFrame de pandas
     df = pd.DataFrame(data)
+    # Asegurarse de que la columna 'date' sea de tipo datetime
+    df['date'] = pd.to_datetime(df['date'])
+
+    # Restar 3 meses a la columna 'date'
+    df['date'] = df['date'] + pd.DateOffset(months=3)
+
+    # Hacer el ajuste de fin de mes después de restar 3 meses
+    df['date'] = df['date'] + MonthEnd(0)
     df = df.groupby(df['date'].dt.to_period("M")).agg({'temp': 'mean',
                                                        'Evapotranspiration': 'sum',
                                                        'Evapotranspiration_Crop': 'sum',
                                                        'Nvdi': 'sum',
                                                        'Relat_Hum_Min': 'mean',
                                                        'Relat_Hum_Max_Temp': 'mean',
-                                                       'Temp_Air_Max': 'max',
-                                                       'Temp_Air_Min': 'min',
-                                                       'Dew_Temp_Max': 'max',
+                                                       'Temp_Air_Max': 'mean',
+                                                       'Temp_Air_Min': 'mean',
+                                                       'Dew_Temp_Max': 'mean',
                                                        'Precipitacion': 'sum',
                                                        'Precipitacion_Hours': 'sum',
                                                        'Sea_Level_Pressure': 'mean',
@@ -203,16 +289,23 @@ def GetWeather():
 
 
 def GenerateDF():
-    dfLecutas = GetLecturas()
+    dfLecturas = GetLecturasv1()
     dfProduction = getProduction()
     print(dfProduction)
     dfWeather = GetWeather()
-    df = pd.merge(dfLecutas, dfProduction, on=['date', 'lote'], how='inner').merge(
-        dfWeather, on='date', how='inner')
-    print(df)
+   # Hacer merge entre dfLecturas y dfProduction usando how='right'
+    df_merged = pd.merge(dfLecturas, dfProduction, on=['date', 'lote','edad'], how='right')
+    df_merged = df_merged.fillna(0)
+    # Hacer merge con dfWeather usando 'date'
+    df_final = pd.merge(df_merged, dfWeather, on='date', how='inner')
+    for i in range(3, 0, -1):
+        df_final[f'E{4-i}'] = df_final.apply(
+            lambda row: get_column_valuev2(df_final, row['date'], f'E{4-i}', i, row['lote']), axis=1)
+    
+    print(df_final)
     # df.to_csv('Clima.csv', index=False)
     # df.to_excel('DFNew.xlsx', index=False)
-    return df
+    return df_final
 
 
 def obtener_numeros(codigo):
@@ -237,3 +330,4 @@ def predict():
     df['lote'] = df['lote'].apply(obtener_numeros)
    # df['year'] = df['date'].dt.year
     df.to_excel('dataset_Monilla.xlsx', index=False)
+    df.to_csv('dataset_Monilla.csv', index=False)

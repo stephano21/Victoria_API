@@ -9,5 +9,5 @@ from rest_framework.permissions import IsAuthenticated
 from Clima.Arable.Predict import GenerateDF,predict,GetWeather,GetLecturas,getProduction
 class PandasView(APIView):
     def get(self, request):        
-        Data = GetLecturas()
+        Data = predict()
         return Response("testt", status=status.HTTP_200_OK)
