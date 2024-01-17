@@ -103,7 +103,7 @@ class ImportLecturas(APIView):
                         'Total': row['Total'],
                         'Observacion': row['Observacion'] if not pd.isna(row['Observacion']) else "",
                         'Monilla': row['Monilla'] ,
-                        'Usuario':  row['Usuario'] if not pd.isna(row['Usuario']) else str(username),
+                        'Usuario':  str(username),#row['Usuario'] if not pd.isna(row['Usuario']) else str(username),
                         'SyncId': str(uuid.uuid4()),
                         'GUIDLectura':uuid.uuid4,
                     }
