@@ -12,7 +12,8 @@ class Perfil(models.Model):
     cedula = models.CharField(max_length=10) 
     created = models.DateField(auto_now=True)
     modifief = models.DateField(auto_now=True)
-    Id_Hacienda = models.ForeignKey(Hacienda, on_delete=models.CASCADE, null=True)
+    Id_Hacienda = models.ForeignKey(Hacienda, on_delete=models.CASCADE, null=True, blank=True)
+
     # Campos heredados de AbstractUser:
     # username
     # password

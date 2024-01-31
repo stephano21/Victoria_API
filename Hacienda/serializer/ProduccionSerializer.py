@@ -13,10 +13,14 @@ class ProduccionSerializers(serializers.ModelSerializer):
             for field in required_fields
         }
     def get_Victoria(self, instance):
-        # Aquí debes reemplazar 'nombre_del_campo_relacionado' con el nombre real del campo en tu modelo
-        if instance.Id_Proyecto:
-            return instance.Id_Proyecto.Nombre
-        return None  # Puedes manejar el caso en que la relación sea nula según tus necesidades
+        # Verificar si la instancia de Produccion tiene un Lote asociado
+        if instance.Id_Lote:
+            # Verificar si el Lote tiene un Proyecto asociado
+            if instance.Id_Lote.Id_Proyecto:
+                # Devolver el Nombre del Proyecto
+                return instance.Id_Lote.Id_Proyecto.Nombre
+        return None  # Manejar el caso en que la relación no existe
+
 
     def get_Fecha_Produccion(self, instance):
         # Aquí puedes formatear la fecha según tus requisitos
