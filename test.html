@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>D3.js Treemap Ejemplo</title>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+</head>
+
+<body>
+
+    <div id="miGrafico"></div>
+
+
+    <div class="ui list">
+        <div class="item">
+          <i class="users icon"></i>
+          <div class="content">
+            Semantic UI
+          </div>
+        </div>
+    </div>
+
+    <script>
+
+        // Tus datos aquí
+
+        var data = {
+
+            "name": "2C",
+
+            "children": [
+
+                {
+
+                    "name": "C2C1N2",
+
+                    "children": [
+
+                        { "name": "2C11", "value": 1 },
+
+                        { "name": "2C12", "value": 1 }
+
+                    ]
+
+                },
+
+                // ...
+
+            ]
+
+        };
+
+        // Configurar la gráfica
+
+        var width = 800;
+
+        var height = 600;
+
+        // Crear la gráfica
+
+        var svg = d3.select("#miGrafico")
+
+            .append("svg")
+
+            .attr("width", width)
+
+            .attr("height", height);
+
+        // Dibujar el treemap
+
+        var treemap = d3.treemap()
+
+            .size([width, height])
+
+            .padding(1);
+
+        var root = d3.hierarchy(data)
+
+            .sum(function (d) { return d.value; });
+
+        treemap(root);
+
+        // Define una escala de umbral que asigna dos tamaños diferentes a los rectángulos
+
+        var scaleThreshold = d3.scaleThreshold()
+
+            .domain([0, 1])
+
+            .range([50, 100]);
+
+        // Dibuja el árbol de mapa
+
+        var cells = svg.selectAll("rect")
+
+            .data(root.leaves())
+
+            .enter()
+
+            .append("rect")
+
+            .attr("x", function (d) { return d.x0; })
+
+            .attr("y", function (d) { return d.y0; })
+
+            .attr("width", function (d) { return scaleThreshold(d.value); })
+
+            .attr("height", function (d) { return d.y1 - d.y0; })
+
+            .attr("fill", "steelblue");
+
+    </script>
+
+</body>
+
+</html>
