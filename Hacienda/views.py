@@ -9,6 +9,7 @@ from Hacienda.view.ImportProduccionView import ImportProduccion
 from Hacienda.view.ImportLotesView import ImportLotesView
 from Hacienda.view.ImportPlantas import ImportPlantasView
 from Hacienda.view.EstadisticasView import EstadisticasView
+from Hacienda.view.HomeInfoView import HomeInfoView
 # Create your views here.
 
    

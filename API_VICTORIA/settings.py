@@ -74,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'Users.middlewares.HaciendaMiddleware.HaciendaMiddleware',
 ]
 # Configuración de autenticación con JWT
 REST_FRAMEWORK = {
