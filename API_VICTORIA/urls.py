@@ -19,7 +19,9 @@ from django.urls import path, include, re_path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-
+admin.site.site_title = 'Plant Trace'
+admin.site.site_header = 'Administracion Plant Trace'
+admin.site.index_title = 'Plant-Trace'
 schema_view = get_schema_view(
    openapi.Info(
       title="Hacienda Victoria",

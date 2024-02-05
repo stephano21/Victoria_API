@@ -30,7 +30,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG') == "True"
 
-
+SITE_HEADER = 'Administracion Plant Trace'
 ALLOWED_HOSTS = []
 CSRF_COOKIE_DOMAIN = config('SITE')
 SESSION_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
