@@ -13,7 +13,8 @@ class Hacienda(models.Model):
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
     def __str__(self):
         return self.Nombre
-
+    def __str__(self):
+        return self.codigo
 
 class Proyecto(models.Model):
     # campo_fk = models.ForeignKey(ModeloPrincipal, on_delete=models.CASCADE, null=True)

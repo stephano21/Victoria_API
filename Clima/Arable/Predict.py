@@ -200,7 +200,7 @@ def GetLecturasv1(hacienda):
     for obj in queryset:
         lectura_data = {
             'date': obj.FechaVisita,
-            'Id_Lote': obj.Id_Planta.Id_Lote.pk,
+            'Id_Lote': obj.Id_Planta.Id_Lote,
             'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
             'edad': obj.Id_Planta.Id_Lote.Edad,
             'Cherelles': obj.Cherelles,
