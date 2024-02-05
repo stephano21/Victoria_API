@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'Hacienda',
     'Users',
     'Clima',
+    'Predict',
     'drf_yasg',
     'django_apscheduler',
 ]

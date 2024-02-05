@@ -37,6 +37,7 @@ urlpatterns = [
     path('', include('Hacienda.url')),
     path('', include('Users.url')),
     path('', include('Clima.url')),
+    path('', include('Predict.url')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

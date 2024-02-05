@@ -11,6 +11,8 @@ class Hacienda(models.Model):
     Nombre = models.CharField(max_length=40)
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
+    def __str__(self):
+        return self.Nombre
 
 
 class Proyecto(models.Model):
