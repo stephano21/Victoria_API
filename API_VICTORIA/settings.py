@@ -140,6 +140,11 @@ SWAGGER_SETTINGS = {
 
     # ...
 }
+# Redirigir todas las solicitudes HTTP a HTTPS
+SECURE_SSL_REDIRECT = True
+# Establecer el encabezado seguro cuando la aplicación está detrás de un proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 """ APSCHEDULER CONFIG"""
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_TIMEZONE = "UTC"
