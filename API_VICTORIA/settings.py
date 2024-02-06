@@ -32,11 +32,12 @@ DEBUG = config('DEBUG') == "True"
 
 
 ALLOWED_HOSTS = []
-CSRF_COOKIE_DOMAIN = config('SITE')
+CSRF_COOKIE_DOMAIN = config('DOMAIN')
 SESSION_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
 CSRF_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [config('SITE')]
 DJANGO_ADMIN_URL='/api/auth/admin/'
 
