@@ -11,7 +11,7 @@ class TuVistaTest(TestCase):
     def test_creacion_usuario_exitosa(self):
         # Datos de prueba
         data = {
-            'cedula': '1726257825',
+            'cedula': '123456789',
             'username': 'testuser',
             'password': 'testpassword',
             'email': 'test@example.com',
@@ -20,7 +20,7 @@ class TuVistaTest(TestCase):
         }
 
         # Hace una solicitud POST a la vista
-        response = self.client.post('/api/auth/register/', data, format='json')
+        response = self.client.post('/ruta_de_tu_vista/', data, format='json')
 
         # Verifica que la respuesta sea 200 OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -40,7 +40,7 @@ class TuVistaTest(TestCase):
         }
 
         # Hace una solicitud POST a la vista
-        response = self.client.post('/api/auth/register/', data, format='json')
+        response = self.client.post('/ruta_de_tu_vista/', data, format='json')
 
         # Verifica que la respuesta sea 400 Bad Request
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

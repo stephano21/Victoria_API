@@ -13,15 +13,21 @@ class LoteAPIView(APIView):
     # Código existente...
     def get(self, request,*args, **kwargs):
         user = request.user
+        hacienda = request.hacienda_id 
         username = user.username
         print(f"{username} Ha cargado lotes")
         id = self.kwargs.get('id')
         if id: 
-            lotes = Lote.objects.filter(Id_Proyecto = id, Activo=True)
+            lotes = Lote.objects.select_related('Id_Proyecto__Id_Hacienda').filter(
+                Id_Proyecto = id,
+                Activo=True,
+                Id_Proyecto__Id_Hacienda_id=hacienda)
             serializer = LoteSerializers(lotes, many=True)
             return Response(serializer.data)
 
-        lotes = Lote.objects.filter(Activo=True)
+        lotes = Lote.objects.select_related('Id_Proyecto__Id_Hacienda').filter(
+            Activo=True,
+            Id_Proyecto__Id_Hacienda_id=hacienda)
         serializer = LoteSerializers(lotes, many=True)
         return Response(serializer.data)
     def post(self, request):

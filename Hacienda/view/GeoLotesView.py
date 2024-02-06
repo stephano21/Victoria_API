@@ -7,6 +7,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
+
+from Users.models import Perfil
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -19,30 +21,42 @@ class GeoLotesView(APIView):
     def get(self, request):
         user = request.user
         username = user.username
-        print(f"{username} Ha cargado Geolotes")
-        lote_id = request.query_params.get('lote_id')
+        # Obtener el perfil asociado al usuario
+        try:
+            id_hacienda = request.hacienda_id 
+            print(f"{username} Ha cargado Geolotes")
+            lote_id = request.query_params.get('lote_id')
 
-        if lote_id:
-            poligonos = Poligono.objects.filter(lote__id=lote_id, Activo=True)
-        else:
-            poligonos = Poligono.objects.filter(Activo=True)
+            if lote_id:
+                poligonos = Poligono.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                    Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda,
+                    lote__id=lote_id, 
+                    Activo=True)
+            else:
+                poligonos = Poligono.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                    Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda ,
+                    Activo=True)
 
-        result = []
-        for poligono in poligonos:
-            poligono_data = PoligonoSerializers(poligono).data
-            geocoordenadas = GeoCoordenadas.objects.filter(
-                Id_Poligono=poligono.id, Activo =True)
-            geocoordenadas_data = GeoCoordenadasSerializers(
-                geocoordenadas, many=True).data
-            # Obtener el nombre del lote correspondiente usando la relación ForeignKey
-            nombre_lote = poligono.Id_Lote.Nombre if poligono.Id_Lote else None
-            codigo_lote = poligono.Id_Lote.Codigo_Lote if poligono.Id_Lote else None
-            poligono_data['Lote'] = nombre_lote
-            poligono_data['CodigoLote'] = codigo_lote
-            poligono_data['geocoordenadas'] = geocoordenadas_data
-            result.append(poligono_data)
+            result = []
+            for poligono in poligonos:
+                poligono_data = PoligonoSerializers(poligono).data
+                geocoordenadas = GeoCoordenadas.objects.filter(
+                    Id_Poligono=poligono.id, Activo =True)
+                geocoordenadas_data = GeoCoordenadasSerializers(
+                    geocoordenadas, many=True).data
+                # Obtener el nombre del lote correspondiente usando la relación ForeignKey
+                nombre_lote = poligono.Id_Lote.Nombre if poligono.Id_Lote else None
+                codigo_lote = poligono.Id_Lote.Codigo_Lote if poligono.Id_Lote else None
+                poligono_data['Lote'] = nombre_lote
+                poligono_data['CodigoLote'] = codigo_lote
+                poligono_data['geocoordenadas'] = geocoordenadas_data
+                result.append(poligono_data)
 
-        return Response(result, status=status.HTTP_200_OK)
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            # Manejar el caso en el que el perfil no existe para el usuario
+            return Response(f"Ocurrio un erro: {str(e)}", status=status.HTTP_400_BAD_REQUEST_)
+       
 
     @swagger_auto_schema(
         request_body=openapi.Schema(

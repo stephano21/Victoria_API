@@ -1,9 +1,12 @@
 from pyexpat import model
 from django.db import models
 
+from Hacienda.models import Hacienda
+
 # Create your models here.
 class Daily_Indicadores(models.Model):
     #Date info
+    Id_Hacienda = models.ForeignKey(Hacienda, on_delete=models.CASCADE, null=True,blank=True)
     Date = models.DateTimeField(blank=True, null=True)
     Date_Arable_Sync = models.DateTimeField(blank=True, null=True)
     Date_Sync = models.DateTimeField(auto_created=True,blank=True, null=True)

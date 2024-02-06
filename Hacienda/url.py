@@ -10,7 +10,8 @@ from Hacienda.views import (LoteAPIView,
                             ImportProduccion,
                             ImportLotesView,
                             ImportPlantasView,
-                            EstadisticasView)
+                            EstadisticasView,
+                            HomeInfoView)
 from Hacienda.api import HaciendaViewSet, ProyectoViewSet#, LecturaViewSet
 router = routers.DefaultRouter()
 router.register('api/hacienda', HaciendaViewSet)
@@ -31,5 +32,6 @@ urlpatterns = [
     path('api/produccion/', ProduccionAPIView.as_view(), name='produccion'),
     path('api/produccion/upload', ImportProduccion.as_view(), name='Produccion'),
     path('api/analytics/', EstadisticasView.as_view(), name='Analytics'),
+    path('api/analytics/home', HomeInfoView.as_view(), name='Analytics'),
 ]
 urlpatterns += router.urls

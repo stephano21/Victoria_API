@@ -13,24 +13,36 @@ class PlantaAPIView(APIView):
     # Código existente...
     def get(self, request,*args, **kwargs):
         user = request.user
+        hacienda = request.hacienda_id 
         username = user.username
         print(f"{username} Ha cargado plantas")
         id = self.kwargs.get('id')
         grupos_usuario = user.groups.all()
         if id: 
-            plantas = Planta.objects.filter(Id_Lote = id , Activo=True)
+            plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                Id_Lote = id,
+                Activo=True,
+                Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
             serializer = PlantaSerializers(plantas, many=True)
             return Response(serializer.data)
         if any(grupo.name == "Estudiante" for grupo in grupos_usuario):
-            plantas = Planta.objects.filter(Activo=True, Visible=True)
+            plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                Activo=True,
+                Visible=True,
+                Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
             serializer = PlantaSerializers(plantas, many=True)
             return Response(serializer.data)
         if any(grupo.name == "Tecnico" for grupo in grupos_usuario):
-            plantas = Planta.objects.filter(Activo=True, Visible=True)
+            plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                Activo=True,
+                Visible=True,
+                Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
             serializer = PlantaSerializers(plantas, many=False)
             return Response(serializer.data)
         
-        plantas = Planta.objects.filter(Activo=True)
+        plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+            Activo=True,
+            Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
         serializer = PlantaSerializers(plantas, many=True)
         return Response(serializer.data)
     

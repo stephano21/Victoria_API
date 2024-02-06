@@ -27,7 +27,7 @@ def get_column_value(df, date, column_name, months_ago, lote):
     else:
         return 0            
 
-def get_column_valuev2(df, date, column_name, months_ago, lotestr):
+def get_column_valuev2(df, date, column_name, months_ago, lotestr,hacienda):
     # Convertir la fecha hace "months_ago" meses a datetime
     #target_date = pd.to_datetime(date - relativedelta(months=months_ago))
      # Obtener la fecha hace "months_ago" meses
@@ -41,7 +41,7 @@ def get_column_valuev2(df, date, column_name, months_ago, lotestr):
    
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
         Activo=True, 
-        Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=1, 
+        Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda, 
         Id_Planta__Id_Lote__Codigo_Lote =lotestr,  
         FechaVisita__gte=target_date,
         FechaVisita__lte=last_day_of_month,)
@@ -65,9 +65,9 @@ def get_column_valuev2(df, date, column_name, months_ago, lotestr):
     else:
         return 0
 
-def GetLecturas():
+def GetLecturas(hacienda):
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-        Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=1)
+        Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
     data = []
     for obj in queryset:
         lectura_data = {
@@ -173,9 +173,9 @@ def get_weather_for_date(date):
     }
 
 
-def getProduction():
+def getProduction(hacienda):
     queryset = Produccion.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-        Activo=True, Id_Lote__Id_Proyecto__Id_Hacienda_id=1)
+        Activo=True, Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
 
     data = [
         {
@@ -193,13 +193,14 @@ def getProduction():
         'qq'].sum().reset_index()
     df.to_excel("ProduccionDF.xlsx", index=False)
     return df
-def GetLecturasv1():
+def GetLecturasv1(hacienda):
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-        Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=1)
+        Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
     data = []
     for obj in queryset:
         lectura_data = {
             'date': obj.FechaVisita,
+            'Id_Lote': obj.Id_Planta.Id_Lote,
             'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
             'edad': obj.Id_Planta.Id_Lote.Edad,
             'Cherelles': obj.Cherelles,
@@ -217,7 +218,7 @@ def GetLecturasv1():
         data.append(lectura_data)
     df = pd.DataFrame(data)
     # Calcular las columnas E1, E2, E3 de hace 3, 2, 1 meses respectivamente
-    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df ['edad']])[
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote'],df['Id_Lote'], df ['edad']])[
         ['E1', 'E2', 'E3', 'E4', 'E5', 'GR1', 'GR2', 'GR3', 'GR4', 'GR5', 'Cherelles']].sum().reset_index()
     # Seleccionar solo las columnas objetivo
     target_columns = df.loc[:, 'GR1':'GR5']
@@ -288,9 +289,9 @@ def GetWeather():
     return df
 
 
-def GenerateDF():
-    dfLecturas = GetLecturasv1()
-    dfProduction = getProduction()
+def GenerateDF(hacienda):
+    dfLecturas = GetLecturasv1(hacienda)
+    dfProduction = getProduction(hacienda)
     print(dfProduction)
     dfWeather = GetWeather()
    # Hacer merge entre dfLecturas y dfProduction usando how='right'
@@ -300,7 +301,7 @@ def GenerateDF():
     df_final = pd.merge(df_merged, dfWeather, on='date', how='inner')
     for i in range(3, 0, -1):
         df_final[f'E{4-i}'] = df_final.apply(
-            lambda row: get_column_valuev2(df_final, row['date'], f'E{4-i}', i, row['lote']), axis=1)
+            lambda row: get_column_valuev2(df_final, row['date'], f'E{4-i}', i, row['lote'],hacienda), axis=1)
     
     print(df_final)
     # df.to_csv('Clima.csv', index=False)
@@ -318,16 +319,44 @@ def obtener_numeros(codigo):
     return int(numero_completo)
 
 
-def predict():
-    df = GenerateDF()
+def predict(hacienda):
+    df = GenerateDF(hacienda)
     print(df)
     df = df.drop(['Relat_Hum_Min'], axis=1)
+    data=[]
+    def procesar_fila(row):
+        # Rellenar el arreglo de objetos data con la información necesaria
+        obj = {
+            'Id_Lote': row['Id_Lote'],
+            'edad': row['edad'],
+            'E1': row['E1'],
+            'E2': row['E2'],
+            'E3': row['E3'],
+            'E4': row['E4'],
+            'E5': row['E5'],
+            'grade_monilla': row['grade_monilla'],
+            'Evapotranspiration_Crop': row['Evapotranspiration_Crop'],
+            'qq': row['qq'],
+            'Nvdi': row['Nvdi'],
+            'Relat_Hum_Max_Temp': row['Relat_Hum_Max_Temp'],
+            'Temp_Air_Max': row['Temp_Air_Max'],
+            'Temp_Air_Min': row['Temp_Air_Min'],
+            'Dew_Temp_Max': row['Dew_Temp_Max'],
+            'Precipitacion': row['Precipitacion'],
+            'Sunshine_Duration': row['Sunshine_Duration'],
+            'date': pd.to_datetime(str(row['date'])),
+        }
+        data.append(obj)
+
+    # Aplicar la función procesar_fila a lo largo de las filas del DataFrame
+    df.apply(procesar_fila, axis=1)
     # print(df['date'].dt.year)
     # df['anio']=df['date']
-    df['year'] = df['date'].dt.year.astype(int)
-    df['date'] = df['date'].dt.month.astype(int)
-    df.rename(columns={'date': 'month'}, inplace=True)
-    df['lote'] = df['lote'].apply(obtener_numeros)
-   # df['year'] = df['date'].dt.year
-    df.to_excel('dataset_Monilla.xlsx', index=False)
-    df.to_csv('dataset_Monilla.csv', index=False)
+    #df['year'] = df['date'].dt.year.astype(int)
+    #df['date'] = df['date'].dt.month.astype(int)
+    #df.rename(columns={'date': 'month'}, inplace=True)
+    #df['lote'] = df['lote'].apply(obtener_numeros)
+   ## df['year'] = df['date'].dt.year
+    #df.to_excel('dataset_Monilla.xlsx', index=False)
+    #df.to_csv('dataset_Monilla.csv', index=False)
+    return data

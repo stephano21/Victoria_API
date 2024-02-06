@@ -30,7 +30,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG') == "True"
 
-
+SITE_HEADER = 'Administracion Plant Trace'
 ALLOWED_HOSTS = []
 CSRF_COOKIE_DOMAIN = config('DOMAIN')
 SESSION_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'Hacienda',
     'Users',
     'Clima',
+    'Predict',
     'drf_yasg',
     'django_apscheduler',
 ]
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'Users.middlewares.HaciendaMiddleware.HaciendaMiddleware',
 ]
 # Configuración de autenticación con JWT
 REST_FRAMEWORK = {
@@ -173,6 +175,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.csrf',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],

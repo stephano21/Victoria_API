@@ -11,7 +11,10 @@ class Hacienda(models.Model):
     Nombre = models.CharField(max_length=40)
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
-
+    def __str__(self):
+        return self.Nombre
+    def __str__(self):
+        return self.codigo
 
 class Proyecto(models.Model):
     # campo_fk = models.ForeignKey(ModeloPrincipal, on_delete=models.CASCADE, null=True)

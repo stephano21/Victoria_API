@@ -21,14 +21,19 @@ class LecturaAPIView(APIView):
         username = user.username
         
         id = self.kwargs.get('id')
-       
+        id_hacienda = request.hacienda_id 
         print(f"{username} Ha consultado lecturas")
         if id:
-            lecturas = Lectura.objects.filter(Id_Lectura = id)
+            lecturas = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                Activo=True,
+                Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda,
+                Id_Lectura = id)
             serializer = LecturaSerializers(lecturas, many=True)
             return Response(serializer.data)
 
-        lecturas = Lectura.objects.all()
+        lecturas = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+            Activo=True,
+            Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda)
         serializer = LecturaSerializers(lecturas, many=True)
         return Response(serializer.data)
     def post(self, request):
