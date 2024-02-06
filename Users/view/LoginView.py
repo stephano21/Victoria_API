@@ -34,6 +34,7 @@ class LoginView(APIView):
             # Intenta obtener el usuario basado en el nombre de usuario
             user = User.objects.get(username=username)
         except User.DoesNotExist:
+            print('Usuario no registrado')
             return Response('Usuario no registrado', status=status.HTTP_404_NOT_FOUND)
 
         if user.check_password(password):

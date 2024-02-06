@@ -6,15 +6,16 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 """Models and Serializers"""
-from Hacienda.models import Lote
+from Hacienda.models import Lote, Proyecto
 from Hacienda.serializers import LoteSerializers
 import pandas as pd
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import uuid
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,validate_row, GetIdLote
+from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,GetIdProyecto, GetIdLote
 class ImportLotesView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -58,7 +59,7 @@ class ImportLotesView(APIView):
         if archivo_excel:
             try:
                 df = pd.read_excel(archivo_excel)
-                headers = ['Lote','Variedad','Hectareas']
+                headers = ['Lote','Variedad','Hectareas','Victoria','Nombre']
                 missing_headers = Validate_Headers_Excel(headers, df)
                 if missing_headers:
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
@@ -70,20 +71,31 @@ class ImportLotesView(APIView):
 
                 for index, row in df.iterrows():
                     Id_Lote = GetIdLote(row['Lote'])
-                    if Id_Lote is None:
-                        break
-                    print(Id_Lote)
+                    Id_Proyecto = GetIdProyecto(row['Victoria'])
+                    print(Id_Proyecto)
                     row['Variedad'] = row['Variedad'] if row['Variedad'] !="nan"  else ""
                     serializer_data = {
-                        'Id_Lote': Id_Lote,
+                        'Id_Proyecto': Id_Proyecto,
+                        'Nombre': row['Nombre'],
                         'Hectareas': row['Hectareas'],
                         'Variedad': row['Variedad'],
                         'Usuario': str(username),
+                        'Codigo_Lote':row['Lote'],
+                        'FechaSiembra':row['FechaSiembra'],
+                        'Edad': self.calculate_age(row['FechaSiembra'])
                     }
                     print(serializer_data)
-                    lote = Lote.objects.get(id=Id_Lote)
-                    serializer = LoteSerializers(lote, data=serializer_data, partial=True)
+                    if Id_Lote is None:
+                        print("creando")
+
+                        serializer = LoteSerializers(data=serializer_data)
+                    else:
+                        print("updating")
+
+                        lote = Lote.objects.get(id=Id_Lote)
+                        serializer = LoteSerializers(lote, data=serializer_data, partial=True)
                     if serializer.is_valid():
+
                         serializer.save()
                         print("Lote Actualizado con exito!")
                     else:
@@ -100,5 +112,9 @@ class ImportLotesView(APIView):
         else:
             return Response('No se proporcionó un archivo Excel!', status=status.HTTP_400_BAD_REQUEST)
 
-
+    def calculate_age(self, fecha_siembra):
+        # Calcular la edad en años
+        today = datetime.now()
+        age = relativedelta(today, fecha_siembra).years
+        return age
    

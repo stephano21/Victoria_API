@@ -7,7 +7,7 @@ urlpatterns = [
     # Otras rutas de la aplicación Hacienda
     path('api/weather/sync/', SyncView.as_view(), name='sync'),
     path('api/weather/data/', DataView.as_view(), name='data'),
-    path('api/file/', CargarDatosDesdeExcel.as_view(), name='file'),
+    path('api/weather/upload', CargarDatosDesdeExcel.as_view(), name='file'),
     path('api/xd/', PandasView.as_view(), name='xd'),
 ]
 urlpatterns += router.urls

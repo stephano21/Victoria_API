@@ -14,7 +14,7 @@ import uuid
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,validate_row, GetIdProyecto
+from Hacienda.validators.ValidatorHelper import Validate_Headers_Excel,validate_row, GetIdLote
 class ImportProduccion(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -58,7 +58,7 @@ class ImportProduccion(APIView):
         if archivo_excel:
             try:
                 df = pd.read_excel(archivo_excel)
-                headers = ['Victoria','Fecha','Quintales']
+                headers = ['Lote','Fecha','Quintales']
                 missing_headers = Validate_Headers_Excel(headers, df)
                 if missing_headers:
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
@@ -69,19 +69,19 @@ class ImportProduccion(APIView):
                 errors = []
                 print(df_copy)
                 for index, row in df_copy.iterrows():
-                    Id_Proyecto = GetIdProyecto(row['Victoria'])
+                    Id_Lote = GetIdLote(row['Lote'])
                     fecha = row['Fecha'].to_pydatetime().date()
-                    if Id_Proyecto is None:
+                    if Id_Lote is None:
                         break
-                    print(Id_Proyecto)
-                    Produccion_mes = Produccion.objects.filter(Fecha__month=fecha.month, Fecha__year=fecha.year, Id_Proyecto=Id_Proyecto)
+                    print(Id_Lote)
+                    Produccion_mes = Produccion.objects.filter(Fecha__month=fecha.month, Fecha__year=fecha.year, Id_Lote=Id_Lote)
                     if Produccion_mes.exists():
-                        print(f"{row['Victoria']} ya tiene una Produccion")
-                        errors.append(f"Error en la fila {index+1} {row['Victoria']}:Ya existe una Produccion registrada en este mes!")
+                        print(f"{row['Lote']} ya tiene una Produccion")
+                        errors.append(f"Error en la fila {index+1} {row['Lote']}:Ya existe una Produccion registrada en este mes!")
                         continue
                     # Crea un serializer de usuario pasando los datos del perfil en el contexto
                     serializer_data = {
-                        'Id_Proyecto': Id_Proyecto,
+                        'Id_Lote': Id_Lote,
                         'Fecha': fecha,
                         'Qq': row['Quintales'],
                         'Usuario': str(username),
@@ -94,7 +94,7 @@ class ImportProduccion(APIView):
                         print("Producción  registrada exitosamente!")
                     else:
                         #print(f'Error en la fila {index+1}: {", ".join(list(serializer.errors.values())[0])}')
-                        errors.append(f"Error en la fila {index+1} {row['Victoria']}: {', '.join(list(serializer.errors.values())[0])}")
+                        errors.append(f"Error en la fila {index+1} {row['Lote']}: {', '.join(list(serializer.errors.values())[0])}")
                 if errors:
                     errors_str = '\n'.join(errors)
                     return Response(errors_str, status=status.HTTP_400_BAD_REQUEST)

@@ -31,6 +31,8 @@ class Lote(models.Model):
     Hectareas = models.DecimalField(max_digits=7, decimal_places=3, null=True)
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
+    FechaSiembra = models.DateTimeField(null=True)
+    Edad =  models.IntegerField(null=True)
 
 class Planta(models.Model):
     Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
@@ -38,7 +40,9 @@ class Planta(models.Model):
     Nombre = models.CharField(max_length=40) 
     Circunferencia = models.DecimalField(max_digits=5, decimal_places=2, null=True)
     Activo = models.BooleanField(default=True)
-    Visible = models.BooleanField(null=False,default=True)
+    lat = models.DecimalField(max_digits=18, decimal_places=16, null=False)
+    lng = models.DecimalField(max_digits=19, decimal_places=16, null=False)
+    VisibleToStudent = models.BooleanField(null=False,default=True)
 
 
 class Poligono (models.Model):
@@ -81,7 +85,7 @@ class Lectura(models.Model):
 
 
 class Produccion(models.Model):
-    Id_Proyecto = models.ForeignKey(Proyecto, on_delete=models.CASCADE, null=False)
+    Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=False)
     Qq = models.DecimalField(max_digits=8, decimal_places=4, null=False)
     Fecha = models.DateField(null=False)
     FechaRegistro = models.DateTimeField(auto_now_add=True)

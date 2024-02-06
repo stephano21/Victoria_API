@@ -22,7 +22,10 @@ class UsuarioList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK) """
 
     def get(self, request, format=None):
-        usuarios = User.objects.all()
-        print(usuarios)
+        rol = request.query_params.get('rol', None)
+        if rol:
+            usuarios = User.objects.filter(groups__name=rol)
+        else:
+            usuarios = User.objects.all()
         serializer = UserSerializer(usuarios, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

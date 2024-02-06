@@ -69,13 +69,14 @@ class ImportLecturas(APIView):
                 errors = []
                 print(df_copy)
                 save_succes = 0
-
+                print(type( df_copy['Fecha']))
                 for index, row in df_copy.iterrows():
                     validate_row(row, index, errors)
                     Id_Planta = GetIdPlanta(row['Planta'])
                     if Id_Planta is None:
                         continue
                     print(Id_Planta)
+                    print(type( row['Fecha']))
                     fecha_visita = row['Fecha'].to_pydatetime()
                     lecturas_mes = Lectura.objects.filter(FechaVisita__month=fecha_visita.date().month, FechaVisita__year=fecha_visita.date().year, Id_Planta=Id_Planta)
                     if lecturas_mes.exists():
@@ -102,7 +103,7 @@ class ImportLecturas(APIView):
                         'Total': row['Total'],
                         'Observacion': row['Observacion'] if not pd.isna(row['Observacion']) else "",
                         'Monilla': row['Monilla'] ,
-                        'Usuario': str(username),
+                        'Usuario':  str(username),#row['Usuario'] if not pd.isna(row['Usuario']) else str(username),
                         'SyncId': str(uuid.uuid4()),
                         'GUIDLectura':uuid.uuid4,
                     }
