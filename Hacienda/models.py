@@ -36,6 +36,7 @@ class Lote(models.Model):
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
     FechaSiembra = models.DateTimeField(null=True)
     Edad =  models.IntegerField(null=True)
+    Num_Plantas =  models.IntegerField(null=True)
 
 class Planta(models.Model):
     Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)

@@ -59,7 +59,7 @@ class ImportLotesView(APIView):
         if archivo_excel:
             try:
                 df = pd.read_excel(archivo_excel)
-                headers = ['Lote','Variedad','Hectareas','Victoria','Nombre']
+                headers = ['Lote','Variedad','Hectareas','Victoria','Nombre','Plantas']
                 missing_headers = Validate_Headers_Excel(headers, df)
                 if missing_headers:
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
@@ -82,7 +82,8 @@ class ImportLotesView(APIView):
                         'Usuario': str(username),
                         'Codigo_Lote':row['Lote'],
                         'FechaSiembra':row['FechaSiembra'],
-                        'Edad': self.calculate_age(row['FechaSiembra'])
+                        'Edad': self.calculate_age(row['FechaSiembra']),
+                        'Num_Plantas': row['Plantas'] if row['Plantas'] else 0,
                     }
                     print(serializer_data)
                     if Id_Lote is None:

@@ -200,6 +200,8 @@ def GetLecturasv1(hacienda):
     for obj in queryset:
         lectura_data = {
             'date': obj.FechaVisita,
+            'hectareas': obj.Id_Planta.Id_Lote.Hectareas,
+            'Plantas': obj.Id_Planta.Id_Lote.Num_Plantas,
             'Id_Lote': obj.Id_Planta.Id_Lote,
             'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
             'edad': obj.Id_Planta.Id_Lote.Edad,
@@ -217,8 +219,9 @@ def GetLecturasv1(hacienda):
         }
         data.append(lectura_data)
     df = pd.DataFrame(data)
+    print(df)
     # Calcular las columnas E1, E2, E3 de hace 3, 2, 1 meses respectivamente
-    df = df.groupby([df['date'].dt.to_period("M"), df['lote'],df['Id_Lote'], df ['edad']])[
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote'],df['Id_Lote'], df ['edad'],df['Plantas'],df['hectareas']])[
         ['E1', 'E2', 'E3', 'E4', 'E5', 'GR1', 'GR2', 'GR3', 'GR4', 'GR5', 'Cherelles']].sum().reset_index()
     # Seleccionar solo las columnas objetivo
     target_columns = df.loc[:, 'GR1':'GR5']
@@ -291,6 +294,19 @@ def GetWeather():
 
 def GenerateDF(hacienda):
     dfLecturas = GetLecturasv1(hacienda)
+    # Lista de columnas a convertir a tipo float
+    columnas_float = ['E1', 'E2', 'E3', 'E4', 'E5', 'densidad', 'hectareas']
+
+    # Convertir las columnas a tipo float
+    dfLecturas[columnas_float] = dfLecturas[columnas_float].astype(float)
+
+    # Lista de prefijos para las nuevas columnas de totales
+    totales_prefijos = ['Total_E1', 'Total_E2', 'Total_E3', 'Total_E4', 'Total_E5']
+
+    # Bucle para calcular los totales
+    for i, prefijo in enumerate(totales_prefijos, start=1):
+        dfLecturas[prefijo] = ((dfLecturas[f'E{i}'] * dfLecturas['densidad'] * dfLecturas['hectareas']) / 12) / 100
+
     dfProduction = getProduction(hacienda)
     print(dfProduction)
     dfWeather = GetWeather()

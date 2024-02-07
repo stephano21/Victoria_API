@@ -28,14 +28,14 @@ class PlantaAPIView(APIView):
         if any(grupo.name == "Estudiante" for grupo in grupos_usuario):
             plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
                 Activo=True,
-                Visible=True,
+                VisibleToStudent=True,
                 Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
             serializer = PlantaSerializers(plantas, many=True)
             return Response(serializer.data)
         if any(grupo.name == "Tecnico" for grupo in grupos_usuario):
             plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
                 Activo=True,
-                Visible=True,
+                VisibleToStudent=True,
                 Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
             serializer = PlantaSerializers(plantas, many=False)
             return Response(serializer.data)
