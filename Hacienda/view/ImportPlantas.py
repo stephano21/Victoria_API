@@ -65,14 +65,14 @@ class ImportPlantasView(APIView):
                 
                 errors = []
                 for index, row in df.iterrows():
-                    Id_Lote = GetIdLote(row['Lote'])
-                    Id_Planta = GetIdPlanta(row['Codigo'])
+                    Id_Lote = GetIdLote(row['Lote'].strip())
+                    Id_Planta = GetIdPlanta(row['Codigo'].strip())
                     if Id_Lote is None:
                         break
                     serializer_data = {
                         'Id_Lote': Id_Lote,
-                        'Codigo_Planta': row['Codigo'],
-                        'Nombre': row['Nombre'],
+                        'Codigo_Planta': row['Codigo'].strip(),
+                        'Nombre': row['Nombre'].strip(),
                         'Visible': True if row['Visible']==1 else False,
                         'Usuario': str(username),
                         'lat': row['Latitud'],

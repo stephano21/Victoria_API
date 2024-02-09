@@ -69,11 +69,14 @@ def GetIdPlanta(codigo):
     except Planta.DoesNotExist:
         # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
         return None 
-def GetIdLote(codigo):
+def GetIdLote(codigo,hacienda):
     try:
         codigo=codigo.strip()
         print(codigo)
-        Id_Lote = Lote.objects.get(Codigo_Lote=codigo, Activo=True)
+        Id_Lote = Lote.objects.select_related('Id_Proyecto__Id_Hacienda').get(
+            Codigo_Lote=codigo,
+            Id_Proyecto__Id_Hacienda=hacienda,
+            Activo=True)
         print(Id_Lote.id)
         return Id_Lote.id
     except Lote.DoesNotExist:
@@ -82,10 +85,13 @@ def GetIdLote(codigo):
         return None 
         
 
-def GetIdProyecto(codigo):
+def GetIdProyecto(codigo,hacienda):
     try:
         print(f"'{codigo}'")
-        Id_Proyecto = Proyecto.objects.get(Codigo_Proyecto=codigo, Activo=True)
+        Id_Proyecto = Proyecto.objects.select_related('Id_Hacienda').get(
+            Codigo_Proyecto=codigo, 
+            Id_Hacienda=hacienda,
+            Activo=True)
         #print(Id_Prpyecto.id)
         return Id_Proyecto.id
     except Proyecto.DoesNotExist:

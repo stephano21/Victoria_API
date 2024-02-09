@@ -56,6 +56,7 @@ class ImportLotesView(APIView):
         archivo_excel = request.FILES.get('lotes')
         user = request.user
         username = user.username
+        hacienda = request.hacienda_id 
         if archivo_excel:
             try:
                 df = pd.read_excel(archivo_excel)
@@ -70,17 +71,17 @@ class ImportLotesView(APIView):
                 df['Hectareas']= df['Hectareas'].round(2)
 
                 for index, row in df.iterrows():
-                    Id_Lote = GetIdLote(row['Lote'])
-                    Id_Proyecto = GetIdProyecto(row['Victoria'])
+                    Id_Lote = GetIdLote(row['Lote'].strip(),hacienda)
+                    Id_Proyecto = GetIdProyecto(row['Victoria'].strip(),hacienda)
                     print(Id_Proyecto)
                     row['Variedad'] = row['Variedad'] if row['Variedad'] !="nan"  else ""
                     serializer_data = {
                         'Id_Proyecto': Id_Proyecto,
-                        'Nombre': row['Nombre'],
+                        'Nombre': row['Nombre'].strip(),
                         'Hectareas': row['Hectareas'],
                         'Variedad': row['Variedad'],
                         'Usuario': str(username),
-                        'Codigo_Lote':row['Lote'],
+                        'Codigo_Lote':row['Lote'].strip(),
                         'FechaSiembra':row['FechaSiembra'],
                         'Edad': self.calculate_age(row['FechaSiembra']),
                         'Num_Plantas': row['Plantas'] if row['Plantas'] else 0,

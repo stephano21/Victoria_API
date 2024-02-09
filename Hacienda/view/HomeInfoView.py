@@ -30,7 +30,7 @@ class HomeInfoView(APIView):
         
         data={
             'Usuarios':NewUsers(),
-            'lecturas': LecturasCurrentMonth(id_hacienda),
+            'Lecturas': LecturasCurrentMonth(id_hacienda),
         }
         return Response(data)
    

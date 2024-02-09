@@ -57,7 +57,7 @@ class LecturaAPIView(APIView):
             except ValueError as e:
                 return Response(f"Error al analizar la fecha: {str(e)}", status=status.HTTP_400_BAD_REQUEST)
         
-        lecturas_mes = Lectura.objects.filter(FechaVisita__month=datetime.now().month, FechaVisita__year=datetime.now().year, Id_Planta=id_planta)
+        lecturas_mes = Lectura.objects.filter(FechaVisita__month=datetime.now().month, FechaVisita__year=datetime.now().year, Id_Planta=id_planta,Activo=True)
         if lecturas_mes.exists():
             print(f"{id_planta} ya tiene una lectura")
             return Response("Ya existe una lectura de esta planta en este mes!", status=status.HTTP_400_BAD_REQUEST)
