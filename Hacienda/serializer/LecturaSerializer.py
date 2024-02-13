@@ -14,5 +14,5 @@ class LecturaSerializers(serializers.ModelSerializer):
         # Verificar si la instancia de Produccion tiene un Lote asociado
         if instance.Id_Planta:
             # Verificar si el Lote tiene un Proyecto asociado
-            return instance.Id_Planta.Nombre
+            return instance.Id_Planta.Codigo_Planta
         return None  # Manejar el caso en que la relación no existe

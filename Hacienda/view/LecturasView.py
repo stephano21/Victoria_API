@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from datetime import datetime, timedelta
 #http
 from django.http import Http404
+from Hacienda.validators.AnalyticsData import parse_fecha
 #Import custom validators
 from Hacienda.validators.ValidatorHelper import ValidateLectura
 class LecturaAPIView(APIView):
@@ -19,21 +20,30 @@ class LecturaAPIView(APIView):
         # Obteniendo el nombre de usuario del payload del token
         user = request.user
         username = user.username
-        
         id = self.kwargs.get('id')
         id_hacienda = request.hacienda_id 
         print(f"{username} Ha consultado lecturas")
-        if id:
-            lecturas = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+        lecturas = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
                 Activo=True,
-                Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda,
-                Id_Lectura = id)
+                Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda)
+        # Obtener el parámetro de la URL 'fecha'
+        From,To = "",""
+        print(f"From {From}")
+        if request.query_params.get('from'):
+            From= request.query_params.get('from')
+        if request.query_params.get('to'):
+           To = request.query_params.get('to')
+        
+        if id:
+            lecturas = lecturas.filter(Id_Lectura = id)
             serializer = LecturaSerializers(lecturas, many=True)
             return Response(serializer.data)
-
-        lecturas = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-            Activo=True,
-            Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda)
+        elif From and To:
+            print("Filter by date")
+            From = parse_fecha(From)
+            To = parse_fecha(To)
+            lecturas = lecturas.filter(FechaVisita__range=(From, To))
+        
         serializer = LecturaSerializers(lecturas, many=True)
         return Response(serializer.data)
     def post(self, request):
