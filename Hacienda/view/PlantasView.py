@@ -50,6 +50,7 @@ class PlantaAPIView(APIView):
     def post(self, request):
         user = request.user
         username = user.username
+        print(request.data)
         print(f"{username} Ha registrado una planta")
         serializer = PlantaSerializers(data=request.data)
         if serializer.is_valid():

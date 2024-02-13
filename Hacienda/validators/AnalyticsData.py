@@ -125,7 +125,7 @@ def LecturasCurrentMonth(id_hacienda):
     año_actual = now.year
     lecturas_mes = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
         Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda,
-        FechaVisita__month=12, 
-        FechaVisita__year=2023, 
+        FechaVisita__month=mes_actual, 
+        FechaVisita__year=año_actual, 
         Activo=True,)
     return lecturas_mes.count()
