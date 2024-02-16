@@ -183,16 +183,24 @@ def getProduction(hacienda):
             'qq': obj.Qq,
             'lote': obj.Id_Lote.Codigo_Lote,
             'edad': obj.Id_Lote.Edad,
+            'Plantas': obj.Id_Lote.Num_Plantas,
+            'Id_Lote': obj.Id_Lote.id,
+            'hectareas':obj.Id_Lote.Hectareas,
         }
         for obj in queryset
     ]
     df = pd.DataFrame(data)
     df['date'] = pd.to_datetime(df['date'])
     df['date'] = pd.to_datetime(df['date'])
-    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df['edad']])[
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df['edad'], df['Plantas'], df['Id_Lote'], df['hectareas']])[
         'qq'].sum().reset_index()
     df.to_excel("ProduccionDF.xlsx", index=False)
     return df
+
+def calculate_age(fecha_siembra):
+    hoy = datetime.now()
+    edad = hoy.year - fecha_siembra.year - ((hoy.month, hoy.day) < (fecha_siembra.month, fecha_siembra.day))
+    return edad
 def GetLecturasv1(hacienda):
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
         Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
@@ -202,9 +210,9 @@ def GetLecturasv1(hacienda):
             'date': obj.FechaVisita,
             'hectareas': obj.Id_Planta.Id_Lote.Hectareas,
             'Plantas': obj.Id_Planta.Id_Lote.Num_Plantas,
-            'Id_Lote': obj.Id_Planta.Id_Lote,
+            'Id_Lote': obj.Id_Planta.Id_Lote.id,
             'lote': obj.Id_Planta.Id_Lote.Codigo_Lote if obj.Id_Planta and obj.Id_Planta.Id_Lote else None,
-            'edad': obj.Id_Planta.Id_Lote.Edad,
+            'FechaSiembra': obj.Id_Planta.Id_Lote.FechaSiembra,
             'Cherelles': obj.Cherelles,
             'E1': obj.E1,
             'E2': obj.E2,
@@ -219,10 +227,13 @@ def GetLecturasv1(hacienda):
         }
         data.append(lectura_data)
     df = pd.DataFrame(data)
+   # df['Plantas'] = df['Plantas'].astype(int)
+    df['FechaSiembra'] = pd.to_datetime(df['FechaSiembra'])
+    df['edad'] = df['FechaSiembra'].apply(calculate_age)
     print(df)
     # Calcular las columnas E1, E2, E3 de hace 3, 2, 1 meses respectivamente
     df = df.groupby([df['date'].dt.to_period("M"), df['lote'],df['Id_Lote'], df ['edad'],df['Plantas'],df['hectareas']])[
-        ['E1', 'E2', 'E3', 'E4', 'E5', 'GR1', 'GR2', 'GR3', 'GR4', 'GR5', 'Cherelles']].sum().reset_index()
+        ['E1', 'E2', 'E3', 'E4', 'E5', 'GR1', 'GR2', 'GR3', 'GR4', 'GR5', 'Cherelles']].mean().reset_index()
     # Seleccionar solo las columnas objetivo
     target_columns = df.loc[:, 'GR1':'GR5']
     # Obtener la columna con el mayor valor en cada fila en el rango específico
@@ -236,6 +247,7 @@ def GetLecturasv1(hacienda):
     # df.to_excel('output.xlsx', index=False)
     # Convertir los datos a DataFrame de pandas
     #df.to_excel("tesssss.xlsx", index=False)
+    df['Plantas'] = df['Plantas'].astype(int)
     return df
 
 def GetWeather():
@@ -294,24 +306,12 @@ def GetWeather():
 
 def GenerateDF(hacienda):
     dfLecturas = GetLecturasv1(hacienda)
-    # Lista de columnas a convertir a tipo float
-    columnas_float = ['E1', 'E2', 'E3', 'E4', 'E5', 'densidad', 'hectareas']
-
-    # Convertir las columnas a tipo float
-    dfLecturas[columnas_float] = dfLecturas[columnas_float].astype(float)
-
-    # Lista de prefijos para las nuevas columnas de totales
-    totales_prefijos = ['Total_E1', 'Total_E2', 'Total_E3', 'Total_E4', 'Total_E5']
-
-    # Bucle para calcular los totales
-    for i, prefijo in enumerate(totales_prefijos, start=1):
-        dfLecturas[prefijo] = ((dfLecturas[f'E{i}'] * dfLecturas['densidad'] * dfLecturas['hectareas']) / 12) / 100
-
+    
     dfProduction = getProduction(hacienda)
     print(dfProduction)
     dfWeather = GetWeather()
    # Hacer merge entre dfLecturas y dfProduction usando how='right'
-    df_merged = pd.merge(dfLecturas, dfProduction, on=['date', 'lote','edad'], how='right')
+    df_merged = pd.merge(dfLecturas, dfProduction, on=['date', 'lote','edad','Plantas','Id_Lote','hectareas'], how='right')
     df_merged = df_merged.fillna(0)
     # Hacer merge con dfWeather usando 'date'
     df_final = pd.merge(df_merged, dfWeather, on='date', how='inner')
@@ -321,7 +321,20 @@ def GenerateDF(hacienda):
     
     print(df_final)
     # df.to_csv('Clima.csv', index=False)
-    # df.to_excel('DFNew.xlsx', index=False)
+    # Lista de columnas a convertir a tipo float
+    columnas_float = ['E1', 'E2', 'E3', 'E4', 'E5', 'Plantas', 'hectareas']
+
+    # Convertir las columnas a tipo float
+    df_final[columnas_float] = df_final[columnas_float].astype(float)
+
+    # Lista de prefijos para las nuevas columnas de totales
+    totales_prefijos = ['Total_E1', 'Total_E2', 'Total_E3', 'Total_E4', 'Total_E5']
+
+    # Bucle para calcular los totales
+    for i, prefijo in enumerate(totales_prefijos, start=1):
+        df_final[prefijo] = ((df_final[f'E{i}']/12)* df_final['Plantas']) / 100
+    df_final.to_excel('pribando.xlsx', index=False)
+    
     return df_final
 
 
