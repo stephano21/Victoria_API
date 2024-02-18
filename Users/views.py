@@ -7,4 +7,5 @@ from Users.view.GrupoListView import GrupoList
 from Users.view.UsersListsView import UsuarioList
 from Users.view.AsignarGrupoView import AsignarGrupoView
 from Users.view.PermisionsListsView import PermisionsList
+from Users.view.LogOutView import LogOutView
 # Create your views here.

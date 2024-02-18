@@ -74,6 +74,7 @@ class ImportUsers(APIView):
         archivo_excel = request.FILES.get('usuarios')
         if archivo_excel:
             try:
+                id_hacienda = request.hacienda_id 
                 df = pd.read_excel(archivo_excel, dtype={"Cedula": str})
                 headers = ['Cedula','Nombre','Apellido','Usuario','Correo','Contraseña']
                 missing_headers = [header for header in headers if header.lower() not in [col.lower() for col in df.columns]]
@@ -89,7 +90,7 @@ class ImportUsers(APIView):
                     self.validate_row(row, index, errors,headers)
                     perfil_data = {
                         'cedula': row['Cedula'],
-                        'Id_Hacienda':1,
+                        'Id_Hacienda':id_hacienda,
                     }
                     
                     # Crea un serializer de usuario pasando los datos del perfil en el contexto

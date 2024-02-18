@@ -55,23 +55,23 @@ class UserSerializer(serializers.ModelSerializer):
         cedula = perfil_data.get('cedula')
         if not self.validar_cedula(cedula):
             print("El número de cédula es inválido!")
-            raise ValidationError(["Cedula",[ErrorDetail(string='El número de cédula es inválido!')]])
+            return ValidationError(["Cedula",[ErrorDetail(string='El número de cédula es inválido!')]])
         
         if User.objects.filter(perfil__cedula=cedula).exists():
-            raise ValidationError(["Cedula",[ErrorDetail(string='El número de cédula ya está en uso!')]])
+            return ValidationError(["Cedula",[ErrorDetail(string='El número de cédula ya está en uso!')]])
         print("Creando usuario...")
         user = User.objects.create_user(**validated_data)
         print("Usuario creado:", user.username)
         # Intenta convertir el valor de cadena a una instancia de Hacienda
-        #Id_Hacienda_value = perfil_data.get('Id_Hacienda')
-        #hacienda_instance = get_object_or_404(Hacienda, id=Id_Hacienda_value)
+        Id_Hacienda_value = perfil_data.get('Id_Hacienda')
+        hacienda_instance = get_object_or_404(Hacienda, id=Id_Hacienda_value)
         # Quita 'Id_Hacienda' de perfil_data antes de crear la instancia de Perfil
-        #perfil_data.pop('Id_Hacienda', None)
+        perfil_data.pop('Id_Hacienda', None)
         # Crea un perfil asociado a ese usuario
         try:
             print("Creando perfil...")
-            #perfil = Perfil.objects.create(user=user, Id_Hacienda=hacienda_instance, **perfil_data)
-            perfil = Perfil.objects.create(user=user)
+            perfil = Perfil.objects.create(user=user, Id_Hacienda=hacienda_instance, **perfil_data)
+            #perfil = Perfil.objects.create(user=user)
             print("Perfil creado:", Perfil.cedula)
             print("Perfil creado:", Perfil.cedula)
         except Exception as e:

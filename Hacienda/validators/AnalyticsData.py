@@ -7,7 +7,6 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta,date
 from pandas.tseries.offsets import MonthEnd
 from django.shortcuts import get_object_or_404
-
 from Users.models import Perfil
 def parse_fecha(fecha):
     if isinstance(fecha, str):
@@ -115,7 +114,14 @@ def GetLecturasPerMonth(From, to,hacienda_id):
     ]
     data = OrderByVictoria(data)
     return data
+def GetTreeTotal(hacienda_id):
+    total_plantas = Proyecto.objects.filter(
+        Activo=True,
+        lote__planta__VisibleToStudent=True,
+        Id_Hacienda_id=hacienda_id,
+    ).aggregate(TotalPlantas=Count('lote__planta'))['TotalPlantas'] or 0
 
+    return total_plantas
 def NewUsers():
     return Perfil.objects.filter(Id_Hacienda__isnull=True).count()
 
@@ -125,7 +131,11 @@ def LecturasCurrentMonth(id_hacienda):
     año_actual = now.year
     lecturas_mes = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
         Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda,
-        FechaVisita__month=mes_actual, 
-        FechaVisita__year=año_actual, 
-        Activo=True,)
-    return lecturas_mes.count()
+        FechaVisita__month= mes_actual, 
+        FechaVisita__year= año_actual, 
+        Activo=True).count()
+    Plantas =GetTreeTotal(id_hacienda)
+    if Plantas==0: return 0 
+    print(Plantas)
+    print(lecturas_mes)
+    return round((lecturas_mes/Plantas)*100 ,2) 

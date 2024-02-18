@@ -8,7 +8,8 @@ from Users.views import (LoginView,
                          UsuarioList,
                          GrupoList,
                          AsignarGrupoView,
-                         PermisionsList)
+                         PermisionsList,
+                         LogOutView)
 router = routers.DefaultRouter()
 urlpatterns = [
     # Otras rutas de la aplicación Hacienda
@@ -21,5 +22,6 @@ urlpatterns = [
     path('api/auth/roles', GrupoList.as_view(), name='GrupoList'),
     path('api/auth/roles/manage', AsignarGrupoView.as_view(), name='AsignarGrupoView'),
     path('api/auth/permissions', PermisionsList.as_view(), name='PermisionsList'),
+    path('api/auth/admin/logout/', LogOutView.as_view(), name='logout'),
 ]
 urlpatterns += router.urls

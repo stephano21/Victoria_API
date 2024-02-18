@@ -23,9 +23,10 @@ class UsuarioList(APIView):
 
     def get(self, request, format=None):
         rol = request.query_params.get('rol', None)
+        hacienda_id = request.hacienda_id
         if rol:
             usuarios = User.objects.filter(groups__name=rol)
         else:
-            usuarios = User.objects.all()
+            usuarios = User.objects.filter(perfil__Id_Hacienda=hacienda_id)
         serializer = UserSerializer(usuarios, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
