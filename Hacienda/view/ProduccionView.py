@@ -12,18 +12,21 @@ class ProduccionAPIView(APIView):
     permission_classes = [IsAuthenticated]
     # Código existente...
     def get(self, request,*args, **kwargs):
-        user = request.user
-        username = user.username
-        print(f"{username} Ha cargado Qintales producidos")
-        id = self.kwargs.get('id')
-        if id: 
-            Produccions = Produccion.objects.filter(Id_Lote = id , Activo=True)
-            serializer = ProduccionSerializers(Produccions, many=True)
-            return Response(serializer.data)
+        try:
+            user = request.user
+            username = user.username
+            print(f"{username} Ha cargado Qintales producidos")
+            id = self.kwargs.get('id')
+            if id: 
+                Produccions = Produccion.objects.filter(Id_Lote = id , Activo=True)
+                serializer = ProduccionSerializers(Produccions, many=True)
+                return Response(serializer.data)
 
-        produccion = Produccion.objects.filter(Activo=True)
-        serializer = ProduccionSerializers(produccion, many=True)
-        return Response(serializer.data)
+            produccion = Produccion.objects.filter(Activo=True)
+            serializer = ProduccionSerializers(produccion, many=True)
+            return Response(serializer.data)
+        except Exception as ex:
+            return Response(str(ex), status=status.HTTP_400_BAD_REQUEST)
     def post(self, request):
         user = request.user
         username = user.username
