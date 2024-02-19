@@ -7,7 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from Hacienda.validators.AnalyticsData import LecturasCurrentMonth, NewUsers
+from Hacienda.validators.AnalyticsData import LecturasCurrentMonth, NewUsers,LecturasCurrentMonthByProject
 
 class HomeInfoView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
@@ -31,6 +31,7 @@ class HomeInfoView(APIView):
         data={
             'Usuarios':NewUsers(),
             'Lecturas': LecturasCurrentMonth(id_hacienda),
+            'Proyects': LecturasCurrentMonthByProject(id_hacienda),
         }
         return Response(data)
    

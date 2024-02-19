@@ -139,3 +139,25 @@ def LecturasCurrentMonth(id_hacienda):
     print(Plantas)
     print(lecturas_mes)
     return round((lecturas_mes/Plantas)*100 ,2) 
+
+def LecturasCurrentMonthByProject(id_hacienda):
+    now = datetime.now()
+    mes_actual = now.month
+    año_actual = now.year
+    proyectos = Proyecto.objects.filter(Id_Hacienda_id=id_hacienda)
+    data = []
+    for proyecto in proyectos:
+        lecturas_mes = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+            Id_Planta__Id_Lote__Id_Proyecto=proyecto,
+            FechaVisita__month=mes_actual,
+            FechaVisita__year=año_actual,
+            Activo=True).count()
+        plantas = proyecto.lote_set.filter(planta__VisibleToStudent=True).count()
+        if plantas == 0:
+            continue
+        porcentaje = round((lecturas_mes / plantas) * 100, 2)
+        data.append({
+            'Proyect': proyecto.Nombre,
+            'Lecturas': porcentaje
+        })
+    return data

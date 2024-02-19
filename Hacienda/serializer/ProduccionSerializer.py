@@ -2,8 +2,8 @@ from rest_framework import serializers
 from Hacienda.models import Lote,Produccion
 import locale
 class ProduccionSerializers(serializers.ModelSerializer):
-    Victoria = serializers.SerializerMethodField()
-    #Fecha = serializers.SerializerMethodField()
+    Lote = serializers.SerializerMethodField()
+    Fecha_Produccion = serializers.SerializerMethodField()
     class Meta:
         model = Produccion
         fields = ('__all__')
@@ -12,13 +12,10 @@ class ProduccionSerializers(serializers.ModelSerializer):
             field: {'required': True}
             for field in required_fields
         }
-    def get_Victoria(self, instance):
+    def get_Lote(self, instance):
         # Verificar si la instancia de Produccion tiene un Lote asociado
         if instance.Id_Lote:
-            # Verificar si el Lote tiene un Proyecto asociado
-            if instance.Id_Lote.Id_Proyecto:
-                # Devolver el Nombre del Proyecto
-                return instance.Id_Lote.Id_Proyecto.Nombre
+            return instance.Id_Lote.Codigo_Lote  # Obtener el nombre del lote
         return None  # Manejar el caso en que la relación no existe
 
 
@@ -30,3 +27,8 @@ class ProduccionSerializers(serializers.ModelSerializer):
         if instance.Fecha:
             return instance.Fecha.strftime("%B, %Y")
         return None  # Puedes manejar el caso en que la fecha sea nula según tus necesidades
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['Qq'] = float(representation['Qq'])
+        return representation

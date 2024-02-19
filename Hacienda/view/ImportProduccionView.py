@@ -64,7 +64,6 @@ class ImportProduccion(APIView):
                     return Response(f'Faltan los siguientes encabezados: {", ".join(missing_headers)}', status=status.HTTP_400_BAD_REQUEST)
                 df['Quintales']= df['Quintales'].round(3)
                 df_copy = df.copy()
-               
                 
                 errors = []
                 print(df_copy)
