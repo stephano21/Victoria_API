@@ -20,13 +20,15 @@ class ProduccionSerializers(serializers.ModelSerializer):
 
 
     def get_Fecha_Produccion(self, instance):
-        # Aquí puedes formatear la fecha según tus requisitos
-        # Configura la localización a español
-        locale.setlocale(locale.LC_TIME, 'es_ES.utf-8')  # Ajusta la localización según tu sistema
-
         if instance.Fecha:
-            return instance.Fecha.strftime("%B, %Y")
-        return None  # Puedes manejar el caso en que la fecha sea nula según tus necesidades
+            current_locale = locale.getdefaultlocale()
+            try:
+                locale.setlocale(locale.LC_TIME, current_locale)
+                return instance.Fecha.strftime("%B, %Y")
+            except locale.Error:
+                return instance.Fecha.strftime("%B, %Y")  # Fallback a un formato estándar si hay un error
+        return None
+
     
     def to_representation(self, instance):
         representation = super().to_representation(instance)
