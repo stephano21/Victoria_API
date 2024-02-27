@@ -16,16 +16,3 @@ class HaciendaViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(codigo=codigo)
         return queryset
 
-
-class ProyectoViewSet(viewsets.ModelViewSet):
-    queryset = Proyecto.objects.filter(Activo=True)
-    permission_classes = [permissions.AllowAny]
-    serializer_class = ProyectoSerializers
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        codigo_proyecto = self.request.query_params.get('cod')
-        if codigo_proyecto:
-            queryset = queryset.filter(Codigo_Proyecto=codigo_proyecto)
-        return queryset
-
