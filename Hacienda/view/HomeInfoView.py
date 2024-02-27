@@ -24,7 +24,7 @@ class HomeInfoView(APIView):
         if request.query_params.get('from'):
             From= request.query_params.get('from')
         if request.query_params.get('to'):
-           To =request.query_params.get('to')
+            To =request.query_params.get('to')
         
         print( type(From) )
         
@@ -34,4 +34,3 @@ class HomeInfoView(APIView):
             'Proyects': LecturasCurrentMonthByProject(id_hacienda),
         }
         return Response(data)
-   

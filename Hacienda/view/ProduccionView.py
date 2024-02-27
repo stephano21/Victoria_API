@@ -20,7 +20,6 @@ class ProduccionAPIView(APIView):
             Produccions = Produccion.objects.filter(Id_Lote = id , Activo=True)
             serializer = ProduccionSerializers(Produccions, many=True)
             return Response(serializer.data)
-
         produccion = Produccion.objects.filter(Activo=True)
         serializer = ProduccionSerializers(produccion, many=True)
         return Response(serializer.data)
