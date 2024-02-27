@@ -60,6 +60,7 @@ class LoginView(APIView):
                 'permissions': permission_names,
                 'rol': first_group_name,
                 'usurio': username,
+                'hacienda': user.perfil.Id_Hacienda.Nombre,
             })
         else:
             print(username + " Credenciales incorrectas ")
