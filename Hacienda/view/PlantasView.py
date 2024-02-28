@@ -18,27 +18,33 @@ class PlantaAPIView(APIView):
         print(f"{username} Ha cargado plantas")
         id = self.kwargs.get('id')
         grupos_usuario = user.groups.all()
-        if id: 
+        Rol = request.rol
+        if hacienda and Rol != "Researcher":
+            if id: 
+                plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                    Id_Lote = id,
+                    Activo=True,
+                    Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
+                serializer = PlantaSerializers(plantas, many=True)
+                return Response(serializer.data)
+            if any(grupo.name == "Estudiante" for grupo in grupos_usuario):
+                plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                    Activo=True,
+                    VisibleToStudent=True,
+                    Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
+            if any(grupo.name == "Tecnico" for grupo in grupos_usuario):
+                plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+                    Activo=True,
+                    VisibleToStudent=True,
+                    Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
+                serializer = PlantaSerializers(plantas, many=False)
+                return Response(serializer.data)
+        else:
             plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-                Id_Lote = id,
-                Activo=True,
-                Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
+                    Activo=True,)
             serializer = PlantaSerializers(plantas, many=True)
             return Response(serializer.data)
-        if any(grupo.name == "Estudiante" for grupo in grupos_usuario):
-            plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-                Activo=True,
-                VisibleToStudent=True,
-                Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
-            serializer = PlantaSerializers(plantas, many=True)
-            return Response(serializer.data)
-        if any(grupo.name == "Tecnico" for grupo in grupos_usuario):
-            plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-                Activo=True,
-                VisibleToStudent=True,
-                Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
-            serializer = PlantaSerializers(plantas, many=False)
-            return Response(serializer.data)
+        
         
         plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
             Activo=True,
