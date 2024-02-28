@@ -8,11 +8,15 @@ from rest_framework import status
 class ProyectoAPIView(APIView):
     def get(self, request, *args, **kwargs):
         id_hacienda = request.hacienda_id 
+        Rol = request.rol 
         id = self.kwargs.get('id')
-        proyectos = Proyecto.objects.select_related('Id_Hacienda').filter(
-            Activo=True,
-            Id_Hacienda_id=id_hacienda,
-            )
+        if id_hacienda and Rol != "Researcher":
+            proyectos = Proyecto.objects.select_related('Id_Hacienda').filter(
+                Activo=True,
+                Id_Hacienda_id=id_hacienda,
+                )
+        else:
+            proyectos = Proyecto.objects.select_related('Id_Hacienda').filter(Activo=True)
         serializer = ProyectoSerializers(proyectos, many=True)
         return Response(serializer.data)
     @swagger_auto_schema(
@@ -42,8 +46,11 @@ class ProyectoAPIView(APIView):
     )
     def post(self, request):
         id_hacienda = request.hacienda_id 
-        if not id_hacienda:  return Response( "No se ha encontrado el id de la hacienda", status=status.HTTP_400_BAD_REQUEST)
-        request.data["Id_Hacienda"]=id_hacienda
+        Rol = request.rol 
+        print(request.data)
+        ##if not id_hacienda:  return Response( "No se ha encontrado el id de la hacienda", status=status.HTTP_400_BAD_REQUEST)
+        
+        if Rol !="Researcher": request.data["Id_Hacienda"]=id_hacienda
         print(request.data)
         serializer = ProyectoSerializers(data=request.data)
         if serializer.is_valid():

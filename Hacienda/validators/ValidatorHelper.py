@@ -1,3 +1,4 @@
+import random
 import pandas as pd
 from datetime import datetime, timedelta
 from Hacienda.models import Lectura, Proyecto, Planta,Lote
@@ -73,12 +74,19 @@ def GetIdLote(codigo,hacienda):
     try:
         codigo=codigo.strip()
         print(codigo)
-        Id_Lote = Lote.objects.select_related('Id_Proyecto__Id_Hacienda').get(
-            Codigo_Lote=codigo,
-            Id_Proyecto__Id_Hacienda=hacienda,
-            Activo=True)
-        print(Id_Lote.id)
-        return Id_Lote.id
+        if hacienda:
+            Id_Lote = Lote.objects.select_related('Id_Proyecto__Id_Hacienda').get(
+                Codigo_Lote=codigo,
+                Id_Proyecto__Id_Hacienda=hacienda,
+                Activo=True)
+            print(Id_Lote.id)
+            return Id_Lote.id
+        else:
+            Id_Lote = Lote.objects.select_related('Id_Proyecto__Id_Hacienda').get(
+                Codigo_Lote=codigo,
+                Activo=True)
+            print(Id_Lote.id)
+            return Id_Lote.id
     except Lote.DoesNotExist:
         print(f'El lote "{codigo}" No existe')
         # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
@@ -88,14 +96,29 @@ def GetIdLote(codigo,hacienda):
 def GetIdProyecto(codigo,hacienda):
     try:
         print(f"'{codigo}'")
-        Id_Proyecto = Proyecto.objects.select_related('Id_Hacienda').get(
-            Codigo_Proyecto=codigo, 
-            Id_Hacienda=hacienda,
-            Activo=True)
+        if hacienda:
+            Id_Proyecto = Proyecto.objects.select_related('Id_Hacienda').get(
+                Codigo_Proyecto=codigo, 
+                Id_Hacienda=hacienda,
+                Activo=True)
+            return Id_Proyecto.id
+        else:
+            Id_Proyecto = Proyecto.objects.select_related('Id_Hacienda').get(
+                Codigo_Proyecto=codigo,
+                Activo=True)
+            return Id_Proyecto.id
+            hacienda
         #print(Id_Prpyecto.id)
-        return Id_Proyecto.id
     except Proyecto.DoesNotExist:
+        print(f"{hacienda}{codigo}")
         print("ojito")
         # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
         return None 
-    
+def GenerateFillColor():
+    # Generar tres componentes RGB aleatorias
+    r = random.randint(0, 255)
+    g = random.randint(0, 255)
+    b = random.randint(0, 255)
+
+    # Convertir las componentes RGB a formato hexadecimal
+    return"#{:02X}{:02X}{:02X}".format(r, g, b)

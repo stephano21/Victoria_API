@@ -89,7 +89,13 @@ class ImportLotesView(APIView):
                     print(serializer_data)
                     if Id_Lote is None:
                         print("creando")
-
+                        serializer_data['poligonos'] = [
+                            {
+                                'FillColor': '#'+str(uuid.uuid4().hex[:6]),
+                                'Usuario': str(username)
+                            }
+                        ]
+                        print(serializer_data)
                         serializer = LoteSerializers(data=serializer_data)
                     else:
                         print("updating")

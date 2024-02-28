@@ -38,10 +38,10 @@ class LoginView(APIView):
             return Response('Usuario no registrado', status=status.HTTP_404_NOT_FOUND)
 
         if user.check_password(password):
-             # Obtiene el primer grupo al que pertenece el usuario (si hay alguno)
+            # Obtiene el primer grupo al que pertenece el usuario (si hay alguno)
             user_groups = user.groups.all()
             print(user_groups)
-            first_group_name = user_groups.first().name if user_groups else None
+            first_group_name = user_groups.last().name if user_groups else None
 
             # Obtiene los permisos del usuario
             user_permissions = user.user_permissions.all()
@@ -60,9 +60,8 @@ class LoginView(APIView):
                 'permissions': permission_names,
                 'rol': first_group_name,
                 'usurio': username,
-                'hacienda': user.perfil.Id_Hacienda.Nombre,
+                'hacienda': user.perfil.Id_Hacienda.Nombre if not user.perfil.Id_Hacienda == None else"",
             })
         else:
             print(username + " Credenciales incorrectas ")
             return Response('Credenciales inválidas', status=status.HTTP_401_UNAUTHORIZED)
- 

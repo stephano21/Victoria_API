@@ -7,7 +7,7 @@ from Users.models import Perfil
 import jwt
 from jwt.exceptions import ExpiredSignatureError, DecodeError
 from decouple import config
-
+from django.contrib.auth.models import User
 class HaciendaMiddleware(MiddlewareMixin):
     def process_request(self, request):
         # Verificar si el usuario está autenticado
@@ -20,18 +20,25 @@ class HaciendaMiddleware(MiddlewareMixin):
                     try:
                         # Obtener el perfil asociado al usuario
                         perfil = Perfil.objects.get(user_id=idUser)
+                        Roles = User.objects.get(pk=idUser).groups.all()
+                        first_group_name = Roles.last().name if Roles else None
                         print(perfil)
+                        print(first_group_name)
                         # Establecer el ID de la hacienda en el contexto de la solicitud
                         request.hacienda_id = perfil.Id_Hacienda.id if perfil.Id_Hacienda else None
+                        request.rol = first_group_name if first_group_name else ""
                     except Perfil.DoesNotExist:
                         # Manejar el caso en que el perfil no existe para el usuario
                         request.hacienda_id = None
+                        request.rol = ""
                 else:
                     # Usuario no autenticado, establecer hacienda_id como None
                     request.hacienda_id = None
+                    request.rol = ""
         else:
             # No hay encabezado de autorización, establecer hacienda_id como None
             request.hacienda_id = None
+            request.rol = ""
 
     def ValidateToken(self, token):
         SECRET_KEY = config('SECRET_KEY')
