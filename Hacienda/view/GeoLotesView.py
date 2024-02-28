@@ -51,7 +51,7 @@ class GeoLotesView(APIView):
                 poligono_data['CodigoLote'] = codigo_lote
                 poligono_data['geocoordenadas'] = geocoordenadas_data
                 result.append(poligono_data)
-
+            print(result)
             return Response(result, status=status.HTTP_200_OK)
         except Exception as e:
             # Manejar el caso en el que el perfil no existe para el usuario
