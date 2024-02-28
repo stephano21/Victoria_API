@@ -1,3 +1,4 @@
+import uuid
 from Hacienda.models import Lote
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -35,6 +36,14 @@ class LoteAPIView(APIView):
         serializer = LoteSerializers(lotes, many=True)
         return Response(serializer.data)
     def post(self, request):
+        user = request.user
+        username = user.username
+        request.data['poligonos'] = [
+                        {
+                            'FillColor': '#'+str(uuid.uuid4().hex[:6]),
+                            'Usuario': str(username)
+                        }
+                    ]
         serializer = LoteSerializers(data=request.data)
         if serializer.is_valid():
             serializer.save()

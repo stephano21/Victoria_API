@@ -56,7 +56,7 @@ class GeoLotesView(APIView):
         except Exception as e:
             # Manejar el caso en el que el perfil no existe para el usuario
             return Response(f"Ocurrio un erro: {str(e)}", status=status.HTTP_400_BAD_REQUEST_)
-       
+
 
     @swagger_auto_schema(
         request_body=openapi.Schema(
