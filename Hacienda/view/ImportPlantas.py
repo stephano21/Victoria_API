@@ -54,6 +54,7 @@ class ImportPlantasView(APIView):
     def post(self, request):
         archivo_excel = request.FILES.get('plantas')
         user = request.user
+        hacienda = request.hacienda_id 
         username = user.username
         if archivo_excel:
             try:
@@ -65,7 +66,7 @@ class ImportPlantasView(APIView):
                 
                 errors = []
                 for index, row in df.iterrows():
-                    Id_Lote = GetIdLote(row['Lote'].strip())
+                    Id_Lote = GetIdLote(row['Lote'].strip(),hacienda)
                     Id_Planta = GetIdPlanta(row['Codigo'].strip())
                     if Id_Lote is None:
                         break

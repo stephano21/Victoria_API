@@ -70,7 +70,7 @@ def GetIdPlanta(codigo):
     except Planta.DoesNotExist:
         # Manejar la situación donde no se encuentra ninguna planta con las condiciones dadas
         return None 
-def GetIdLote(codigo,hacienda):
+def GetIdLote(codigo,hacienda = None):
     try:
         codigo=codigo.strip()
         print(codigo)
