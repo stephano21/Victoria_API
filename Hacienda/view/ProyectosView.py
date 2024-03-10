@@ -74,3 +74,12 @@ class ProyectoAPIView(APIView):
 
         serializer = ProyectoSerializers(proyecto)
         return Response(f"Se ha eliminado el proyecto {proyecto.Codigo_Proyecto}",status=status.HTTP_200_OK)
+    
+    def put(self, request, id):
+        Proyecto = self.get_object(id)
+        serializer = ProyectoSerializers(Proyecto, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(f"Proyecto {Proyecto.Codigo_Proyecto} actualizado con éxito!", status=status.HTTP_200_OK)  # Return the serialized lote object
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
