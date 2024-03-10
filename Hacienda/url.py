@@ -18,6 +18,7 @@ router.register('api/hacienda', HaciendaViewSet)
 urlpatterns = [
     # Otras rutas de la aplicación Hacienda
     path('api/proyectos/', ProyectoAPIView.as_view(), name='proyectos'),
+    path('api/proyectos/<int:id>/', ProyectoAPIView.as_view(), name='proyectos'),
     path('api/lotes/', LoteAPIView.as_view(), name='lotes'),
     path('api/lotes/upload', ImportLotesView.as_view(), name='lotes'),
     path('api/lotes/<int:id>/', LoteAPIView.as_view(), name='lotes'),

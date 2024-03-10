@@ -5,6 +5,8 @@ from Hacienda.serializers import ProyectoSerializers
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework import status
+
+from Hacienda.validators.ValidatorHelper import GetIdProyecto
 class ProyectoAPIView(APIView):
     def get(self, request, *args, **kwargs):
         id_hacienda = request.hacienda_id 
@@ -49,8 +51,9 @@ class ProyectoAPIView(APIView):
         Rol = request.rol 
         print(request.data)
         ##if not id_hacienda:  return Response( "No se ha encontrado el id de la hacienda", status=status.HTTP_400_BAD_REQUEST)
-        
-        if Rol !="Researcher": request.data["Id_Hacienda"]=id_hacienda
+        existe = GetIdProyecto(request.data["Codigo_Proyecto"], id_hacienda)
+        if existe: return Response( f"El proyecto {request.data['Codigo_Proyecto']} ya existe en la hacienda", status=status.HTTP_400_BAD_REQUEST)
+        if Rol !="Researcher" or Rol !="Root": request.data["Id_Hacienda"]=id_hacienda
         print(request.data)
         serializer = ProyectoSerializers(data=request.data)
         if serializer.is_valid():
@@ -58,3 +61,16 @@ class ProyectoAPIView(APIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    def get_object(self, pk):
+        try:
+            return Proyecto.objects.get(pk=pk)
+        except Proyecto.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+        
+    def delete (self, request, id):
+        proyecto = self.get_object(id)
+        proyecto.Activo = False
+        proyecto.save()
+
+        serializer = ProyectoSerializers(proyecto)
+        return Response(f"Se ha eliminado el proyecto {proyecto.Codigo_Proyecto}",status=status.HTTP_200_OK)

@@ -32,7 +32,6 @@ def ValidateLectura(data):
     
 def validate_row(row, index, errors):
         headers = ['Planta','Fecha','Observacion']
-       
         has_error = False
         if not all(row[col] and not pd.isna(row[col]) for col in headers):
             missing_data = [col for col in headers if not row[col] or pd.isna(row[col])]
@@ -93,7 +92,7 @@ def GetIdLote(codigo,hacienda = None):
         return None 
         
 
-def GetIdProyecto(codigo,hacienda):
+def GetIdProyecto(codigo,hacienda=None):
     try:
         print(f"'{codigo}'")
         if hacienda:

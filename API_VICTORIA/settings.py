@@ -92,7 +92,10 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     "GET",
     "POST",
+    "PUT",
+    "DELETE",
     "OPTIONS",
+    "PATCH",
 ]
 
 #if DEBUG:

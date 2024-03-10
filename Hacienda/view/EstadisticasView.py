@@ -13,13 +13,13 @@ class EstadisticasView(APIView):
         user = request.user
         hacienda_id = request.hacienda_id
         print(hacienda_id)
-       
+
         # Obtener el parámetro de la URL 'fecha'
         From,To = "",""
         if request.query_params.get('from'):
             From= request.query_params.get('from')
         if request.query_params.get('to'):
-           To =request.query_params.get('to')
+            To =request.query_params.get('to')
         
         print( type(From) )
         username = user.username
@@ -30,4 +30,4 @@ class EstadisticasView(APIView):
             'Produccion':GetProductionByVictoria(From, To,hacienda_id),
         }
         return Response(data)
-   
+

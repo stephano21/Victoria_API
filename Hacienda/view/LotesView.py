@@ -8,6 +8,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from Hacienda.validators.ValidatorHelper import GetIdLote
+
 class LoteAPIView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -38,6 +40,10 @@ class LoteAPIView(APIView):
     def post(self, request):
         user = request.user
         username = user.username
+        hacienda = request.hacienda_id
+        existeLote = GetIdLote(request.data['Codigo_Lote'],hacienda)
+        
+        if existeLote: return Response( f"El lote {request.data['Codigo_Lote']} ya existe!", status=status.HTTP_400_BAD_REQUEST)
         request.data['poligonos'] = [
                         {
                             'FillColor': '#'+str(uuid.uuid4().hex[:6]),
@@ -50,13 +56,13 @@ class LoteAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def patch(self, request, pk):
+    def put(self, request, pk):
         lote = self.get_object(pk)
         serializer = LoteSerializers(lote, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(f"Lote actualizado exitosamente!", status=status.HTTP_200_OK)
+        return Response(str(serializer.errors), status=status.HTTP_400_BAD_REQUEST)
 
     def get_object(self, pk):
         try:
@@ -64,10 +70,10 @@ class LoteAPIView(APIView):
         except Lote.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
 
-    def delete (self, request, id):
+    def delete (self, request,id):
         lote = self.get_object(id)
         lote.Activo = False
         lote.save()
 
         serializer = LoteSerializers(lote)
-        return Response(serializer.data)
+        return Response(f"Se ha eliminado el lote {lote.Codigo_Lote}",status=status.HTTP_200_OK)
