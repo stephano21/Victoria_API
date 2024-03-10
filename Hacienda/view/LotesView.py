@@ -61,8 +61,8 @@ class LoteAPIView(APIView):
         serializer = LoteSerializers(lote, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(f"Lote actualizado exitosamente!", status=status.HTTP_200_OK)
-        return Response(str(serializer.errors), status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_200_OK)  # Return the serialized lote object
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_object(self, pk):
         try:
