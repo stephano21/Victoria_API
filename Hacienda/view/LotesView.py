@@ -39,9 +39,10 @@ class LoteAPIView(APIView):
         return Response(serializer.data)
     def post(self, request):
         user = request.user
+        hacienda = request.hacienda_id
         username = user.username
         hacienda = request.hacienda_id
-        existeLote = GetIdLote(request.data['Codigo_Lote'],hacienda)
+        existeLote = GetIdLote(request.data['Codigo_Lote'].strip(),hacienda)
         
         if existeLote: return Response( f"El lote {request.data['Codigo_Lote']} ya existe!", status=status.HTTP_400_BAD_REQUEST)
         request.data['poligonos'] = [
@@ -56,8 +57,9 @@ class LoteAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def put(self, request, id):
-        lote = self.get_object(id)
+        
+    def patch(self, request, pk):
+        lote = self.get_object(pk)
         serializer = LoteSerializers(lote, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
