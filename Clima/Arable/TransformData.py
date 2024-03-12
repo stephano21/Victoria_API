@@ -111,14 +111,14 @@ def getLotes():
     # Concatenar las dos columnas usando str.cat()
     dfByLote['Proyecto'] = dfByLote['Proyecto'].str.cat(
         dfByLote['Lote'], sep='_')
-   # print(dfByLote)
+    # print(dfByLote)
 
     # Agrupar por fecha y proyecto, calcular la suma de las columnas E1-E5
     dfByLote = dfByLote.groupby(['date', 'Proyecto', 'densidad']).agg(
         {'hectareas': 'sum', 'E1': 'mean', 'E2': 'mean', 'E3': 'mean', 'E4': 'mean', 'E5': 'mean'}).reset_index()
     df_Production = getProduction()
     df_Lote_Produccion = pd.merge(dfByLote, df_Production, on=[
-                                  'date', 'Proyecto'], how='inner')
+                                    'date', 'Proyecto'], how='inner')
 
     # Guardar el DataFrame en un archivo Excel
     # Convertir las columnas relevantes a tipo float
