@@ -62,8 +62,8 @@ class LoteAPIView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def patch(self, request, pk):
-        lote = self.get_object(pk)
+    def put(self, request, id):
+        lote = self.get_object(id)
         serializer = LoteSerializers(lote, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

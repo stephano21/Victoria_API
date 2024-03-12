@@ -78,8 +78,6 @@ class ProyectoAPIView(APIView):
         proyecto = self.get_object(id)
         proyecto.Activo = False
         proyecto.save()
-
-        serializer = ProyectoSerializers(proyecto)
         return Response(f"Se ha eliminado el proyecto {proyecto.Codigo_Proyecto}", status=status.HTTP_200_OK)
 
     def put(self, request, id):
