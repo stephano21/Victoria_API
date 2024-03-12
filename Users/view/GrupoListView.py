@@ -7,18 +7,17 @@ from rest_framework.permissions import IsAuthenticated
 from Users.serializers import GroupSerializer
 
 
-
-
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+
 
 class GrupoList(APIView):
     def get(self, request, format=None):
         grupos = Group.objects.all()
         serializer = GroupSerializer(grupos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def post(self, request, *args, **kwargs):
         serializer = GroupSerializer(data=request.data)
 

@@ -23,25 +23,25 @@ class GeoLotesView(APIView):
         username = user.username
         # Obtener el perfil asociado al usuario
         try:
-            id_hacienda = request.hacienda_id 
+            id_hacienda = request.hacienda_id
             print(f"{username} Ha cargado Geolotes")
             lote_id = request.query_params.get('lote_id')
 
             if lote_id:
                 poligonos = Poligono.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
                     Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda,
-                    lote__id=lote_id, 
+                    lote__id=lote_id,
                     Activo=True)
             else:
                 poligonos = Poligono.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-                    Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda ,
+                    Id_Lote__Id_Proyecto__Id_Hacienda_id=id_hacienda,
                     Activo=True)
 
             result = []
             for poligono in poligonos:
                 poligono_data = PoligonoSerializers(poligono).data
                 geocoordenadas = GeoCoordenadas.objects.filter(
-                    Id_Poligono=poligono.id, Activo =True)
+                    Id_Poligono=poligono.id, Activo=True)
                 geocoordenadas_data = GeoCoordenadasSerializers(
                     geocoordenadas, many=True).data
                 # Obtener el nombre del lote correspondiente usando la relación ForeignKey
@@ -57,7 +57,6 @@ class GeoLotesView(APIView):
             # Manejar el caso en el que el perfil no existe para el usuario
             return Response(f"Ocurrio un erro: {str(e)}", status=status.HTTP_400_BAD_REQUEST_)
 
-
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -67,7 +66,7 @@ class GeoLotesView(APIView):
             },
             required=["poligono"],
             example={
-                
+
                 "id": 1,
                 "FillColor": "#FF0000",
                 "Activo": True,
@@ -91,7 +90,7 @@ class GeoLotesView(APIView):
         user = request.user
         username = user.username
         print(f"{username} Ha registrado un Geolote")
-        if Poligono.objects.filter(Id_Lote=lote_id, Activo=True).exists():          
+        if Poligono.objects.filter(Id_Lote=lote_id, Activo=True).exists():
             return Response("Ya existe un polígono registrado para este lote.", status=status.HTTP_400_BAD_REQUEST)
 
         poligono_serializer = PoligonoSerializers(
@@ -114,10 +113,11 @@ class GeoLotesView(APIView):
 
             # Enviar la respuesta
         return Response(request.data, status=status.HTTP_201_CREATED)
-    
+
     @swagger_auto_schema(
         manual_parameters=[  # Define el parámetro manualmente
-            openapi.Parameter('id', openapi.IN_PATH, description="ID del polígono a eliminar", type=openapi.TYPE_INTEGER),
+            openapi.Parameter(
+                'id', openapi.IN_PATH, description="ID del polígono a eliminar", type=openapi.TYPE_INTEGER),
         ],
         responses={
             200: "El polígono y sus geocoordenadas han sido eliminados con éxito.",
@@ -144,7 +144,8 @@ class GeoLotesView(APIView):
             print(f"{username} Ha eliminado un Geolote")
             poligono = get_object_or_404(Poligono, pk=id, Activo=True)
             print(poligono)
-            if not poligono: return Response("El polígono no existe.", status=status.HTTP_404_NOT_FOUND)
+            if not poligono:
+                return Response("El polígono no existe.", status=status.HTTP_404_NOT_FOUND)
         except Poligono.DoesNotExist:
             return Response("El polígono no existe.", status=status.HTTP_404_NOT_FOUND)
 

@@ -1,3 +1,4 @@
+from Clima.Arable.Auth import GetData, Login, BuidlSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,14 +13,13 @@ from drf_yasg import openapi
 """
 Arable data
 """
-from Clima.Arable.Auth import GetData, Login, BuidlSerializer
 
 
 class DataView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):        
+    def get(self, request):
         Data = Daily_Indicadores.objects.order_by('Date')
         serializer = DailyIndicadorSerializers(Data, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

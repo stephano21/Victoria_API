@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from ..models import GeoCoordenadas
 
+
 class GeoCoordenadasSerializers(serializers.ModelSerializer):
     class Meta:
         model = GeoCoordenadas

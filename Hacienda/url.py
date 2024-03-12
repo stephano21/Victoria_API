@@ -12,7 +12,7 @@ from Hacienda.views import (LoteAPIView,
                             EstadisticasView,
                             HomeInfoView,
                             ProyectoAPIView,)
-from Hacienda.api import HaciendaViewSet#, LecturaViewSet
+from Hacienda.api import HaciendaViewSet  # , LecturaViewSet
 router = routers.DefaultRouter()
 router.register('api/hacienda', HaciendaViewSet)
 urlpatterns = [

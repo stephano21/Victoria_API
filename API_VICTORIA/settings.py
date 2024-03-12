@@ -39,7 +39,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [config('SITE')]
-DJANGO_ADMIN_URL='/api/auth/admin/'
+DJANGO_ADMIN_URL = '/api/auth/admin/'
 
 EXTERNAL_HOSTNAME = config('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
@@ -87,7 +87,7 @@ REST_FRAMEWORK = {
         # Otros métodos de autenticación, si los necesitas
     ],
 }
-#CORRs setings
+# CORRs setings
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     "GET",
@@ -98,13 +98,13 @@ CORS_ALLOW_METHODS = [
     "PATCH",
 ]
 
-#if DEBUG:
+# if DEBUG:
 CORS_ALLOW_ALL_ORIGINS = False
-origins=config("CORS_ALLOWED_ORIGINS")
+origins = config("CORS_ALLOWED_ORIGINS")
 if origins:
     CORS_ALLOWED_ORIGINS = origins.split(",")
     print(CORS_ALLOWED_ORIGINS)
-#else:
+# else:
 #    origins=config("CORS_ALLOWED_ORIGINS")
 #    if origins:
 #        CORS_ALLOWED_ORIGINS = origins.split(",")
@@ -144,7 +144,7 @@ SWAGGER_SETTINGS = {
     # ...
 }
 # Redirigir todas las solicitudes HTTP a HTTPS
-SECURE_SSL_REDIRECT = False if DEBUG else True 
+SECURE_SSL_REDIRECT = False if DEBUG else True
 # Establecer el encabezado seguro cuando la aplicación está detrás de un proxy
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -171,7 +171,8 @@ SCHEDULER_CONFIG = {
         'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
         'max_workers': '20',  # Número máximo de trabajadores en el grupo de trabajadores
     },
-    'apscheduler.timezone': 'UTC',  # Zona horaria (por ejemplo, 'UTC' o 'America/New_York')
+    # Zona horaria (por ejemplo, 'UTC' o 'America/New_York')
+    'apscheduler.timezone': 'UTC',
 }
 
 TEMPLATES = [
@@ -212,15 +213,16 @@ if DEBUG:
             'PASSWORD': config('DATABASE_PASSWORD'),
             'HOST': config('DATABASE_HOST'),
             'PORT': config('DATABASE_PORT', default=''),
-            #'OPTIONS': {
-                #'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
-                #'sql_mode': 'STRICT_TRANS_TABLES',
-            #},
+            # 'OPTIONS': {
+            # 'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
+            # 'sql_mode': 'STRICT_TRANS_TABLES',
+            # },
         }
     }
 else:
     INSTALLED_APPS.append('django.contrib.postgres')
-    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600, ssl_require=True)
     DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
     DATABASES['default']['NAME'] = str(config('DATABASE_NAME'))
     DATABASES['default']['USER'] = str(config('DATABASE_USER'))
@@ -287,5 +289,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'trabajocolaborativo.pis@gmail.com'  # Tu dirección de correo
-EMAIL_HOST_PASSWORD = 'liou cfwa hgbz ndeu'  # La contraseña de aplicación generada
-
+# La contraseña de aplicación generada
+EMAIL_HOST_PASSWORD = 'liou cfwa hgbz ndeu'

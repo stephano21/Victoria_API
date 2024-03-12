@@ -13,6 +13,8 @@ import re  # Expreciones regulares
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 from pandas.tseries.offsets import MonthEnd
+
+
 def get_column_value(df, date, column_name, months_ago, lote):
     # Convertir la fecha hace "months_ago" meses a datetime
     target_date = pd.to_datetime(date - relativedelta(months=months_ago))
@@ -22,20 +24,21 @@ def get_column_value(df, date, column_name, months_ago, lote):
     if not filtered_data.empty:
         return filtered_data.iloc[0][column_name]
     else:
-        return 0            
+        return 0
 
-def get_column_valuev2(df, date, column_name, months_ago, lotestr,hacienda):
+
+def get_column_valuev2(df, date, column_name, months_ago, lotestr, hacienda):
     # Convertir la fecha hace "months_ago" meses a datetime
-    #target_date = pd.to_datetime(date - relativedelta(months=months_ago))
+    # target_date = pd.to_datetime(date - relativedelta(months=months_ago))
     # Obtener la fecha hace "months_ago" meses
     print(f"{date},{lotestr} meses a tras{months_ago} Estadio{column_name}")
     target_date = date.to_timestamp() - pd.DateOffset(months=months_ago)
     # Obtener el último día del mes de target_date
     last_day_of_month = target_date + pd.offsets.MonthEnd(0)
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-        Activo=True, 
-        Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda, 
-        Id_Planta__Id_Lote__Codigo_Lote =lotestr,  
+        Activo=True,
+        Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda,
+        Id_Planta__Id_Lote__Codigo_Lote=lotestr,
         FechaVisita__gte=target_date,
         FechaVisita__lte=last_day_of_month,)
     data = [
@@ -45,13 +48,15 @@ def get_column_valuev2(df, date, column_name, months_ago, lotestr,hacienda):
         }
         for obj in queryset
     ]
-    dfRetorno=pd.DataFrame(data)
+    dfRetorno = pd.DataFrame(data)
     # Obtener el valor de la columna deseada
-    if len(dfRetorno)>0:
-        dfRetorno = dfRetorno.groupby([dfRetorno['lote']])[[column_name]].sum().reset_index()
+    if len(dfRetorno) > 0:
+        dfRetorno = dfRetorno.groupby([dfRetorno['lote']])[
+            [column_name]].sum().reset_index()
         return int(dfRetorno[column_name].iloc[0])
     else:
         return 0
+
 
 def get_weather_for_date(date):
     print("Gett weather")
@@ -84,6 +89,7 @@ def get_weather_for_date(date):
         'Sunshine_Duration': queryset.aggregate(sum_sunshine_duration=Sum('Sunshine_Duration'))['sum_sunshine_duration'],
     }
 
+
 def getProduction(hacienda):
     queryset = Produccion.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
         Activo=True, Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
@@ -95,7 +101,7 @@ def getProduction(hacienda):
             'edad': obj.Id_Lote.Edad,
             'Plantas': obj.Id_Lote.Num_Plantas,
             'Id_Lote': obj.Id_Lote.id,
-            'hectareas':obj.Id_Lote.Hectareas,
+            'hectareas': obj.Id_Lote.Hectareas,
         }
         for obj in queryset
     ]
@@ -107,10 +113,14 @@ def getProduction(hacienda):
     df.to_excel("ProduccionDF.xlsx", index=False)
     return df
 
+
 def calculate_age(fecha_siembra):
     hoy = datetime.now()
-    edad = hoy.year - fecha_siembra.year - ((hoy.month, hoy.day) < (fecha_siembra.month, fecha_siembra.day))
+    edad = hoy.year - fecha_siembra.year - \
+        ((hoy.month, hoy.day) < (fecha_siembra.month, fecha_siembra.day))
     return edad
+
+
 def GetLecturasv1(hacienda):
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
         Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
@@ -137,12 +147,12 @@ def GetLecturasv1(hacienda):
         }
         data.append(lectura_data)
     df = pd.DataFrame(data)
-   # df['Plantas'] = df['Plantas'].astype(int)
+    # df['Plantas'] = df['Plantas'].astype(int)
     df['FechaSiembra'] = pd.to_datetime(df['FechaSiembra'])
     df['edad'] = df['FechaSiembra'].apply(calculate_age)
-    #print(df)
+    # print(df)
     # Calcular las columnas E1, E2, E3 de hace 3, 2, 1 meses respectivamente
-    df = df.groupby([df['date'].dt.to_period("M"), df['lote'],df['Id_Lote'], df ['edad'],df['Plantas'],df['hectareas']])[
+    df = df.groupby([df['date'].dt.to_period("M"), df['lote'], df['Id_Lote'], df['edad'], df['Plantas'], df['hectareas']])[
         ['E1', 'E2', 'E3', 'E4', 'E5', 'GR1', 'GR2', 'GR3', 'GR4', 'GR5', 'Cherelles']].mean().reset_index()
     # Seleccionar solo las columnas objetivo
     target_columns = df.loc[:, 'GR1':'GR5']
@@ -151,32 +161,33 @@ def GetLecturasv1(hacienda):
     max_column = target_columns.idxmax(axis=1)
     # Asignar un número según la posición de la columna
     df['grade_monilla'] = max_column.str.extract('(\d+)')
-    df['perdida'] = Losttarget_columns.mean(axis=1)                  
+    df['perdida'] = Losttarget_columns.mean(axis=1)
     df = df.drop(['GR1', 'GR2', 'GR3', 'GR4', 'GR5'], axis=1)
     df['Plantas'] = df['Plantas'].astype(int)
     return df
 
+
 def GetWeather():
     queryset = Daily_Indicadores.objects.all()
     data = [{'date': obj.Date,
-             #'temp': obj.Temp_Air_Mean,
-             #'Evapotranspiration': obj.Evapotranspiration,
-             'Evapotranspiration_Crop': obj.Evapotranspiration_Crop,
-             'Nvdi': obj.Ndvi,
-             #'Relat_Hum_Min': obj.Relat_Hum_Min,
-             'Relat_Hum_Max_Temp': obj.Relat_Hum_Max_Temp,
-             #'Relat_Hum_Min_Temp': obj.Relat_Hum_Min_Temp,
-             'Temp_Air_Max': obj.Temp_Air_Max,
-             'Temp_Air_Min': obj.Temp_Air_Min,
-             'Dew_Temp_Max': obj.Dew_Temp_Max,
-             'Precipitacion': obj.Precipitacion,
-             #'Precipitacion_Hours': obj.Precipitacion_Hours,
-             #'Sea_Level_Pressure': obj.Sea_Level_Pressure,
-             #'Vapor_Pressure_Deficit': obj.Vapor_Pressure_Deficit,
-             #'Dew_Temp_Mean': obj.Dew_Temp_Mean,
-             #'Crop_Water_Demand': obj.Crop_Water_Demand,
-             'Sunshine_Duration': obj.Sunshine_Duration,
-             } for obj in queryset]
+            # 'temp': obj.Temp_Air_Mean,
+            # 'Evapotranspiration': obj.Evapotranspiration,
+            'Evapotranspiration_Crop': obj.Evapotranspiration_Crop,
+            'Nvdi': obj.Ndvi,
+            # 'Relat_Hum_Min': obj.Relat_Hum_Min,
+            'Relat_Hum_Max_Temp': obj.Relat_Hum_Max_Temp,
+            # 'Relat_Hum_Min_Temp': obj.Relat_Hum_Min_Temp,
+            'Temp_Air_Max': obj.Temp_Air_Max,
+            'Temp_Air_Min': obj.Temp_Air_Min,
+            'Dew_Temp_Max': obj.Dew_Temp_Max,
+            'Precipitacion': obj.Precipitacion,
+            # 'Precipitacion_Hours': obj.Precipitacion_Hours,
+            # 'Sea_Level_Pressure': obj.Sea_Level_Pressure,
+            # 'Vapor_Pressure_Deficit': obj.Vapor_Pressure_Deficit,
+            # 'Dew_Temp_Mean': obj.Dew_Temp_Mean,
+            # 'Crop_Water_Demand': obj.Crop_Water_Demand,
+            'Sunshine_Duration': obj.Sunshine_Duration,
+            } for obj in queryset]
     # Convertir los datos a DataFrame de pandas
     df = pd.DataFrame(data)
     # Asegurarse de que la columna 'date' sea de tipo datetime
@@ -185,52 +196,58 @@ def GetWeather():
     df['date'] = df['date'] + pd.DateOffset(months=3)
     # Hacer el ajuste de fin de mes después de restar 3 meses
     df['date'] = df['date'] + MonthEnd(0)
-    df = df.groupby(df['date'].dt.to_period("M")).agg({#'temp': 'mean',
-                                                       #'Evapotranspiration': 'sum',
-                                                       'Evapotranspiration_Crop': 'sum',
-                                                       'Nvdi': 'sum',
-                                                       #'Relat_Hum_Min': 'mean',
-                                                       'Relat_Hum_Max_Temp': 'mean',
-                                                       'Temp_Air_Max': 'mean',
-                                                       'Temp_Air_Min': 'mean',
-                                                       'Dew_Temp_Max': 'mean',
-                                                       'Precipitacion': 'sum',
-                                                       #'Precipitacion_Hours': 'sum',
-                                                       #'Sea_Level_Pressure': 'mean',
-                                                       #'Vapor_Pressure_Deficit': 'mean',
-                                                       #'Dew_Temp_Mean': 'mean',
-                                                       #'Crop_Water_Demand': 'sum',
-                                                       'Sunshine_Duration': 'sum'}).reset_index()
+    df = df.groupby(df['date'].dt.to_period("M")).agg({  # 'temp': 'mean',
+        # 'Evapotranspiration': 'sum',
+        'Evapotranspiration_Crop': 'sum',
+        'Nvdi': 'sum',
+        # 'Relat_Hum_Min': 'mean',
+        'Relat_Hum_Max_Temp': 'mean',
+        'Temp_Air_Max': 'mean',
+        'Temp_Air_Min': 'mean',
+        'Dew_Temp_Max': 'mean',
+        'Precipitacion': 'sum',
+        # 'Precipitacion_Hours': 'sum',
+        # 'Sea_Level_Pressure': 'mean',
+        # 'Vapor_Pressure_Deficit': 'mean',
+        # 'Dew_Temp_Mean': 'mean',
+        # 'Crop_Water_Demand': 'sum',
+        'Sunshine_Duration': 'sum'}).reset_index()
     df.to_dict(orient='records')
     df.to_excel("DatosClimaticos.xlsx", index=False)
     return df
 
+
 def GenerateDF(hacienda):
     dfLecturas = GetLecturasv1(hacienda)
     dfProduction = getProduction(hacienda)
-    #print(dfProduction)
+    # print(dfProduction)
     dfWeather = GetWeather()
     # Hacer merge entre dfLecturas y dfProduction usando how='right'
-    df_merged = pd.merge(dfLecturas, dfProduction, on=['date', 'lote','edad','Plantas','Id_Lote','hectareas'], how='right')
+    df_merged = pd.merge(dfLecturas, dfProduction, on=[
+                        'date', 'lote', 'edad', 'Plantas', 'Id_Lote', 'hectareas'], how='right')
     df_merged = df_merged.fillna(0)
     # Hacer merge con dfWeather usando 'date'
     df_final = pd.merge(df_merged, dfWeather, on='date', how='inner')
     for i in range(3, 0, -1):
         df_final[f'E{4-i}'] = df_final.apply(
-            lambda row: get_column_valuev2(df_final, row['date'], f'E{4-i}', i, row['lote'],hacienda), axis=1)
+            lambda row: get_column_valuev2(df_final, row['date'], f'E{4-i}', i, row['lote'], hacienda), axis=1)
     columnas_float = ['E1', 'E2', 'E3', 'E4', 'E5', 'Plantas', 'hectareas']
     # Convertir las columnas a tipo float
     df_final[columnas_float] = df_final[columnas_float].astype(float)
     # Lista de prefijos para las nuevas columnas de totales
-    totales_prefijos = ['Total_E1', 'Total_E2', 'Total_E3', 'Total_E4', 'Total_E5']  #retiro 60 pago 40 de la tarjeta
+    totales_prefijos = ['Total_E1', 'Total_E2', 'Total_E3',
+                        'Total_E4', 'Total_E5']  # retiro 60 pago 40 de la tarjeta
     # Bucle para calcular los totales
     for i, prefijo in enumerate(totales_prefijos, start=1):
-        df_final[prefijo] = (((df_final[f'E{i}']/12)* df_final['Plantas']) /df_final['hectareas'] )/100
-    df_final['lost']= ((((df_final['perdida']+ df_final['Cherelles'])/12)* df_final['Plantas']/ df_final['hectareas']))/100
+        df_final[prefijo] = (
+            ((df_final[f'E{i}']/12) * df_final['Plantas']) / df_final['hectareas'])/100
+    df_final['lost'] = ((((df_final['perdida'] + df_final['Cherelles'])/12)
+                        * df_final['Plantas'] / df_final['hectareas']))/100
     df_final = df_final.fillna(0)
     df_final.to_excel('probandtetssdhj.xlsx', index=False)
     print(df_final)
     return df_final
+
 
 def obtener_numeros(codigo):
     # Utilizar expresiones regulares para encontrar los números
@@ -239,10 +256,12 @@ def obtener_numeros(codigo):
     numero_completo = ''.join(numeros)
     return int(numero_completo)
 
+
 def predict(hacienda):
-    #df = GenerateDF(hacienda)
+    # df = GenerateDF(hacienda)
     df = pd.read_excel('C:/ProyectosSChang/Victoria_API/probandtetssdhj.xlsx')
-    columns_to_round = ['Total_E1', 'Total_E2', 'Total_E3','Total_E4','Total_E5','lost']
+    columns_to_round = ['Total_E1', 'Total_E2',
+                        'Total_E3', 'Total_E4', 'Total_E5', 'lost']
     # Aplica la función round a las columnas seleccionadas
     df[columns_to_round] = df[columns_to_round].round(decimals=14)
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
@@ -259,5 +278,6 @@ def predict(hacienda):
     serializer = DatasetSerializer(data=data, many=True)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    df = df.drop(['E1', 'E2','E3','E4','E5','Plantas','hectareas','date','lote','Id_Lote','Cherelles','perdida'],axis=1)
+    df = df.drop(['E1', 'E2', 'E3', 'E4', 'E5', 'Plantas', 'hectareas',
+                 'date', 'lote', 'Id_Lote', 'Cherelles', 'perdida'], axis=1)
     return data

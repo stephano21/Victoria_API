@@ -7,19 +7,21 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+
 class ProduccionAPIView(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
     # Código existente...
-    def get(self, request,*args, **kwargs):
+
+    def get(self, request, *args, **kwargs):
         user = request.user
-        hacienda = request.hacienda_id 
+        hacienda = request.hacienda_id
         username = user.username
         print(f"{username} Ha cargado Qintales producidos")
         id = self.kwargs.get('id')
-        if id: 
+        if id:
             Produccions = Produccion.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-                Id_Lote = id,
+                Id_Lote=id,
                 Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda,
                 Activo=True)
             serializer = ProduccionSerializers(Produccions, many=True)
@@ -29,6 +31,7 @@ class ProduccionAPIView(APIView):
             Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
         serializer = ProduccionSerializers(produccion, many=True)
         return Response(serializer.data)
+
     def post(self, request):
         user = request.user
         username = user.username
@@ -40,9 +43,11 @@ class ProduccionAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def patch(self, request, pk):
         Produccion = self.get_object(pk)
-        serializer = ProduccionSerializers(Produccion, data=request.data, partial=True)
+        serializer = ProduccionSerializers(
+            Produccion, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -54,7 +59,7 @@ class ProduccionAPIView(APIView):
         except Produccion.DoesNotExist:
             raise status.HTTP_404_NOT_FOUND
 
-    def delete (self, request, id):
+    def delete(self, request, id):
         Produccion = self.get_object(id)
         Produccion.Activo = False
         Produccion.save()
