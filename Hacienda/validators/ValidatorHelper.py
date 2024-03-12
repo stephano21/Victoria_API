@@ -74,9 +74,9 @@ def GetIdPlanta(codigo, hacienda=None):
     try:
         codigo = codigo.strip()
         if hacienda:
-            Id_Planta = Planta.objects.select_related('Id_Proyecto__Id_Hacienda').get(
+            Id_Planta = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').get(
                 Codigo_Planta=codigo,
-                Id_Proyecto__Id_Hacienda=hacienda,
+                Id_Lote__Id_Proyecto__Id_Hacienda=hacienda,
                 Activo=True)
             return Id_Planta.id
         else:
