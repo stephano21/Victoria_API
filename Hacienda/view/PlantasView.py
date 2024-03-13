@@ -39,9 +39,9 @@ class PlantaAPIView(APIView):
             if any(grupo.name == "Estudiante" for grupo in grupos_usuario):
                 plantas = plantas.filter(VisibleToStudent=True)
 
-            elif any(grupo.name == "Tecnico" for grupo in grupos_usuario):
+            elif any(grupo.name == "Tecnico" for grupo in grupos_usuario) or any(grupo.name == "Admin" for grupo in grupos_usuario):
                 print(f"es tecnico")
-                plantas = plantas.filter(VisibleToStudent=True)
+                plantas = plantas.filter(VisibleToStudent=False)
 
             serializer = PlantaSerializers(plantas, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
