@@ -23,39 +23,29 @@ class PlantaAPIView(APIView):
         id = self.kwargs.get('id')
         grupos_usuario = user.groups.all()
         Rol = request.rol
-        if hacienda and (Rol != "Researcher" or Rol != "Root"):
-            if id:
-                plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-                    Id_Lote=id,
-                    Activo=True,
-                    Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
-                serializer = PlantaSerializers(plantas, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            if any(grupo.name == "Estudiante" for grupo in grupos_usuario):
+        if hacienda:
+            print(f"have hacienda{hacienda}")
+            # Filtrar plantas basado en diferentes condiciones según el rol
+            if Rol not in ["Researcher", "Root"]:
                 plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
                     Activo=True,
-                    VisibleToStudent=True,
-                    Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
-                serializer = PlantaSerializers(plantas, many=False)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            elif any(grupo.name == "Tecnico" for grupo in grupos_usuario):
-                plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-                    Activo=True,
-                    VisibleToStudent=True,
-                    Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
-                serializer = PlantaSerializers(plantas, many=False)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                    Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda
+                )
             else:
                 plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
                     Activo=True,
-                    Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
-                serializer = PlantaSerializers(plantas, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-        elif hacienda and (Rol == "Researcher" or Rol == "Root"):
-            plantas = Planta.objects.select_related('Id_Lote__Id_Proyecto__Id_Hacienda').filter(
-                Activo=True,)
+                )
+
+            if any(grupo.name == "Estudiante" for grupo in grupos_usuario):
+                plantas = plantas.filter(VisibleToStudent=True)
+
+            elif any(grupo.name == "Tecnico" for grupo in grupos_usuario):
+                print(f"es tecnico")
+                plantas = plantas.filter(VisibleToStudent=True)
+
             serializer = PlantaSerializers(plantas, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response([], status=status.HTTP_200_OK)
 
     def post(self, request):
