@@ -20,7 +20,7 @@ class PandasView(APIView):
         dataset_exists = Dataset.objects.filter(
             Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datetime.now().date()).exists()
         if not dataset_exists:
-            Data = predict(hacienda)
+            Data = predict(hacienda,datetime.now())
             return Response(Data, status=status.HTTP_200_OK)
         else:
             return Response("No se encontró un dataset para la fecha actual", status=status.HTTP_404_NOT_FOUND)

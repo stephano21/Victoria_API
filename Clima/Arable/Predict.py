@@ -1,5 +1,6 @@
 from django.db.models import Avg, Sum
 from Clima.models import Daily_Indicadores
+from Predict.models import Dataset
 from Predict.serializers import DatasetSerializer
 from Hacienda.models import Lectura, Planta, Lote, Proyecto, Produccion
 import pandas as pd
@@ -13,6 +14,7 @@ import re  # Expreciones regulares
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 from pandas.tseries.offsets import MonthEnd
+from joblib import load
 
 
 def get_column_value(df, date, column_name, months_ago, lote):
@@ -171,23 +173,23 @@ def GetWeather():
     queryset = Daily_Indicadores.objects.all()
     data = [{'date': obj.Date,
             # 'temp': obj.Temp_Air_Mean,
-            # 'Evapotranspiration': obj.Evapotranspiration,
-            'Evapotranspiration_Crop': obj.Evapotranspiration_Crop,
-            'Nvdi': obj.Ndvi,
-            # 'Relat_Hum_Min': obj.Relat_Hum_Min,
-            'Relat_Hum_Max_Temp': obj.Relat_Hum_Max_Temp,
-            # 'Relat_Hum_Min_Temp': obj.Relat_Hum_Min_Temp,
-            'Temp_Air_Max': obj.Temp_Air_Max,
-            'Temp_Air_Min': obj.Temp_Air_Min,
-            'Dew_Temp_Max': obj.Dew_Temp_Max,
-            'Precipitacion': obj.Precipitacion,
-            # 'Precipitacion_Hours': obj.Precipitacion_Hours,
-            # 'Sea_Level_Pressure': obj.Sea_Level_Pressure,
-            # 'Vapor_Pressure_Deficit': obj.Vapor_Pressure_Deficit,
-            # 'Dew_Temp_Mean': obj.Dew_Temp_Mean,
-            # 'Crop_Water_Demand': obj.Crop_Water_Demand,
-            'Sunshine_Duration': obj.Sunshine_Duration,
-            } for obj in queryset]
+             # 'Evapotranspiration': obj.Evapotranspiration,
+             'Evapotranspiration_Crop': obj.Evapotranspiration_Crop,
+             'Nvdi': obj.Ndvi,
+             # 'Relat_Hum_Min': obj.Relat_Hum_Min,
+             'Relat_Hum_Max_Temp': obj.Relat_Hum_Max_Temp,
+             # 'Relat_Hum_Min_Temp': obj.Relat_Hum_Min_Temp,
+             'Temp_Air_Max': obj.Temp_Air_Max,
+             'Temp_Air_Min': obj.Temp_Air_Min,
+             'Dew_Temp_Max': obj.Dew_Temp_Max,
+             'Precipitacion': obj.Precipitacion,
+             # 'Precipitacion_Hours': obj.Precipitacion_Hours,
+             # 'Sea_Level_Pressure': obj.Sea_Level_Pressure,
+             # 'Vapor_Pressure_Deficit': obj.Vapor_Pressure_Deficit,
+             # 'Dew_Temp_Mean': obj.Dew_Temp_Mean,
+             # 'Crop_Water_Demand': obj.Crop_Water_Demand,
+             'Sunshine_Duration': obj.Sunshine_Duration,
+             } for obj in queryset]
     # Convertir los datos a DataFrame de pandas
     df = pd.DataFrame(data)
     # Asegurarse de que la columna 'date' sea de tipo datetime
@@ -224,7 +226,7 @@ def GenerateDF(hacienda):
     dfWeather = GetWeather()
     # Hacer merge entre dfLecturas y dfProduction usando how='right'
     df_merged = pd.merge(dfLecturas, dfProduction, on=[
-                        'date', 'lote', 'edad', 'Plantas', 'Id_Lote', 'hectareas'], how='right')
+        'date', 'lote', 'edad', 'Plantas', 'Id_Lote', 'hectareas'], how='right')
     df_merged = df_merged.fillna(0)
     # Hacer merge con dfWeather usando 'date'
     df_final = pd.merge(df_merged, dfWeather, on='date', how='inner')
@@ -256,10 +258,62 @@ def obtener_numeros(codigo):
     numero_completo = ''.join(numeros)
     return int(numero_completo)
 
+#TODO: Generar df sin produccion y filtrar por hacienda
+def predict(hacienda, date):
+    df = None
+    if not ExisteDataset(hacienda, date) and not get_latest_date():
+        df = GenerateDF(hacienda)
+        SaveDataSet(df)
+    elif not ExisteDataset(hacienda, date) and get_latest_date():
+        df =  GetDataSet(get_latest_date())
 
-def predict(hacienda):
-    # df = GenerateDF(hacienda)
-    df = pd.read_excel('C:/ProyectosSChang/Victoria_API/probandtetssdhj.xlsx')
+    if df is not None:
+        # Cargar el modelo desde el archivo
+        loaded_model = load('Modelo.joblib')
+        predictions_prod = loaded_model.predict(X)
+    
+    
+
+
+def ExisteDataset(hacienda, date):
+    return Dataset.objects.filter(
+        Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date__month=date.month, date__year=date.year).exists()
+
+
+def get_latest_date():
+    latest_date = Dataset.objects.order_by('-date').first()
+    if latest_date:
+        return latest_date.date
+    else:
+        return None
+
+
+def GetDataSet(date):
+    queryset = Dataset.objects.filter(date=date, Activo=True)
+    data = []
+    for obj in queryset:
+        dataset = {
+            'Total_E1': obj.Total_E1,
+            'Total_E2': obj.Total_E2,
+            'Total_E3': obj.Total_E3,
+            'Total_E4': obj.Total_E4,
+            'Total_E5': obj.Total_E5,
+            'Evapotranspiration_Crop': obj.Evapotranspiration_Crop,
+            'Nvdi': obj.Nvdi,
+            'Relat_Hum_Max_Temp': obj.Relat_Hum_Max_Temp,
+            'Temp_Air_Max': obj.Temp_Air_Max,
+            'Temp_Air_Min': obj.Temp_Air_Min,
+            'Dew_Temp_Max': obj.Dew_Temp_Max,
+            'Precipitacion': obj.Precipitacion,
+            'Sunshine_Duration': obj.Sunshine_Duration,
+            'edad': obj.edad,
+            'grade_monilla': obj.grade_monilla,
+            'lost': obj.lost,
+        }
+        data.append(dataset)
+    return data
+
+def SaveDataSet(df):
     columns_to_round = ['Total_E1', 'Total_E2',
                         'Total_E3', 'Total_E4', 'Total_E5', 'lost']
     # Aplica la función round a las columnas seleccionadas
