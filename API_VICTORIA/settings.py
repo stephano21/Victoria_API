@@ -16,6 +16,8 @@ import os
 import dj_database_url
 from decouple import config
 
+from utils.Console import Console
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,7 +48,7 @@ if EXTERNAL_HOSTNAME:
     EXTERNAL_HOSTNAME = EXTERNAL_HOSTNAME.split(",")
     for HOST in EXTERNAL_HOSTNAME:
         ALLOWED_HOSTS.append(HOST)
-print(ALLOWED_HOSTS)
+Console.Log(ALLOWED_HOSTS)
 # Application definition
 INSTALLED_APPS = [
     'corsheaders',
@@ -103,12 +105,12 @@ CORS_ALLOW_ALL_ORIGINS = False
 origins = config("CORS_ALLOWED_ORIGINS")
 if origins:
     CORS_ALLOWED_ORIGINS = origins.split(",")
-    print(CORS_ALLOWED_ORIGINS)
+    Console.Log(CORS_ALLOWED_ORIGINS)
 # else:
 #    origins=config("CORS_ALLOWED_ORIGINS")
 #    if origins:
 #        CORS_ALLOWED_ORIGINS = origins.split(",")
-#        print(CORS_ALLOWED_ORIGINS)
+#        Console.Log(CORS_ALLOWED_ORIGINS)
 
 # Configuración de JWT
 SIMPLE_JWT = {
@@ -197,12 +199,12 @@ WSGI_APPLICATION = 'API_VICTORIA.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-print("\n"*1)
-print("-"*100)
+Console.Log("\n"*1)
+Console.Log("-"*100)
 Mode = "Debugg" if DEBUG == True else "Production"
-print(f"Info runing\nRuning server on mode:{Mode}")
-print("-"*100)
-print("\n"*1)
+Console.Log(f"Info runing\nRuning server on mode:{Mode}")
+Console.Log("-"*100)
+Console.Log("\n"*1)
 DATABASES = {}
 if DEBUG:
     DATABASES = {

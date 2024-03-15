@@ -219,17 +219,18 @@ def GetWeather():
     return df
 
 
-def GenerateDF(hacienda):
+def GenerateDF(hacienda, train=False):
     dfLecturas = GetLecturasv1(hacienda)
-    dfProduction = getProduction(hacienda)
-    # print(dfProduction)
     dfWeather = GetWeather()
-    # Hacer merge entre dfLecturas y dfProduction usando how='right'
-    df_merged = pd.merge(dfLecturas, dfProduction, on=[
-        'date', 'lote', 'edad', 'Plantas', 'Id_Lote', 'hectareas'], how='right')
-    df_merged = df_merged.fillna(0)
+    if train: 
+        dfProduction = getProduction(hacienda)
+        df_merged = pd.merge(dfLecturas, dfProduction, on=[
+            'date', 'lote', 'edad', 'Plantas', 'Id_Lote', 'hectareas'], how='right')
+        df_merged = df_merged.fillna(0)
     # Hacer merge con dfWeather usando 'date'
-    df_final = pd.merge(df_merged, dfWeather, on='date', how='inner')
+        df_final = pd.merge(dfLecturas, dfWeather, on='date', how='inner')
+    else:
+        df_final = pd.merge(df_merged, dfWeather, on='date', how='inner')
     for i in range(3, 0, -1):
         df_final[f'E{4-i}'] = df_final.apply(
             lambda row: get_column_valuev2(df_final, row['date'], f'E{4-i}', i, row['lote'], hacienda), axis=1)

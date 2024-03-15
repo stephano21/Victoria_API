@@ -9,6 +9,8 @@ from django.template.loader import get_template
 from django.core.mail import EmailMessage
 from django.conf import settings
 
+from utils.Console import Console
+
 
 scheduler = BackgroundScheduler()
 
@@ -18,7 +20,7 @@ def SyncArable():
     if not Current_Data():
         token = Login()
         start_time = Current_Date()
-        print(start_time)
+        Console.Log(start_time)
         if isinstance(start_time, datetime):
             data = GetData(token, start_time.date())
         else:
@@ -37,7 +39,7 @@ def SyncArable():
         # Validar que todos los objetos esten correctos
         for serializer in DailyIndicadoresSerializers:
             if not serializer.is_valid():
-                print(serializer.errors)
+                Console.Error(serializer.errors)
 
         registros_sincronizados = 0
         for serializer in DailyIndicadoresSerializers:
@@ -47,10 +49,10 @@ def SyncArable():
 
         enviar_correo('Sincronización Arable', 'stephanochang21@gmail.com',
                       f"Se han sincronizado {registros_sincronizados} registros exitosamente!")
-        print(
+        Console.Log(
             f"Se han sincronizado {registros_sincronizados} registros exitosamente!")
 
-    print("Los datos ya se han sincronizado!")
+    Console.Log("Los datos ya se han sincronizado!")
 
 
 def Test():
