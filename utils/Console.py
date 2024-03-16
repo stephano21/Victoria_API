@@ -1,16 +1,16 @@
-from colorama import init, Fore, Style
+from colorama import init, Fore
 
 # Inicializa colorama
-class Console:
+class console:
     init()
     def __init__(self):
         pass
-    def Error(message):
+    def error(message):
         print(f"❌ {Fore.RED}[ERROR]{Fore.WHITE} {message}")
 
-    def Warning(message):
+    def warn(message):
         print(f"☢️  {Fore.YELLOW}[WARNING]{Fore.WHITE} {message}")
 
-    def Log(message):
+    def log(message):
         print(f"✅ {Fore.GREEN}[INFO]{Fore.WHITE} {message}")
 

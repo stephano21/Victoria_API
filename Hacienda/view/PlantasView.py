@@ -8,7 +8,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from Hacienda.validators.ValidatorHelper import GetIdPlanta
-from utils.Console import Console
+from utils.Console import console
 
 
 class PlantaAPIView(APIView):
@@ -41,7 +41,7 @@ class PlantaAPIView(APIView):
                 plantas = plantas.filter(VisibleToStudent=True)
 
             elif any(grupo.name == "Tecnico" for grupo in grupos_usuario):
-                Console.Log("es tecnico")
+                console.log("es tecnico")
                 print(f"es tecnico")
                 plantas = plantas.filter(VisibleToStudent=True)
 
