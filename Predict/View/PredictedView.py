@@ -8,6 +8,10 @@ from Clima.serializers import DailyIndicadorSerializers
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+
+from Predict.data.predictService import predict
+from Predict.models import Dataset
+from utils.Console import console
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -19,34 +23,12 @@ class PredictedView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-        username = user.username
-        print(Current_Data())
-        if not Current_Data():
-            token = Login()
-            start_time = Current_Date()
-            print(start_time)
-            if isinstance(start_time, datetime):
-                data = GetData(token, start_time.date())
-            else:
-                data = GetData(token)
-            if data == "":
-                return Response("Ocurrió un error con arable!", status=status.HTTP_400_BAD_REQUEST)
-            Format_Data = BuidlSerializer(data, username)
-            # Validar si Format_Data es un arreglo de objetos
-            if not isinstance(Format_Data, list) or not all(isinstance(i, dict) for i in Format_Data):
-                return Response(Format_Data, status=status.HTTP_400_BAD_REQUEST)
-            # Pasar al serializador
-            DailyIndicadoresSerializers = [DailyIndicadorSerializers(
-                data=data) for data in Format_Data]
-            # Validar que todos los objetos esten correctos
-            for serializer in DailyIndicadoresSerializers:
-                if not serializer.is_valid():
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            registros_sincronizados = 0
-            for serializer in DailyIndicadoresSerializers:
-                if serializer.is_valid():
-                    serializer.save()
-                    registros_sincronizados += 1
-            return Response(f"Se han sincronizado {registros_sincronizados} registros exitosamente!", status=status.HTTP_200_OK)
-        return Response("Los datos ya se han sincronizado!", status=status.HTTP_200_OK)
+        hacienda = request.hacienda_id
+        dataset_exists = Dataset.objects.filter(
+            Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datetime.now().date()).exists()
+        console.log(f"Dataset exists: {dataset_exists}")
+        if not dataset_exists:
+            Data = predict(hacienda,datetime.now())
+            return Response(Data, status=status.HTTP_200_OK)
+        else:
+            return Response("No se encontró un dataset para la fecha actual", status=status.HTTP_404_NOT_FOUND)

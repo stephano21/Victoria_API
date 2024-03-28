@@ -1,4 +1,4 @@
-from django.db.models import Avg, Sum
+from django.db.models import Avg, Sum, Q
 from Clima.models import Daily_Indicadores
 from Predict.models import Dataset
 from Predict.serializers import DatasetSerializer
@@ -15,6 +15,8 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
 from pandas.tseries.offsets import MonthEnd
 from joblib import load
+
+from utils.Console import console
 
 
 def get_column_value(df, date, column_name, months_ago, lote):
@@ -263,15 +265,17 @@ def obtener_numeros(codigo):
 def predict(hacienda, date):
     df = None
     if not ExisteDataset(hacienda, date) and not get_latest_date():
+        console.warn("Coonstruyendo Historico  desde 0")
         df = GenerateDF(hacienda)
         SaveDataSet(df)
     elif not ExisteDataset(hacienda, date) and get_latest_date():
         df =  GetDataSet(get_latest_date())
 
     if df is not None:
+        console.log("Predicting....")
         # Cargar el modelo desde el archivo
         loaded_model = load('Modelo.joblib')
-        predictions_prod = loaded_model.predict(X)
+        predictions_prod = loaded_model.predict(df)
     
     
 
@@ -290,7 +294,7 @@ def get_latest_date():
 
 
 def GetDataSet(date):
-    queryset = Dataset.objects.filter(date=date, Activo=True)
+    queryset = Dataset.objects.filter(Q(date__gte=date))
     data = []
     for obj in queryset:
         dataset = {
@@ -312,7 +316,8 @@ def GetDataSet(date):
             'lost': obj.lost,
         }
         data.append(dataset)
-    return data
+    df = pd.DataFrame(data)
+    return df
 
 def SaveDataSet(df):
     columns_to_round = ['Total_E1', 'Total_E2',
