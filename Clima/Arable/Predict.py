@@ -298,6 +298,8 @@ def GetDataSet(date):
     data = []
     for obj in queryset:
         dataset = {
+            'Id_Lote': obj.Id_Lote.id,
+            'date':obj.date,
             'Total_E1': obj.Total_E1,
             'Total_E2': obj.Total_E2,
             'Total_E3': obj.Total_E3,

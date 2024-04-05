@@ -26,3 +26,11 @@ class Dataset(models.Model):
     date = models.DateTimeField(null=True)
     lost = models.DecimalField(max_digits=18, decimal_places=14, default=0.0)
     FechaRegistro = models.DateTimeField(auto_created=True,blank=True, null=True)
+    
+class HistorialPredict(models.Model):
+    Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=False)
+    Qq = models.DecimalField(max_digits=8, decimal_places=4, null=False)
+    Fecha = models.DateField(null=False)
+    FechaRegistro = models.DateTimeField(auto_now_add=True)
+    Activo = models.BooleanField(default=True)
+    Usuario = models.TextField(default="Admin",max_length=100, null=True)
