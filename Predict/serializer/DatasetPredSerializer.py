@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from Predict.models import Dataset
+from Predict.models import DatasetPred
 from django.utils import timezone
 
-class DatasetSerializer(serializers.ModelSerializer):
+class DatasetPredSerializer(serializers.ModelSerializer):
     FechaRegistro = serializers.DateTimeField(read_only=True)
 
     class Meta:
-        model = Dataset
+        model = DatasetPred
         fields = '__all__'
 
     def create(self, validated_data):

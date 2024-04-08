@@ -10,7 +10,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from Predict.data.predictService import predict
-from Predict.models import Dataset
+from Predict.models import DatasetPred
 from utils.Console import console
 """Document by SWAGGER"""
 from drf_yasg.utils import swagger_auto_schema
@@ -26,7 +26,7 @@ class PredictedView(APIView):
         hacienda = request.hacienda_id
         user = request.user
         username = user.username
-        dataset_exists = Dataset.objects.filter(
+        dataset_exists = DatasetPred.objects.filter(
             Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datetime.now().date()).exists()
         console.log(f"Dataset exists: {dataset_exists}")
         if not dataset_exists:

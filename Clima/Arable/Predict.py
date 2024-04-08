@@ -1,8 +1,8 @@
 from django.db.models import Avg, Sum, Q
 from Clima.models import Daily_Indicadores
-from Predict.models import Dataset
-from Predict.serializers import DatasetSerializer
-from Hacienda.models import Lectura, Planta, Lote, Proyecto, Produccion
+from Predict.models import DatasetPred, DatasetTrain
+from Predict.serializers import DatasetTrainSerializer, DatasetPredSerializer
+from Hacienda.models import Lectura, Produccion
 import pandas as pd
 # Sklearn
 from sklearn.model_selection import train_test_split
@@ -283,7 +283,7 @@ def GenerateDF(hacienda, train=False):
     df_final = df_final.fillna(0)
     df_final.to_excel('probandtetssdhj.xlsx', index=False)
     print(df_final)
-    return df_final
+    return df_final, train
 
 
 def obtener_numeros(codigo):
@@ -296,40 +296,25 @@ def obtener_numeros(codigo):
 # TODO: Generar df sin produccion y filtrar por hacienda
 
 
-def predict(hacienda, date):
-    df = None
-    if not ExisteDataset(hacienda, date) and not get_latest_date():
-        console.warn("Coonstruyendo Historico  desde 0")
-        df = GenerateDF(hacienda)
-        SaveDataSet(df)
-    elif not ExisteDataset(hacienda, date) and get_latest_date():
-        df = GetDataSet(get_latest_date())
-
-    if df is not None:
-        console.log("Predicting....")
-        # Cargar el modelo desde el archivo
-        loaded_model = load('Modelo.joblib')
-        predictions_prod = loaded_model.predict(df)
-
 
 def ExisteDataset(hacienda, date):
-    return Dataset.objects.filter(
+    return DatasetPred.objects.filter(
         Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date__month=date.month, date__year=date.year).exists()
 
 
 def get_latest_date():
-    latest_date = Dataset.objects.order_by('-date').first()
+    latest_date = DatasetPred.objects.order_by('-date').first()
     if latest_date:
         return latest_date.date
     else:
         return None
 
 
-def GetDataSet(date):
+def GetDataSetPred(date):
     fecha_5_meses_atras = date - timedelta(days=30*5)
 
 # Filtra los datos usando el rango de fechas
-    queryset = Dataset.objects.filter(date__range=(fecha_5_meses_atras, date))
+    queryset = DatasetPred.objects.filter(date__range=(fecha_5_meses_atras, date))
     # queryset = Dataset.objects.filter(Q(date__gte=date))
     data = []
     for obj in queryset:
@@ -358,8 +343,8 @@ def GetDataSet(date):
     return df
 
 
-def SaveDataSet(df):
-    console.log("Guardando dataset")
+def SaveDataSetTrain(df):
+    console.log("Guardando dataset to train")
     df['date'] = df['date'].astype(str)
     df['date'] = df['date'] + '-01'
     console.log(df)
@@ -384,7 +369,41 @@ def SaveDataSet(df):
             obj[column] = row[column]
             # Add the object to the data array
         data.append(obj)
-    serializer = DatasetSerializer(data=data, many=True)
+    serializer = DatasetTrainSerializer(data=data, many=True)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    df = df.drop(['E1', 'E2', 'E3', 'E4', 'E5', 'Plantas', 'hectareas',
+                'lote', 'Id_Lote', 'Cherelles', 'perdida'], axis=1)
+    return data
+
+
+def SaveDataSetPred(df):
+    console.log("Guardando dataset to train")
+    df['date'] = df['date'].astype(str)
+    df['date'] = df['date'] + '-01'
+    console.log(df)
+    
+    columns_to_round = ['Total_E1', 'Total_E2',
+                        'Total_E3', 'Total_E4', 
+                        'Total_E5', 'lost','Temp_Air_Min', 
+                        'Dew_Temp_Max','Precipitacion', 
+                        'Sunshine_Duration', 'Evapotranspiration_Crop', 
+                        'Nvdi', 'Relat_Hum_Max_Temp','Temp_Air_Max']
+    # Aplica la función round a las columnas seleccionadas
+    df[columns_to_round] = df[columns_to_round].astype(float)
+    df[columns_to_round] = df[columns_to_round].round(decimals=13)
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+    print(df)
+    data = []
+    for index, row in df.iterrows():
+        obj = {}
+        for column in df.columns:
+            # Create a new object
+            # Set the property name as the column name and the value as the corresponding cell value
+            obj[column] = row[column]
+            # Add the object to the data array
+        data.append(obj)
+    serializer = DatasetPredSerializer(data=data, many=True)
     serializer.is_valid(raise_exception=True)
     serializer.save()
     df = df.drop(['E1', 'E2', 'E3', 'E4', 'E5', 'Plantas', 'hectareas',

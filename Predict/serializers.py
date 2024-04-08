@@ -1,3 +1,4 @@
 from rest_framework import serializers
-from Predict.serializer.DatasetSerializer import DatasetSerializer
+from Predict.serializer.DatasetPredSerializer import DatasetPredSerializer
+from Predict.serializer.DatasetTrainSerializer import DatasetTrainSerializer
 from Predict.serializer.HistorialPredictSerializer import HistorialPredictSerializer
