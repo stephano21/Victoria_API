@@ -50,7 +50,8 @@ def predict(hacienda, date, username):
     if not ExisteDataset(hacienda, date) and not get_latest_date():
         console.warn("Coonstruyendo Historico  desde 0")
         df = GenerateDF(hacienda)
-        df = SaveDataSet(df)
+        SaveDataSet(df)
+        df = GetDataSet(get_latest_date())
     elif not ExisteDataset(hacienda, date) and get_latest_date():
         console.log("Get By Date")
         df = GetDataSet(get_latest_date())
