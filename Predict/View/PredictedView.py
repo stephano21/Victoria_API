@@ -24,11 +24,13 @@ class PredictedView(APIView):
 
     def get(self, request):
         hacienda = request.hacienda_id
+        user = request.user
+        username = user.username
         dataset_exists = Dataset.objects.filter(
             Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datetime.now().date()).exists()
         console.log(f"Dataset exists: {dataset_exists}")
         if not dataset_exists:
-            Data = predict(hacienda,datetime.now())
+            Data = predict(hacienda,datetime.now(),username)
             return Response(Data, status=status.HTTP_200_OK)
         else:
             return Response("No se encontró un dataset para la fecha actual", status=status.HTTP_404_NOT_FOUND)

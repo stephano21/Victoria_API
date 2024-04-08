@@ -29,7 +29,9 @@ class Dataset(models.Model):
     
 class HistorialPredict(models.Model):
     Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=False)
-    Qq = models.DecimalField(max_digits=8, decimal_places=4, null=False)
+    GroupPrediction = models.TextField(max_length=100, null=False)
+    Qq = models.DecimalField(max_digits=10, decimal_places=7, null=False)
+    Orden = models.IntegerField(default=1, blank=False, null=False)
     Fecha = models.DateField(null=False)
     FechaRegistro = models.DateTimeField(auto_now_add=True)
     Activo = models.BooleanField(default=True)
