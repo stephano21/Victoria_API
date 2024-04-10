@@ -1,36 +1,48 @@
 # TODO: Generar df sin produccion y filtrar por hacienda
+from datetime import datetime
+from typing import List, Dict
 import uuid
+import calendar
 from joblib import load
-from Clima.Arable.Predict import ExisteDataset, GenerateDF, GetDataSetPred, SaveDataSetPred,SaveDataSetTrain, get_latest_date
+from Clima.Arable.Predict import (
+    ExisteDataset,
+    GenerateDF,
+    GetDataSetPred,
+    SaveDataSetPred,
+    SaveDataSetTrain,
+    get_latest_date,
+)
+from Predict.models import HistorialPredict
 from Predict.serializers import HistorialPredictSerializer
 from utils.Console import console
 import os
 import pandas as pd
+from django.db.models import Q, Max
 
 
 def SaveHistorialPredict(df, user="System"):
     groupPrediction = str(uuid.uuid4())
     console.log(groupPrediction)
     # Ordenar el DataFrame por la columna de fecha en orden descendente
-    df_sorted = df.sort_values(by='date', ascending=False)
+    df_sorted = df.sort_values(by="date", ascending=False)
     # Obtener el rango de valores únicos basados en la columna de fecha
-    unique_dates = df_sorted['date'].unique()
+    unique_dates = df_sorted["date"].unique()
     # Crear un diccionario que mapee cada fecha única a su posición en la lista ordenada
     date_position = {date: i + 1 for i, date in enumerate(unique_dates)}
     # Asignar los valores del rango en función de la posición de la fecha en la lista ordenada
-    df_sorted['Orden'] = df_sorted['date'].map(date_position)
-    df_sorted['Predictions'] = df_sorted['Predictions'].astype(float)
+    df_sorted["Orden"] = df_sorted["date"].map(date_position)
+    df_sorted["Predictions"] = df_sorted["Predictions"].astype(float)
 
-    df_sorted['Predictions'] = df_sorted['Predictions'].round(decimals=5)
+    df_sorted["Predictions"] = df_sorted["Predictions"].round(decimals=5)
     for index, row in df_sorted.iterrows():
-        fecha = row['date'].to_pydatetime().date()
+        fecha = row["date"].to_pydatetime().date()
         serializer_data = {
-            'Id_Lote': row['Id_Lote'],
-            'GroupPrediction': groupPrediction,
-            'Qq': row['Predictions'],
-            'Fecha': fecha,
-            'Usuario': user,
-            'Orden': row['Orden']
+            "Id_Lote": row["Id_Lote"],
+            "GroupPrediction": groupPrediction,
+            "Qq": row["Predictions"],
+            "Fecha": fecha,
+            "Usuario": user,
+            "Orden": row["Orden"],
         }
         serializer = HistorialPredictSerializer(data=serializer_data)
         if serializer.is_valid():
@@ -40,37 +52,118 @@ def SaveHistorialPredict(df, user="System"):
             console.error("No se pudo guardar el historial")
             console.error(serializer.errors)
 
-def predict(hacienda, date, username):
+
+def predict(hacienda, date, username="System"):
+    console.log("Predicting....")
     df = None
     current_directory = os.getcwd()
     dir = os.path.join(current_directory, "Predict", "data", "Modelo.joblib")
     console.warn(f"Directorio actual:{dir}")
     if not ExisteDataset(hacienda, date) and not get_latest_date():
         console.warn("Coonstruyendo Historico  desde 0")
-        df,train = GenerateDF(hacienda)
+        df, train = GenerateDF(hacienda)
         if not train:
             SaveDataSetPred(df)
-        SaveHistorialPredict(df, username)
         df = GetDataSetPred(get_latest_date())
+        SaveHistorialPredict(df, username)
     elif not ExisteDataset(hacienda, date) and get_latest_date():
         console.log("Get By Date")
         df = GetDataSetPred(get_latest_date())
         console.log(df)
 
     if df is not None:
-        console.log("Predicting....")
-        loaded_model = load(dir, 'r')
-        console.log(df)
-        df['date'] = df['date'].dt.tz_localize(None)
-        df.to_excel("df.xlsx")
-        IdsLotes = pd.DataFrame(df, columns=['Id_Lote', 'date'])
-        console.log(IdsLotes)
+        loaded_model = load(dir, "r")
+        df["date"] = df["date"].dt.tz_localize(None)
+        IdsLotes = pd.DataFrame(df, columns=["Id_Lote", "date"])
         # df = df.astype(float)
         predictions_prod = loaded_model.predict(
-            df.drop(columns=['date', 'Id_Lote']).astype(float))
-        dfPred = pd.DataFrame(predictions_prod, columns=['Predictions'])
+            df.drop(columns=["date", "Id_Lote"]).astype(float)
+        )
+        dfPred = pd.DataFrame(predictions_prod, columns=["Predictions"])
         # df_concatenado = pd.concat([IdsLotes, dfPred])
-        IdsLotes = IdsLotes.join(dfPred['Predictions'])
+        IdsLotes = IdsLotes.join(dfPred["Predictions"])
         save = SaveHistorialPredict(IdsLotes, username)
-        console.log(IdsLotes)
         return predictions_prod
+
+
+def month_as_string(month):
+    if month < 1 or month > 12:
+        return "Número de mes inválido"
+
+    # Diccionario de nombres de meses en español
+    nombres_meses = {
+        1: "enero",
+        2: "febrero",
+        3: "marzo",
+        4: "abril",
+        5: "mayo",
+        6: "junio",
+        7: "julio",
+        8: "agosto",
+        9: "septiembre",
+        10: "octubre",
+        11: "noviembre",
+        12: "diciembre",
+    }
+
+    # Obtener el nombre del mes correspondiente al número proporcionado
+    nombre_mes = nombres_meses[month]
+    return nombre_mes
+
+
+def get_latest_groupPrediction():
+    return HistorialPredict.objects.order_by("-FechaRegistro").first().GroupPrediction
+
+
+def get_predict(hacienda: int, date: datetime):
+    # Obtener todos los registros dentro del rango de fecha dado
+    group = get_latest_groupPrediction()
+    queryset = HistorialPredict.objects.filter(
+        GroupPrediction=group, Activo=True
+    ).order_by("Orden")
+
+    data = [
+        {
+            "Id": item.GroupPrediction,
+            "Project": item.Id_Lote.Id_Proyecto.Nombre,
+            "Hectareas": item.Id_Lote.Hectareas,
+            "qq/ha": item.Qq,
+            "Orden": item.Orden,
+        }
+        for item in queryset
+    ]
+    df = pd.DataFrame(data)
+    data_agrupada = (
+        df.groupby(["Project", "Orden"])[["qq/ha", "Hectareas"]].sum().reset_index()
+    )
+    data_agrupada = data_agrupada.sort_values(by="Orden")
+    data_agrupada["Mes"] = data_agrupada["Orden"].apply(
+        lambda x: month_as_string(date.month if x == 1 else date.month + x)
+    )
+    data_agrupada["Pred"] = data_agrupada["qq/ha"] * data_agrupada["Hectareas"]
+
+    resultado: List[Dict[str, List[Dict[str, float]]]] = []
+
+    # Obtener los meses presentes en el conjunto de datos
+    meses_presentes = data_agrupada["Mes"].unique()
+
+    # Iterar sobre cada mes presente
+    for mes in meses_presentes:
+        proyectos_mes: List[Dict[str, float]] = []
+
+        # Filtrar los datos solo para el mes actual
+        datos_mes = data_agrupada[data_agrupada["Mes"] == mes]
+
+        # Iterar sobre cada fila de datos para el mes actual
+        for _, row in datos_mes.iterrows():
+            proyecto_info = {
+                "Project": row["Project"],
+                "Pred": row["Pred"],
+                "qq/has": row["qq/ha"],
+            }
+            proyectos_mes.append(proyecto_info)
+
+        # Agregar los proyectos del mes al resultado
+        resultado.append({"mes": mes, "data": proyectos_mes})
+
+    return resultado

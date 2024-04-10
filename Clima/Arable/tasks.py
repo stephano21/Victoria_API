@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from datetime import datetime
+from datetime import datetime, timedelta
 from Clima.Arable.Auth import GetData, Login, BuidlSerializer, Current_Data, Current_Date
 from Clima.serializer.IndicadorSerializer import DailyIndicadorSerializers
 # Mail
@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
 from django.conf import settings
+from Predict.data.predictService import predict
 
 from utils.Console import console
 
@@ -81,3 +82,7 @@ def enviar_correo(asunto, destinatario, detail):
         return Response({'mensaje': 'Correo enviado exitosamente'}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def SyncHistorialPred():
+    fecha_mes_anterior = datetime.now() - timedelta(days=30)
+    predict(1, fecha_mes_anterior)

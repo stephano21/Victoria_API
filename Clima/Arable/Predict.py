@@ -378,7 +378,7 @@ def SaveDataSetTrain(df):
 
 
 def SaveDataSetPred(df):
-    console.log("Guardando dataset to train")
+    console.log("Guardando dataset to predict")
     df['date'] = df['date'].astype(str)
     df['date'] = df['date'] + '-01'
     console.log(df)
