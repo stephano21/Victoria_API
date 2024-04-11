@@ -12,6 +12,7 @@ from Clima.Arable.Predict import (
     SaveDataSetTrain,
     get_latest_date,
 )
+from Hacienda.models import Lectura
 from Predict.models import HistorialPredict
 from Predict.serializers import HistorialPredictSerializer
 from utils.Console import console
@@ -114,6 +115,13 @@ def month_as_string(month):
 def get_latest_groupPrediction():
     return HistorialPredict.objects.order_by("-FechaRegistro").first().GroupPrediction
 
+def get_last_date_lectura(hacienda: int):
+    queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
+        Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, Activo=True
+    ).order_by("-FechaVisita")
+    if queryset.exists():
+        return queryset.first().FechaVisita
+    return None
 
 def get_predict(hacienda: int, date: datetime):
     # Obtener todos los registros dentro del rango de fecha dado

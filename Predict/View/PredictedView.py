@@ -9,7 +9,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from Predict.data.predictService import get_predict, predict
+from Predict.data.predictService import get_last_date_lectura, get_predict, predict
 from Predict.models import DatasetPred
 from utils.Console import console
 """Document by SWAGGER"""
@@ -31,7 +31,7 @@ class PredictedView(APIView):
         console.log(f"Dataset exists: {dataset_exists}")
         if not dataset_exists:
             #Data = predict(hacienda,datetime.now(),username)
-            
+            console.log(get_last_date_lectura(hacienda))
             return Response(get_predict(hacienda,datetime.now()), status=status.HTTP_200_OK)
         else:
             return Response("No se encontró un dataset para la fecha actual", status=status.HTTP_404_NOT_FOUND)

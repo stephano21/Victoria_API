@@ -35,7 +35,8 @@ def get_column_valuev2(df, date, column_name, months_ago, lotestr, hacienda):
     # Convertir la fecha hace "months_ago" meses a datetime
     # target_date = pd.to_datetime(date - relativedelta(months=months_ago))
     # Obtener la fecha hace "months_ago" meses
-    console.log(f"{date}, {lotestr} meses a tras {months_ago} Estadio {column_name}")
+    console.log(
+        f"{date}, {lotestr} meses a tras {months_ago} Estadio {column_name}")
     target_date = date.to_timestamp() - pd.DateOffset(months=months_ago)
     # Obtener el último día del mes de target_date
     last_day_of_month = target_date + pd.offsets.MonthEnd(0)
@@ -127,34 +128,35 @@ def calculate_age(fecha_siembra):
 
 def filter_by_date_range(queryset, start_date=None, end_date=None):
     if start_date and end_date:
-        queryset = queryset.filter( FechaVisita__year__gte=start_date.year,
-                                FechaVisita__year__lte=end_date.year,
-                                FechaVisita__month__gte=start_date.month,
-                                FechaVisita__month__lte=end_date.month)
+        queryset = queryset.filter(FechaVisita__year__gte=start_date.year,
+                                   FechaVisita__year__lte=end_date.year,
+                                   FechaVisita__month__gte=start_date.month,
+                                   FechaVisita__month__lte=end_date.month)
     elif start_date:
         queryset = queryset.filter(FechaVisita__year=start_date.year,
-                                FechaVisita__month=start_date.month)
+                                   FechaVisita__month=start_date.month)
     elif end_date:
         queryset = queryset.filter(FechaVisita__year=end_date.year,
-                                FechaVisita__month=end_date.month)
+                                   FechaVisita__month=end_date.month)
     return queryset
+
 
 def filter_by_date_rangeW(queryset, start_date=None, end_date=None):
     if start_date and end_date:
         queryset = queryset.filter(Date__year__gte=start_date.year,
-                                Date__year__lte=end_date.year,
-                                Date__month__gte=start_date.month,
-                                Date__month__lte=end_date.month)
+                                   Date__year__lte=end_date.year,
+                                   Date__month__gte=start_date.month,
+                                   Date__month__lte=end_date.month)
     elif start_date:
         queryset = queryset.filter(Date__year=start_date.year,
-                                Date__month=start_date.month)
+                                   Date__month=start_date.month)
     elif end_date:
         queryset = queryset.filter(Date__year=end_date.year,
-                                Date__month=end_date.month)
+                                   Date__month=end_date.month)
     return queryset
 
 
-def GetLecturasv1(hacienda,start_date = None,end_date = None):
+def GetLecturasv1(hacienda, start_date=None, end_date=None):
     queryset = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
         Activo=True, Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda_id=hacienda)
     queryset = filter_by_date_range(queryset, start_date, end_date)
@@ -201,28 +203,28 @@ def GetLecturasv1(hacienda,start_date = None,end_date = None):
     return df
 
 
-def GetWeather(start_date = None,end_date = None):
+def GetWeather(start_date=None, end_date=None):
     queryset = Daily_Indicadores.objects.all()
     queryset = filter_by_date_rangeW(queryset, start_date, end_date)
     data = [{'date': obj.Date,
             # 'temp': obj.Temp_Air_Mean,
-            # 'Evapotranspiration': obj.Evapotranspiration,
-            'Evapotranspiration_Crop': obj.Evapotranspiration_Crop,
-            'Nvdi': obj.Ndvi,
-            # 'Relat_Hum_Min': obj.Relat_Hum_Min,
-            'Relat_Hum_Max_Temp': obj.Relat_Hum_Max_Temp,
-            # 'Relat_Hum_Min_Temp': obj.Relat_Hum_Min_Temp,
-            'Temp_Air_Max': obj.Temp_Air_Max,
-            'Temp_Air_Min': obj.Temp_Air_Min,
-            'Dew_Temp_Max': obj.Dew_Temp_Max,
-            'Precipitacion': obj.Precipitacion,
-            # 'Precipitacion_Hours': obj.Precipitacion_Hours,
-            # 'Sea_Level_Pressure': obj.Sea_Level_Pressure,
-            # 'Vapor_Pressure_Deficit': obj.Vapor_Pressure_Deficit,
-            # 'Dew_Temp_Mean': obj.Dew_Temp_Mean,
-            # 'Crop_Water_Demand': obj.Crop_Water_Demand,
-            'Sunshine_Duration': obj.Sunshine_Duration,
-            } for obj in queryset]
+             # 'Evapotranspiration': obj.Evapotranspiration,
+             'Evapotranspiration_Crop': obj.Evapotranspiration_Crop,
+             'Nvdi': obj.Ndvi,
+             # 'Relat_Hum_Min': obj.Relat_Hum_Min,
+             'Relat_Hum_Max_Temp': obj.Relat_Hum_Max_Temp,
+             # 'Relat_Hum_Min_Temp': obj.Relat_Hum_Min_Temp,
+             'Temp_Air_Max': obj.Temp_Air_Max,
+             'Temp_Air_Min': obj.Temp_Air_Min,
+             'Dew_Temp_Max': obj.Dew_Temp_Max,
+             'Precipitacion': obj.Precipitacion,
+             # 'Precipitacion_Hours': obj.Precipitacion_Hours,
+             # 'Sea_Level_Pressure': obj.Sea_Level_Pressure,
+             # 'Vapor_Pressure_Deficit': obj.Vapor_Pressure_Deficit,
+             # 'Dew_Temp_Mean': obj.Dew_Temp_Mean,
+             # 'Crop_Water_Demand': obj.Crop_Water_Demand,
+             'Sunshine_Duration': obj.Sunshine_Duration,
+             } for obj in queryset]
     # Convertir los datos a DataFrame de pandas
     df = pd.DataFrame(data)
     # Asegurarse de que la columna 'date' sea de tipo datetime
@@ -252,9 +254,9 @@ def GetWeather(start_date = None,end_date = None):
     return df
 
 
-def GenerateDF(hacienda, train=False):
-    dfLecturas = GetLecturasv1(hacienda)
-    dfWeather = GetWeather()
+def GenerateDF(hacienda, train=False, start_date=None, end_date=None):
+    dfLecturas = GetLecturasv1(hacienda, start_date, end_date)
+    dfWeather = GetWeather(start_date, end_date)
     if train:
         dfProduction = getProduction(hacienda)
         df_merged = pd.merge(dfLecturas, dfProduction, on=[
@@ -296,7 +298,6 @@ def obtener_numeros(codigo):
 # TODO: Generar df sin produccion y filtrar por hacienda
 
 
-
 def ExisteDataset(hacienda, date):
     return DatasetPred.objects.filter(
         Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date__month=date.month, date__year=date.year).exists()
@@ -314,7 +315,8 @@ def GetDataSetPred(date):
     fecha_5_meses_atras = date - timedelta(days=30*5)
 
 # Filtra los datos usando el rango de fechas
-    queryset = DatasetPred.objects.filter(date__range=(fecha_5_meses_atras, date))
+    queryset = DatasetPred.objects.filter(
+        date__range=(fecha_5_meses_atras, date))
     # queryset = Dataset.objects.filter(Q(date__gte=date))
     data = []
     for obj in queryset:
@@ -348,13 +350,13 @@ def SaveDataSetTrain(df):
     df['date'] = df['date'].astype(str)
     df['date'] = df['date'] + '-01'
     console.log(df)
-    
+
     columns_to_round = ['Total_E1', 'Total_E2',
-                        'Total_E3', 'Total_E4', 
-                        'Total_E5', 'lost','Temp_Air_Min', 
-                        'Dew_Temp_Max','Precipitacion', 
-                        'Sunshine_Duration', 'Evapotranspiration_Crop', 
-                        'Nvdi', 'Relat_Hum_Max_Temp','Temp_Air_Max']
+                        'Total_E3', 'Total_E4',
+                        'Total_E5', 'lost', 'Temp_Air_Min',
+                        'Dew_Temp_Max', 'Precipitacion',
+                        'Sunshine_Duration', 'Evapotranspiration_Crop',
+                        'Nvdi', 'Relat_Hum_Max_Temp', 'Temp_Air_Max']
     # Aplica la función round a las columnas seleccionadas
     df[columns_to_round] = df[columns_to_round].astype(float)
     df[columns_to_round] = df[columns_to_round].round(decimals=13)
@@ -373,7 +375,7 @@ def SaveDataSetTrain(df):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     df = df.drop(['E1', 'E2', 'E3', 'E4', 'E5', 'Plantas', 'hectareas',
-                'lote', 'Id_Lote', 'Cherelles', 'perdida'], axis=1)
+                  'lote', 'Id_Lote', 'Cherelles', 'perdida'], axis=1)
     return data
 
 
@@ -382,13 +384,13 @@ def SaveDataSetPred(df):
     df['date'] = df['date'].astype(str)
     df['date'] = df['date'] + '-01'
     console.log(df)
-    
+
     columns_to_round = ['Total_E1', 'Total_E2',
-                        'Total_E3', 'Total_E4', 
-                        'Total_E5', 'lost','Temp_Air_Min', 
-                        'Dew_Temp_Max','Precipitacion', 
-                        'Sunshine_Duration', 'Evapotranspiration_Crop', 
-                        'Nvdi', 'Relat_Hum_Max_Temp','Temp_Air_Max']
+                        'Total_E3', 'Total_E4',
+                        'Total_E5', 'lost', 'Temp_Air_Min',
+                        'Dew_Temp_Max', 'Precipitacion',
+                        'Sunshine_Duration', 'Evapotranspiration_Crop',
+                        'Nvdi', 'Relat_Hum_Max_Temp', 'Temp_Air_Max']
     # Aplica la función round a las columnas seleccionadas
     df[columns_to_round] = df[columns_to_round].astype(float)
     df[columns_to_round] = df[columns_to_round].round(decimals=13)
@@ -407,5 +409,5 @@ def SaveDataSetPred(df):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     df = df.drop(['E1', 'E2', 'E3', 'E4', 'E5', 'Plantas', 'hectareas',
-                'lote', 'Id_Lote', 'Cherelles', 'perdida'], axis=1)
+                  'lote', 'Id_Lote', 'Cherelles', 'perdida'], axis=1)
     return data
