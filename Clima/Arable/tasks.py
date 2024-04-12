@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
 from django.conf import settings
-from Predict.data.predictService import predict
+from Predict.data.predictService import predict, update_dataset_pred
 
 from utils.Console import console
 
@@ -28,7 +28,7 @@ def SyncArable():
             data = GetData(token)
         if data == "":
             enviar_correo('Sincronización Arable',
-                        'stephanochang21@gmail.com', f"Ocurrió un error con arable!")
+                          'stephanochang21@gmail.com', f"Ocurrió un error con arable!")
             return Response("Ocurrió un error con arable!", status=status.HTTP_400_BAD_REQUEST)
         Format_Data = BuidlSerializer(data, "Sync_System")
         # Validar si Format_Data es un arreglo de objetos
@@ -82,7 +82,17 @@ def enviar_correo(asunto, destinatario, detail):
         return Response({'mensaje': 'Correo enviado exitosamente'}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# TODO: Hacer un metodo que pase todas las haciendas o determinar si se puede hacer por hacienda
+
 
 def SyncHistorialPred():
     fecha_mes_anterior = datetime.now() - timedelta(days=30)
     predict(1, fecha_mes_anterior)
+    enviar_correo('Procesos de sincronizacion', 'stephanochang21@gmail.com',
+                  f"Sincronizacion del historial de predicciones: {status}")
+
+
+def SyncDatasetPred():
+    status = update_dataset_pred(1)
+    enviar_correo('Procesos de sincronizacion', 'stephanochang21@gmail.com',
+                  f"Sincronizacion del dataset de prediccion: {status}")

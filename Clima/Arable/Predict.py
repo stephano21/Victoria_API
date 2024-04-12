@@ -35,6 +35,7 @@ def get_column_valuev2(df, date, column_name, months_ago, lotestr, hacienda):
     # Convertir la fecha hace "months_ago" meses a datetime
     # target_date = pd.to_datetime(date - relativedelta(months=months_ago))
     # Obtener la fecha hace "months_ago" meses
+    console.error(df)
     console.log(
         f"{date}, {lotestr} meses a tras {months_ago} Estadio {column_name}")
     target_date = date.to_timestamp() - pd.DateOffset(months=months_ago)
@@ -143,17 +144,13 @@ def filter_by_date_range(queryset, start_date=None, end_date=None):
 
 def filter_by_date_rangeW(queryset, start_date=None, end_date=None):
     if start_date and end_date:
-        queryset = queryset.filter(Date__year__gte=start_date.year,
-                                   Date__year__lte=end_date.year,
-                                   Date__month__gte=start_date.month,
-                                   Date__month__lte=end_date.month)
+        queryset = queryset.filter(Date__gte=start_date, Date__lte=end_date)
     elif start_date:
-        queryset = queryset.filter(Date__year=start_date.year,
-                                   Date__month=start_date.month)
+        queryset = queryset.filter(Date__gte=start_date)
     elif end_date:
-        queryset = queryset.filter(Date__year=end_date.year,
-                                   Date__month=end_date.month)
+        queryset = queryset.filter(Date__lte=end_date)
     return queryset
+
 
 
 def GetLecturasv1(hacienda, start_date=None, end_date=None):
@@ -254,7 +251,7 @@ def GetWeather(start_date=None, end_date=None):
     return df
 
 
-def GenerateDF(hacienda, train=False, start_date=None, end_date=None):
+def GenerateDF(hacienda:int, train: bool=False, start_date: datetime =None, end_date: datetime=None):
     dfLecturas = GetLecturasv1(hacienda, start_date, end_date)
     dfWeather = GetWeather(start_date, end_date)
     if train:
@@ -267,6 +264,10 @@ def GenerateDF(hacienda, train=False, start_date=None, end_date=None):
     else:
         df_final = pd.merge(dfLecturas, dfWeather, on='date', how='inner')
         df_final = df_final.fillna(0)
+    if df_final.empty:
+        console.error(dfLecturas)
+        console.error(dfWeather)
+        raise Exception("No hay datos para generar el dataset")
     for i in range(3, 0, -1):
         df_final[f'E{4-i}'] = df_final.apply(
             lambda row: get_column_valuev2(df_final, row['date'], f'E{4-i}', i, row['lote'], hacienda), axis=1)
@@ -288,17 +289,14 @@ def GenerateDF(hacienda, train=False, start_date=None, end_date=None):
     return df_final, train
 
 
-def obtener_numeros(codigo):
+def obtener_numeros(codigo:str):
     # Utilizar expresiones regulares para encontrar los números
     numeros = re.findall(r'\d+', codigo)
     # Concatenar los números y convertirlos a un solo entero
     numero_completo = ''.join(numeros)
     return int(numero_completo)
 
-# TODO: Generar df sin produccion y filtrar por hacienda
-
-
-def ExisteDataset(hacienda, date):
+def ExisteDataset(hacienda: int, date: datetime):
     return DatasetPred.objects.filter(
         Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date__month=date.month, date__year=date.year).exists()
 
@@ -311,7 +309,7 @@ def get_latest_date():
         return None
 
 
-def GetDataSetPred(date):
+def GetDataSetPred(date: datetime):
     fecha_5_meses_atras = date - timedelta(days=30*5)
 
 # Filtra los datos usando el rango de fechas
@@ -345,7 +343,7 @@ def GetDataSetPred(date):
     return df
 
 
-def SaveDataSetTrain(df):
+def SaveDataSetTrain(df: pd.DataFrame):
     console.log("Guardando dataset to train")
     df['date'] = df['date'].astype(str)
     df['date'] = df['date'] + '-01'
@@ -379,7 +377,7 @@ def SaveDataSetTrain(df):
     return data
 
 
-def SaveDataSetPred(df):
+def SaveDataSetPred(df : pd.DataFrame):
     console.log("Guardando dataset to predict")
     df['date'] = df['date'].astype(str)
     df['date'] = df['date'] + '-01'

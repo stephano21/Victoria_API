@@ -21,7 +21,7 @@ import pandas as pd
 from django.db.models import Q, Max
 
 
-def SaveHistorialPredict(df, user="System"):
+def SaveHistorialPredict(df: pd.DataFrame, user:str="System"):
     groupPrediction = str(uuid.uuid4())
     console.log(groupPrediction)
     # Ordenar el DataFrame por la columna de fecha en orden descendente
@@ -54,7 +54,7 @@ def SaveHistorialPredict(df, user="System"):
             console.error(serializer.errors)
 
 
-def predict(hacienda, date, username="System"):
+def predict(hacienda:int, date:datetime, username:str="System"):
     console.log("Predicting....")
     df = None
     current_directory = os.getcwd()
@@ -175,3 +175,42 @@ def get_predict(hacienda: int, date: datetime):
         resultado.append({"mes": mes, "data": proyectos_mes})
 
     return resultado
+
+
+def update_dataset_pred(hacienda: int):
+    try:
+        
+        latest_date = get_latest_date()
+        console.log(f"Fecha más reciente data set: {latest_date}")
+
+        # Obtener la fecha más reciente en la que se realizó una lectura
+        latest_date_lectura = get_last_date_lectura(hacienda)
+        console.log(f"Fecha más reciente de lectura: {latest_date_lectura}")
+
+        # Si no hay una fecha más reciente de lectura, no se puede actualizar el dataset
+        if not latest_date_lectura:
+            console.error("No hay una fecha de lectura reciente")
+            return "No hay una fecha de lectura reciente"
+
+        # Si la fecha más reciente de lectura es mayor a la fecha más reciente del dataset
+        if latest_date:
+            if latest_date_lectura > latest_date:
+                console.warn("Actualizando el dataset by range...")
+                # Obtener el dataset más reciente
+                dataset, train = GenerateDF(hacienda,False, latest_date, latest_date_lectura)
+                if not train:
+                    SaveDataSetPred(dataset)
+                    return "Dataset actualizado con éxito"
+            else:
+                console.log("No es necesario actualizar el dataset")
+                return "No es necesario actualizar el dataset"
+
+        else:
+            console.warn("Creando data set...")
+            # Obtener el dataset más reciente
+            dataset, train = GenerateDF(hacienda,False, None, latest_date_lectura)
+            if not train:
+                SaveDataSetPred(dataset)
+                return "Dataset actualizado con éxito"
+    except Exception as e:
+        raise e

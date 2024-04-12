@@ -1,6 +1,6 @@
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
-from Clima.Arable.tasks import SyncArable, SyncHistorialPred
+from Clima.Arable.tasks import SyncArable, SyncHistorialPred,SyncDatasetPred
 from apscheduler.triggers.cron import CronTrigger
 
 from utils.Console import console
@@ -17,6 +17,14 @@ scheduler.add_job(
 scheduler.add_job(
     SyncHistorialPred,
     trigger=CronTrigger(hour="0", minute="0", second="0", day="1"),
+)
+
+scheduler.add_job(
+    SyncDatasetPred,
+     trigger="cron",
+    hour=23,
+    minute=59,
+    second=59,
 )
 """ scheduler.add_job(
     Test,
