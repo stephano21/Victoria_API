@@ -73,7 +73,7 @@ def predict(hacienda:int, date:datetime, username:str="System"):
         console.log(df)
 
     if df is not None:
-        loaded_model = load(dir, "r")
+        loaded_model = load("Modelo.joblib", "r")
         df["date"] = df["date"].dt.tz_localize(None)
         IdsLotes = pd.DataFrame(df, columns=["Id_Lote", "date"])
         # df = df.astype(float)
