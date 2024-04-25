@@ -23,15 +23,19 @@ class SyncPredictedView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        hacienda = request.hacienda_id
-        user = request.user
-        username = user.username
-        dataset_exists = DatasetPred.objects.filter(
-            Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datetime.now().date()).exists()
-        console.log(f"Dataset exists: {dataset_exists}")
-        if not dataset_exists:
-            Data = predict(hacienda,datetime.now(),username)
-            
-            return Response("Sincronizado exitosamente!", status=status.HTTP_200_OK)
-        else:
-            return Response("No se encontró un dataset para la fecha actual", status=status.HTTP_404_NOT_FOUND)
+        try:
+            hacienda = request.hacienda_id
+            user = request.user
+            username = user.username
+            dataset_exists = DatasetPred.objects.filter(
+                Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datetime.now().date()).exists()
+            console.log(f"Dataset exists: {dataset_exists}")
+            if not dataset_exists:
+                Data = predict(hacienda,datetime.now(),username)
+                
+                return Response("Sincronizado exitosamente!", status=status.HTTP_200_OK)
+            else:
+                return Response("No se encontró un dataset para la fecha actual", status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            console.error(e)
+            return Response(f"Error al sincronizar el dataset:{str(e)}", status=status.HTTP_400_BAD_REQUEST)
