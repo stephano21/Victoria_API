@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from django.utils import timezone
 from enum import Enum
 from django.db import models
 import uuid
@@ -11,6 +12,7 @@ class Hacienda(models.Model):
     Nombre = models.CharField(max_length=40)
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
+    FechaRegistro = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.Nombre
     def __str__(self):
@@ -24,6 +26,7 @@ class Proyecto(models.Model):
     Densidad = models.IntegerField(null=True)
     Activo = models.BooleanField(default=True)
     Usuario = models.TextField(default="Admin",max_length=100, null=True)
+    FechaRegistro = models.DateTimeField(default=timezone.now)
 
 
 class Lote(models.Model):
@@ -37,6 +40,7 @@ class Lote(models.Model):
     FechaSiembra = models.DateTimeField(null=True)
     Edad =  models.IntegerField(null=True)
     Num_Plantas =  models.IntegerField(null=True)
+    FechaRegistro = models.DateTimeField(default=timezone.now)
 
 class Planta(models.Model):
     Id_Lote = models.ForeignKey(Lote, on_delete=models.CASCADE, null=True)
@@ -47,6 +51,7 @@ class Planta(models.Model):
     lat = models.DecimalField(max_digits=18, decimal_places=16, null=False)
     lng = models.DecimalField(max_digits=19, decimal_places=16, null=False)
     VisibleToStudent = models.BooleanField(null=False,default=True)
+    FechaRegistro = models.DateTimeField(default=timezone.now)
 
 
 class Poligono (models.Model):

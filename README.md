@@ -61,6 +61,14 @@ python manage.py migrate && gunicorn API_VICTORIA.wsgi</code>
 Hay que eliminar esto si se usan un servidor linux
 tensorflow-intel==2.15.0
  
+## Setings Railway
+
+Custom Build Command:
+<code>pip install -r requirements.txt  && python manage.py migrate --noinput</code>
+
+Custom Start Command:
+<code>gunicorn API_VICTORIA.wsgi:application</code>
+
 
 
 
