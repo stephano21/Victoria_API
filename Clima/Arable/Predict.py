@@ -251,7 +251,7 @@ def GetWeather(start_date=None, end_date=None):
     return df
 
 
-def GenerateDF(hacienda:int, train: bool=False, start_date: datetime =None, end_date: datetime=None):
+def GenerateDF(hacienda: int, train: bool = False, start_date: datetime = None, end_date: datetime = None):
     dfLecturas = GetLecturasv1(hacienda, start_date, end_date)
     dfWeather = GetWeather(start_date, end_date)
     if train:
@@ -289,12 +289,13 @@ def GenerateDF(hacienda:int, train: bool=False, start_date: datetime =None, end_
     return df_final, train
 
 
-def obtener_numeros(codigo:str):
+def obtener_numeros(codigo: str):
     # Utilizar expresiones regulares para encontrar los números
     numeros = re.findall(r'\d+', codigo)
     # Concatenar los números y convertirlos a un solo entero
     numero_completo = ''.join(numeros)
     return int(numero_completo)
+
 
 def ExisteDataset(hacienda: int, date: datetime):
     return DatasetPred.objects.filter(
@@ -377,7 +378,7 @@ def SaveDataSetTrain(df: pd.DataFrame):
     return data
 
 
-def SaveDataSetPred(df : pd.DataFrame):
+def SaveDataSetPred(df: pd.DataFrame):
     console.log("Guardando dataset to predict")
     df['date'] = df['date'].astype(str)
     df['date'] = df['date'] + '-01'

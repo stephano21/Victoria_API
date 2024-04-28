@@ -125,8 +125,7 @@ def GetTreeTotal(hacienda_id):
 def NewUsers():
     return Perfil.objects.filter(Id_Hacienda__isnull=True).count()
 
-def LecturasCurrentMonth(id_hacienda):
-    now = datetime.now()
+def LecturasCurrentMonth(id_hacienda:int,now:datetime.date):
     mes_actual = now.month
     año_actual = now.year
     lecturas_mes = Lectura.objects.select_related('Id_Planta__Id_Lote__Id_Proyecto__Id_Hacienda').filter(
@@ -140,8 +139,7 @@ def LecturasCurrentMonth(id_hacienda):
     print(lecturas_mes)
     return round((lecturas_mes/Plantas)*100 ,2) 
 
-def LecturasCurrentMonthByProject(id_hacienda):
-    now = datetime.now()
+def LecturasCurrentMonthByProject(id_hacienda, now:datetime.date):
     mes_actual = now.month
     año_actual = now.year
     proyectos = Proyecto.objects.filter(Id_Hacienda_id=id_hacienda)
