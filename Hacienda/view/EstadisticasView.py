@@ -4,7 +4,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from Hacienda.validators.AnalyticsData import GertTreeByLot, GetLecturasPerMonth, GetProductionByVictoria
+from Hacienda.validators.AnalyticsData import GertTreeByLot, GetDiseasesPerMonth, GetLecturasPerMonth, GetProductionByVictoria
 
 
 class EstadisticasView(APIView):
@@ -31,5 +31,6 @@ class EstadisticasView(APIView):
             'Trees': GertTreeByLot(hacienda_id),
             'Lecturas': GetLecturasPerMonth(From, To, hacienda_id),
             'Produccion': GetProductionByVictoria(From, To, hacienda_id),
+            'Enfermedades': GetDiseasesPerMonth(From, To, hacienda_id),
         }
         return Response(data)
