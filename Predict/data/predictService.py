@@ -122,7 +122,7 @@ def get_last_date_lectura(hacienda: int):
     if queryset.exists():
         return queryset.first().FechaVisita
     return None
-
+#TODO: Modificar para que reciba el grupo de predicciones
 def get_predict(hacienda: int, date: datetime,group):
     # Obtener todos los registros dentro del rango de fecha dado
     #group = get_latest_groupPrediction()
