@@ -87,7 +87,6 @@ class DataView(APIView):
         }).reset_index()
         df['Date'] = df['Date'].astype(str) + "-01"
         
+        df = df.round(2)
         grouped_data = df.to_dict(orient='records')
-        
-        console.log(grouped_data)
         return grouped_data

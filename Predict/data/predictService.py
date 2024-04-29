@@ -123,9 +123,9 @@ def get_last_date_lectura(hacienda: int):
         return queryset.first().FechaVisita
     return None
 
-def get_predict(hacienda: int, date: datetime):
+def get_predict(hacienda: int, date: datetime,group):
     # Obtener todos los registros dentro del rango de fecha dado
-    group = get_latest_groupPrediction()
+    #group = get_latest_groupPrediction()
     queryset = HistorialPredict.objects.filter(
         GroupPrediction=group, Activo=True
     ).order_by("Orden")
@@ -176,7 +176,53 @@ def get_predict(hacienda: int, date: datetime):
 
     return resultado
 
+def get_all_predict(hacienda: int, date: datetime):
+    queryset = HistorialPredict.objects.filter(Activo=True).order_by("Orden")
+    data = [
+        {
+            "Id": item.GroupPrediction,
+            "Project": item.Id_Lote.Id_Proyecto.Nombre,
+            "Hectareas": item.Id_Lote.Hectareas,
+            "qq/ha": item.Qq,
+            "Orden": item.Orden,
+        }
+        for item in queryset
+    ]
+    df = pd.DataFrame(data)
+    data_agrupada = (
+        df.groupby(["Project", "Orden"])[["qq/ha", "Hectareas"]].sum().reset_index()
+    )
+    data_agrupada = data_agrupada.sort_values(by="Orden")
+    data_agrupada["Mes"] = data_agrupada["Orden"].apply(
+        lambda x: month_as_string(date.month if x == 1 else date.month + x)
+    )
+    data_agrupada["Pred"] = data_agrupada["qq/ha"] * data_agrupada["Hectareas"]
 
+    resultado: List[Dict[str, List[Dict[str, float]]]] = []
+
+    # Obtener los meses presentes en el conjunto de datos
+    meses_presentes = data_agrupada["Mes"].unique()
+
+    # Iterar sobre cada mes presente
+    for mes in meses_presentes:
+        proyectos_mes: List[Dict[str, float]] = []
+
+        # Filtrar los datos solo para el mes actual
+        datos_mes = data_agrupada[data_agrupada["Mes"] == mes]
+
+        # Iterar sobre cada fila de datos para el mes actual
+        for _, row in datos_mes.iterrows():
+            proyecto_info = {
+                "Project": row["Project"],
+                "Pred": row["Pred"],
+                "qq/has": row["qq/ha"],
+            }
+            proyectos_mes.append(proyecto_info)
+
+        # Agregar los proyectos del mes al resultado
+        resultado.append({"mes": mes, "data": proyectos_mes})
+
+    return resultado
 def update_dataset_pred(hacienda: int):
     try:
         
