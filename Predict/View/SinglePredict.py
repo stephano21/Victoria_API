@@ -14,12 +14,11 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 
-
-class PredictedView(APIView):
+class SinglePredict(APIView):
     authentication_classes = [SessionAuthentication, JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request, id):
         hacienda = request.hacienda_id
         user = request.user
         username = user.username
@@ -27,8 +26,6 @@ class PredictedView(APIView):
             Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datetime.now().date()).exists()
         console.log(f"Dataset exists: {dataset_exists}")
         if not dataset_exists:
-            #Data = predict(hacienda,datetime.now(),username)
-            console.log(get_last_date_lectura(hacienda))
-            return Response(get_predict(hacienda,datetime.now()), status=status.HTTP_200_OK)
+            return Response(get_predict(datetime.now(), id), status=status.HTTP_200_OK)
         else:
-            return Response("No se encontró un dataset para la fecha actual", status=status.HTTP_404_NOT_FOUND)
+            return Response("No se encontró la prediccion", status=status.HTTP_404_NOT_FOUND)
