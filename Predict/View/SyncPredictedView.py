@@ -27,14 +27,17 @@ class SyncPredictedView(APIView):
             hacienda = request.hacienda_id
             user = request.user
             username = user.username
+            datecreate = datetime(year=2024, month=2, day=15)
             dataset_exists = DatasetPred.objects.filter(
-                Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datetime.now().date()).exists()
-            console.log(f"Dataset exists: {dataset_exists}")
-            if not dataset_exists:
-                Data = predict(hacienda,datetime.now(),username)
+                Id_Lote__Id_Proyecto__Id_Hacienda=hacienda, date=datecreate.date()).exists()
+            console.log(f"Dataset exists: {not dataset_exists}")
+            if False == False:
+                console.log("aqui")
+                Data = predict(hacienda,datecreate,username)
                 
                 return Response("Sincronizado exitosamente!", status=status.HTTP_200_OK)
             else:
+                console.log("aqui")
                 return Response("No se encontró un dataset para la fecha actual", status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             console.error(e)

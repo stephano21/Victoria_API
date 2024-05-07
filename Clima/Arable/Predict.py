@@ -268,9 +268,9 @@ def GenerateDF(hacienda: int, train: bool = False, start_date: datetime = None, 
         console.error(dfLecturas)
         console.error(dfWeather)
         raise Exception("No hay datos para generar el dataset")
-    for i in range(3, 0, -1):
-        df_final[f'E{4-i}'] = df_final.apply(
-            lambda row: get_column_valuev2(df_final, row['date'], f'E{4-i}', i, row['lote'], hacienda), axis=1)
+        for i in range(3, 0, -1):
+            df_final[f'E{i+2}'] = df_final.apply(
+                lambda row: get_column_valuev2(df_final, row['date'], f'E{i+2}', i, row['lote'], hacienda), axis=1)
     columnas_float = ['E1', 'E2', 'E3', 'E4', 'E5', 'Plantas', 'hectareas']
     # Convertir las columnas a tipo float
     df_final[columnas_float] = df_final[columnas_float].astype(float)
