@@ -1,6 +1,6 @@
 services:
   app:
-    pythonVersion: '3.11.2'
+    pythonVersion: 3.11.2
     command: gunicorn API_VICTORIA:app
   - name: web
     command: gunicorn API_VICTORIA:app
