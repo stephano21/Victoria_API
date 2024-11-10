@@ -34,13 +34,13 @@ DEBUG = config('DEBUG') == "True"
 SITE_HEADER = 'Administracion Plant Trace'
 ALLOWED_HOSTS = []
 CSRF_COOKIE_DOMAIN = config('DOMAIN')
-SESSION_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
-CSRF_COOKIE_PATH = '/api/auth/admin/'  # Ruta del panel de administración
+SESSION_COOKIE_PATH = config("SESSION_COOKIE_PATH")  # Ruta del panel de administración
+CSRF_COOKIE_PATH = config("SESSION_COOKIE_PATH")  # Ruta del panel de administración
 SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = [config('SITE')]
-DJANGO_ADMIN_URL = '/api/auth/admin/'
+CSRF_COOKIE_SECURE = True   
+CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
+DJANGO_ADMIN_URL = config("ADMIN_URL")
+ADMIN_URL = config("ADMIN_URL")
 
 EXTERNAL_HOSTNAME = config('EXTERNAL_HOSTNAME')
 if EXTERNAL_HOSTNAME:
@@ -269,14 +269,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = config("STATIC_URL") or 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# Ruta a tus archivos estáticos (donde se encuentran los archivos CSS, JavaScript, imágenes, etc.)
-STATIC_URL = '/static/'
 
 # Directorio donde se encuentran tus archivos estáticos (debes ajustar esto según la estructura de tu proyecto)
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -292,3 +290,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'trabajocolaborativo.pis@gmail.com'  # Tu dirección de correo
 # La contraseña de aplicación generada
 EMAIL_HOST_PASSWORD = 'liou cfwa hgbz ndeu'
+
+SESSION_COOKIE_DOMAIN = config("DOMAIN")

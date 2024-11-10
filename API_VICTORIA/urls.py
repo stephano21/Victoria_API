@@ -19,6 +19,8 @@ from django.urls import path, include, re_path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from decouple import config
+
 admin.site.site_title = 'Plant Trace'
 admin.site.site_header = 'Administracion Plant Trace'
 admin.site.index_title = 'Plant-Trace'
@@ -35,7 +37,7 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 urlpatterns = [
-    path('api/auth/admin/', admin.site.urls),
+    path(config("ADMIN_URL"), admin.site.urls),
     path('', include('Hacienda.url')),
     path('', include('Users.url')),
     path('', include('Clima.url')),
